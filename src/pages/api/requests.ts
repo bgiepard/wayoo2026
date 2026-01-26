@@ -3,6 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { createRequest } from "@/lib/airtable";
 
+interface SessionUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -17,6 +23,10 @@ export default async function handler(
     return res.status(401).json({ error: "Unauthorized" });
   }
 
+  const user = session.user as SessionUser;
+  const userId = user.id || "";
+  const userEmail = user.email || "";
+
   const { from, to, date, time, adults, children, options } = req.body;
 
   if (!from || !to || !date || !time) {
@@ -24,11 +34,15 @@ export default async function handler(
   }
 
   try {
-    const request = await createRequest(
-      session.user.email || "",
-      session.user.email || "",
-      { from, to, date, time, adults, children, options }
-    );
+    const request = await createRequest(userId, userEmail, {
+      from,
+      to,
+      date,
+      time,
+      adults,
+      children,
+      options,
+    });
 
     return res.status(201).json({ id: request.id });
   } catch (error) {
