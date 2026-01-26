@@ -1,5 +1,6 @@
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 import LoginModal from "./LoginModal";
 
 export default function Header() {
@@ -8,16 +9,13 @@ export default function Header() {
 
   return (
     <header className="flex justify-between items-center p-4 border-b border-gray-300 max-w-[1250px] mx-auto">
-      <div>wayoo</div>
+      <Link href="/">wayoo</Link>
       <div className="flex gap-4 items-center">
         {session ? (
           <>
             <span>🔔</span>
-            <span>Moje zapytania</span>
-            <span>Moje konto</span>
-            <button onClick={() => signOut()} className="cursor-pointer">
-              Wyloguj
-            </button>
+            <Link href="/my-requests">Moje zapytania</Link>
+            <Link href="/account">Moje konto</Link>
           </>
         ) : (
           <button onClick={() => setIsModalOpen(true)} className="cursor-pointer">

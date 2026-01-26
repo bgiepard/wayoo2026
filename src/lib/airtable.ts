@@ -77,6 +77,7 @@ export interface RequestData {
   adults: number;
   children: number;
   options: string;
+  status: number;
 }
 
 export async function createRequest(
@@ -102,6 +103,7 @@ export async function createRequest(
     adults: data.adults,
     children: data.children,
     options: JSON.stringify(data.options),
+    status: 2,
   });
 
   return {
@@ -115,6 +117,7 @@ export async function createRequest(
     adults: record.get("adults") as number,
     children: record.get("children") as number,
     options: record.get("options") as string,
+    status: record.get("status") as number,
   };
 }
 
@@ -132,8 +135,31 @@ export async function getRequestById(id: string): Promise<RequestData | null> {
       adults: record.get("adults") as number,
       children: record.get("children") as number,
       options: record.get("options") as string,
+      status: (record.get("status") as number) || 2,
     };
   } catch {
     return null;
   }
+}
+
+export async function getRequestsByUserEmail(email: string): Promise<RequestData[]> {
+  const records = await requestsTable
+    .select({
+      filterByFormula: `{userEmail} = '${email}'`,
+    })
+    .all();
+
+  return records.map((record) => ({
+    id: record.id,
+    userId: record.get("userId") as string,
+    userEmail: record.get("userEmail") as string,
+    from: record.get("from") as string,
+    to: record.get("to") as string,
+    date: record.get("date") as string,
+    time: record.get("time") as string,
+    adults: record.get("adults") as number,
+    children: record.get("children") as number,
+    options: record.get("options") as string,
+    status: (record.get("status") as number) || 2,
+  }));
 }
