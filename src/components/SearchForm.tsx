@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import RouteModal from "./RouteModal";
 import DateTimeModal from "./DateTimeModal";
 import PassengersModal from "./PassengersModal";
@@ -15,6 +16,7 @@ export interface SearchData {
 }
 
 export default function SearchForm() {
+  const router = useRouter();
   const [data, setData] = useState<SearchData>({
     from: "",
     to: "",
@@ -32,13 +34,16 @@ export default function SearchForm() {
   });
 
   const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "options" | null>(null);
+  const [errors, setErrors] = useState<{ route?: boolean; datetime?: boolean }>({});
 
   const handleRouteChange = (from: string, to: string) => {
     setData({ ...data, from, to });
+    if (from && to) setErrors((prev) => ({ ...prev, route: false }));
   };
 
   const handleDateTimeChange = (date: string, time: string) => {
     setData({ ...data, date, time });
+    if (date && time) setErrors((prev) => ({ ...prev, datetime: false }));
   };
 
   const handlePassengersChange = (adults: number, children: number) => {
@@ -55,7 +60,24 @@ export default function SearchForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Search data:", data);
+
+    const newErrors: { route?: boolean; datetime?: boolean } = {};
+
+    if (!data.from || !data.to) {
+      newErrors.route = true;
+    }
+    if (!data.date || !data.time) {
+      newErrors.datetime = true;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    localStorage.setItem("pending_request", JSON.stringify(data));
+    router.push("/request/new");
   };
 
   return (
@@ -64,7 +86,7 @@ export default function SearchForm() {
         <button
           type="button"
           onClick={() => setActiveModal("route")}
-          className="border border-gray-300 p-2 flex-1 text-left"
+          className={`border p-2 flex-1 text-left ${errors.route ? "border-red-500" : "border-gray-300"}`}
         >
           {data.from && data.to ? `${data.from} → ${data.to}` : "Trasa"}
         </button>
@@ -72,7 +94,7 @@ export default function SearchForm() {
         <button
           type="button"
           onClick={() => setActiveModal("datetime")}
-          className="border border-gray-300 p-2 flex-1 text-left"
+          className={`border p-2 flex-1 text-left ${errors.datetime ? "border-red-500" : "border-gray-300"}`}
         >
           {data.date && data.time ? `${data.date} ${data.time}` : "Data i godzina"}
         </button>
