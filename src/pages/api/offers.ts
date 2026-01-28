@@ -30,16 +30,20 @@ export default async function handler(
     }
 
     try {
-      // Verify that the request belongs to this user
       const request = await getRequestById(requestId);
-      if (!request || request.userId !== userId) {
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      const userEmail = user.email || "";
+      const hasAccess = request.userId === userId || request.userEmail === userEmail;
+      if (!hasAccess) {
         return res.status(403).json({ error: "Access denied" });
       }
 
       const offers = await getOffersByRequest(requestId);
       return res.status(200).json(offers);
     } catch (error) {
-      console.error("Error fetching offers:", error);
       return res.status(500).json({ error: "Failed to fetch offers" });
     }
   }
@@ -55,7 +59,13 @@ export default async function handler(
       try {
         // Verify that the request belongs to this user
         const request = await getRequestById(requestId);
-        if (!request || request.userId !== userId) {
+        if (!request) {
+          return res.status(404).json({ error: "Request not found" });
+        }
+
+        const userEmail = user.email || "";
+        const hasAccess = request.userId === userId || request.userEmail === userEmail;
+        if (!hasAccess) {
           return res.status(403).json({ error: "Access denied" });
         }
 

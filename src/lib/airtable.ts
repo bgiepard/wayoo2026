@@ -232,11 +232,13 @@ export async function getDriverById(driverId: string): Promise<Driver | null> {
 }
 
 export async function getOffersByRequest(requestId: string): Promise<OfferData[]> {
-  const records = await offersTable
-    .select({
-      filterByFormula: `FIND("${requestId}", ARRAYJOIN({Request}))`,
-    })
-    .all();
+  const allRecords = await offersTable.select().all();
+
+  const records = allRecords.filter((record) => {
+    const requestLinks = record.get("Request") as string[] | undefined;
+    const requestIdField = record.get("requestId") as string | undefined;
+    return requestLinks?.includes(requestId) || requestIdField === requestId;
+  });
 
   const offers = await Promise.all(
     records.map(async (record) => {

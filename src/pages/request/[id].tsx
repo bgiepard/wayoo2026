@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next";
 import { useState, useEffect, useCallback } from "react";
-import { getRequestById, RequestData, OfferData } from "@/lib/airtable";
+import { getRequestById, RequestData, OfferData, getOffersByRequest } from "@/lib/airtable";
 
 const optionLabels: Record<string, string> = {
   wifi: "WiFi",
@@ -12,22 +12,30 @@ const optionLabels: Record<string, string> = {
 
 const steps = [
   { id: 1, label: "Szczegoly zapytania" },
-  { id: 2, label: "Oczekiwanie na oferty" },
-  { id: 3, label: "Oferty" },
+  { id: 2, label: "Oferty" },
+  { id: 3, label: "Platnosc" },
 ];
 
 interface Props {
   request: RequestData | null;
+  initialOffers: OfferData[];
 }
 
-export default function RequestPage({ request: initialRequest }: Props) {
+export default function RequestPage({ request: initialRequest, initialOffers }: Props) {
   const [request, setRequest] = useState(initialRequest);
-  const [activeView, setActiveView] = useState(
-    initialRequest?.status === 4 ? 3 : (initialRequest?.status || 2)
-  );
-  const [offers, setOffers] = useState<OfferData[]>([]);
+  const [offers, setOffers] = useState<OfferData[]>(initialOffers);
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [acceptingOffer, setAcceptingOffer] = useState<string | null>(null);
+
+  // Logika widoku poczatkowego
+  const getInitialView = () => {
+    if (!initialRequest) return 1;
+    if (initialRequest.status === 4) return 3; // Zaakceptowana oferta - pokazuj Platnosc
+    if (initialOffers.length > 0) return 2; // Sa oferty - pokazuj Oferty
+    return 1; // Brak ofert - pokazuj szczegoly
+  };
+
+  const [activeView, setActiveView] = useState(getInitialView);
 
   const fetchOffers = useCallback(async () => {
     if (!request) return;
@@ -38,10 +46,9 @@ export default function RequestPage({ request: initialRequest }: Props) {
         const data = await res.json();
         setOffers(data);
 
-        // Jeśli są oferty i status jest 2, przejdź do kroku 3
-        if (data.length > 0 && request.status === 2) {
-          setRequest({ ...request, status: 3 });
-          setActiveView(3);
+        // Jesli pojawiły sie nowe oferty, przejdz do zakladki Oferty
+        if (data.length > 0 && activeView === 1) {
+          setActiveView(2);
         }
       }
     } catch (error) {
@@ -49,25 +56,20 @@ export default function RequestPage({ request: initialRequest }: Props) {
     } finally {
       setLoadingOffers(false);
     }
-  }, [request]);
+  }, [request, activeView]);
 
-  // Pobierz oferty przy pierwszym renderze
+  // Auto-refresh co 5 sekund gdy czekamy na oferty (brak ofert i nie ma zaakceptowanej)
   useEffect(() => {
-    if (request) {
-      fetchOffers();
-    }
-  }, [request?.id]);
-
-  // Auto-refresh co 5 sekund gdy czekamy na oferty (status 2)
-  useEffect(() => {
-    if (!request || request.status !== 2) return;
+    if (!request) return;
+    const hasAcceptedOffer = offers.some((o) => o.status === 2);
+    if (hasAcceptedOffer) return; // Nie odswiezaj jesli juz jest zaakceptowana oferta
 
     const interval = setInterval(() => {
       fetchOffers();
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [request?.id, request?.status, fetchOffers]);
+  }, [request?.id, offers, fetchOffers]);
 
   const handleAcceptOffer = async (offerId: string) => {
     if (!request) return;
@@ -85,7 +87,9 @@ export default function RequestPage({ request: initialRequest }: Props) {
 
       if (res.ok) {
         setRequest({ ...request, status: 4 });
-        fetchOffers();
+        await fetchOffers();
+        // Przejdz do Platnosci
+        setActiveView(3);
       }
     } catch (error) {
       console.error("Error accepting offer:", error);
@@ -107,19 +111,25 @@ export default function RequestPage({ request: initialRequest }: Props) {
     .filter(([, value]) => value)
     .map(([key]) => optionLabels[key] || key);
 
+  const acceptedOffer = offers.find((o) => o.status === 2);
+  const pendingOffers = offers.filter((o) => o.status === 1);
+
   const handleStepClick = (stepId: number) => {
-    const maxStep = request.status === 4 ? 3 : request.status;
-    if (stepId <= maxStep) {
+    // Zawsze mozna kliknac w Szczegoly zapytania (1)
+    // Oferty (2) - zawsze dostepne
+    // Platnosc (3) - tylko jesli jest zaakceptowana oferta
+    if (stepId === 1 || stepId === 2) {
+      setActiveView(stepId);
+    } else if (stepId === 3 && acceptedOffer) {
       setActiveView(stepId);
     }
   };
 
-  const acceptedOffer = offers.find((o) => o.status === 2);
-  const pendingOffers = offers.filter((o) => o.status === 1);
-
   const getStepStatus = (stepId: number) => {
-    const effectiveStatus = request.status === 4 ? 3 : request.status;
-    return effectiveStatus >= stepId;
+    if (stepId === 1) return true; // Szczegoly zawsze aktywne
+    if (stepId === 2) return true; // Oferty zawsze aktywne
+    if (stepId === 3) return !!acceptedOffer; // Platnosc tylko po akceptacji oferty
+    return false;
   };
 
   return (
@@ -193,16 +203,6 @@ export default function RequestPage({ request: initialRequest }: Props) {
       )}
 
       {activeView === 2 && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-800 rounded-full animate-spin mb-4" />
-          <p className="text-lg">Oczekiwanie na oferty...</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Automatycznie sprawdzamy co 5 sekund
-          </p>
-        </div>
-      )}
-
-      {activeView === 3 && (
         <div>
           <h1 className="text-2xl mb-6">Oferty kierowcow</h1>
 
@@ -239,48 +239,84 @@ export default function RequestPage({ request: initialRequest }: Props) {
             </div>
           )}
 
-          {/* Oczekujące oferty */}
-          {loadingOffers ? (
-            <p>Ladowanie ofert...</p>
-          ) : pendingOffers.length === 0 && !acceptedOffer ? (
-            <p className="text-gray-500">Brak ofert</p>
-          ) : pendingOffers.length > 0 && (
-            <>
-              {acceptedOffer && (
-                <h2 className="text-lg font-medium mb-4">Pozostale oferty</h2>
-              )}
-              <div className="flex flex-col gap-4">
-                {pendingOffers.map((offer) => (
-                  <div key={offer.id} className="border border-gray-300 p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-bold text-lg">{offer.price} PLN</p>
-                        <p className="text-gray-600">
-                          Kierowca: {offer.driverName || "Nieznany"}
+          {/* Oczekiwanie na oferty - gdy brak ofert */}
+          {!acceptedOffer && offers.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-800 rounded-full animate-spin mb-4" />
+              <p className="text-lg">Oczekiwanie na oferty...</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Automatycznie sprawdzamy co 5 sekund
+              </p>
+            </div>
+          )}
+
+          {/* Lista ofert do wyboru */}
+          {!acceptedOffer && pendingOffers.length > 0 && (
+            <div className="flex flex-col gap-4">
+              {pendingOffers.map((offer) => (
+                <div key={offer.id} className="border border-gray-300 p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-lg">{offer.price} PLN</p>
+                      <p className="text-gray-600">
+                        Kierowca: {offer.driverName || "Nieznany"}
+                      </p>
+                      {offer.driverPhone && (
+                        <p className="text-gray-600">Tel: {offer.driverPhone}</p>
+                      )}
+                      {offer.message && (
+                        <p className="text-gray-600 mt-2">
+                          Wiadomosc: {offer.message}
                         </p>
-                        {offer.driverPhone && (
-                          <p className="text-gray-600">Tel: {offer.driverPhone}</p>
-                        )}
-                        {offer.message && (
-                          <p className="text-gray-600 mt-2">
-                            Wiadomosc: {offer.message}
-                          </p>
-                        )}
-                      </div>
-                      {!acceptedOffer && (
-                        <button
-                          onClick={() => handleAcceptOffer(offer.id)}
-                          disabled={acceptingOffer === offer.id}
-                          className="border border-green-600 bg-green-600 text-white px-4 py-2 disabled:opacity-50"
-                        >
-                          {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj"}
-                        </button>
                       )}
                     </div>
+                    <button
+                      onClick={() => handleAcceptOffer(offer.id)}
+                      disabled={acceptingOffer === offer.id}
+                      className="border border-green-600 bg-green-600 text-white px-4 py-2 disabled:opacity-50"
+                    >
+                      {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj"}
+                    </button>
                   </div>
-                ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeView === 3 && (
+        <div>
+          <h1 className="text-2xl mb-6">Platnosc</h1>
+
+          {acceptedOffer ? (
+            <div className="border border-gray-300 p-6">
+              <div className="mb-6">
+                <div className="flex justify-between border-b border-gray-200 py-2">
+                  <span>Trasa:</span>
+                  <span>{request.from} → {request.to}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-200 py-2">
+                  <span>Data:</span>
+                  <span>{request.date} {request.time}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-200 py-2">
+                  <span>Kierowca:</span>
+                  <span>{acceptedOffer.driverName || "Nieznany"}</span>
+                </div>
+                <div className="flex justify-between py-2 font-bold text-lg">
+                  <span>Do zaplaty:</span>
+                  <span>{acceptedOffer.price} PLN</span>
+                </div>
               </div>
-            </>
+
+              <div className="bg-yellow-50 border border-yellow-200 p-6 text-center">
+                <p className="text-yellow-800 font-medium">Modul platnosci w przygotowaniu</p>
+                <p className="text-yellow-600 text-sm mt-2">Wkrotce bedzie mozliwosc platnosci online</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500">Najpierw zaakceptuj oferte, aby przejsc do platnosci.</p>
           )}
         </div>
       )}
@@ -292,10 +328,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
   const id = params?.id as string;
 
   const request = await getRequestById(id);
+  const initialOffers = request ? await getOffersByRequest(id) : [];
 
   return {
     props: {
       request,
+      initialOffers,
     },
   };
 };
