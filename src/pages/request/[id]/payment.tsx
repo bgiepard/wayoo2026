@@ -1,7 +1,8 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { getRequestById, getOffersByRequest, RequestData, OfferData } from "@/lib/airtable";
+import { getRequestById, getOffersByRequest } from "@/services";
+import type { RequestData, OfferData } from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 
 interface Props {

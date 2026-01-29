@@ -1,5 +1,6 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import Modal from "./ui/Modal";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -14,8 +15,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
-
-  if (!isOpen) return null;
 
   const resetForm = () => {
     setEmail("");
@@ -62,13 +61,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         return;
       }
 
-      // Auto login after registration
-      await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
+      await signIn("credentials", { email, password, redirect: false });
       resetForm();
       onClose();
     } catch {
@@ -82,83 +75,79 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white border border-gray-300 p-6 w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-medium">
-            {isRegister ? "Zarejestruj sie" : "Zaloguj sie"}
-          </h2>
-          <button onClick={onClose}>✕</button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isRegister ? "Zarejestruj sie" : "Zaloguj sie"}
+      width="w-96"
+    >
+      {error && (
+        <div className="mb-4 p-2 border border-red-300 text-red-600 text-sm">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-2 border border-red-300 text-red-600 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form
-          onSubmit={isRegister ? handleRegister : handleLogin}
-          className="flex flex-col gap-4"
-        >
-          {isRegister && (
-            <>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Imie"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="border border-gray-300 p-2 flex-1"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Nazwisko"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="border border-gray-300 p-2 flex-1"
-                  required
-                />
-              </div>
+      <form
+        onSubmit={isRegister ? handleRegister : handleLogin}
+        className="flex flex-col gap-4"
+      >
+        {isRegister && (
+          <>
+            <div className="flex gap-2">
               <input
-                type="tel"
-                placeholder="Telefon (opcjonalnie)"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="border border-gray-300 p-2"
+                type="text"
+                placeholder="Imie"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="border border-gray-300 p-2 flex-1"
+                required
               />
-            </>
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 p-2"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Haslo"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-300 p-2"
-            required
-          />
-          <button type="submit" className="border border-gray-800 bg-gray-800 text-white p-2">
-            {isRegister ? "Zarejestruj" : "Zaloguj"}
-          </button>
-        </form>
+              <input
+                type="text"
+                placeholder="Nazwisko"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="border border-gray-300 p-2 flex-1"
+                required
+              />
+            </div>
+            <input
+              type="tel"
+              placeholder="Telefon (opcjonalnie)"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="border border-gray-300 p-2"
+            />
+          </>
+        )}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border border-gray-300 p-2"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Haslo"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border border-gray-300 p-2"
+          required
+        />
+        <button type="submit" className="border border-gray-800 bg-gray-800 text-white p-2">
+          {isRegister ? "Zarejestruj" : "Zaloguj"}
+        </button>
+      </form>
 
-        <div className="mt-4 text-center text-sm">
-          <button onClick={switchMode} className="underline cursor-pointer">
-            {isRegister
-              ? "Masz juz konto? Zaloguj sie"
-              : "Nie masz konta? Zarejestruj sie"}
-          </button>
-        </div>
+      <div className="mt-4 text-center text-sm">
+        <button onClick={switchMode} className="underline cursor-pointer">
+          {isRegister
+            ? "Masz juz konto? Zaloguj sie"
+            : "Nie masz konta? Zarejestruj sie"}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

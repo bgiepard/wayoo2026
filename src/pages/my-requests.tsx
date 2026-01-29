@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { useState } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { getRequestsByUserEmail, getOffersCountByRequestIds, RequestData, RequestStatus } from "@/lib/airtable";
+import { getRequestsByUserEmail, getOffersCountByRequestIds } from "@/services";
+import type { RequestData, RequestStatus } from "@/models";
 
 interface RequestWithOffers extends RequestData {
   offersCount: number;

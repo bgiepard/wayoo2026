@@ -3,17 +3,16 @@ import { useRouter } from "next/router";
 import RouteModal from "./RouteModal";
 import DateTimeModal from "./DateTimeModal";
 import PassengersModal from "./PassengersModal";
-import OptionsModal, { Options } from "./OptionsModal";
+import OptionsModal from "./OptionsModal";
+import type { SearchData, Options } from "@/models";
 
-export interface SearchData {
-  from: string;
-  to: string;
-  date: string;
-  time: string;
-  adults: number;
-  children: number;
-  options: Options;
-}
+const defaultOptions: Options = {
+  wifi: false,
+  wc: false,
+  tv: false,
+  airConditioning: false,
+  powerOutlet: false,
+};
 
 export default function SearchForm() {
   const router = useRouter();
@@ -24,13 +23,7 @@ export default function SearchForm() {
     time: "",
     adults: 1,
     children: 0,
-    options: {
-      wifi: false,
-      wc: false,
-      tv: false,
-      airConditioning: false,
-      powerOutlet: false,
-    },
+    options: defaultOptions,
   });
 
   const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "options" | null>(null);
@@ -62,13 +55,8 @@ export default function SearchForm() {
     e.preventDefault();
 
     const newErrors: { route?: boolean; datetime?: boolean } = {};
-
-    if (!data.from || !data.to) {
-      newErrors.route = true;
-    }
-    if (!data.date || !data.time) {
-      newErrors.datetime = true;
-    }
+    if (!data.from || !data.to) newErrors.route = true;
+    if (!data.date || !data.time) newErrors.datetime = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -112,9 +100,7 @@ export default function SearchForm() {
           onClick={() => setActiveModal("options")}
           className="border border-gray-300 p-2 flex-1 text-left"
         >
-          {getSelectedOptionsCount() > 0
-            ? `Opcje (${getSelectedOptionsCount()})`
-            : "Dodatkowe opcje"}
+          {getSelectedOptionsCount() > 0 ? `Opcje (${getSelectedOptionsCount()})` : "Dodatkowe opcje"}
         </button>
 
         <button type="submit" className="border border-gray-300 p-2">
@@ -129,7 +115,6 @@ export default function SearchForm() {
         to={data.to}
         onSave={handleRouteChange}
       />
-
       <DateTimeModal
         isOpen={activeModal === "datetime"}
         onClose={() => setActiveModal(null)}
@@ -137,7 +122,6 @@ export default function SearchForm() {
         time={data.time}
         onSave={handleDateTimeChange}
       />
-
       <PassengersModal
         isOpen={activeModal === "passengers"}
         onClose={() => setActiveModal(null)}
@@ -145,7 +129,6 @@ export default function SearchForm() {
         children={data.children}
         onSave={handlePassengersChange}
       />
-
       <OptionsModal
         isOpen={activeModal === "options"}
         onClose={() => setActiveModal(null)}

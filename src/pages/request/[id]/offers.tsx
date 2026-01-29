@@ -1,7 +1,8 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getRequestById, getOffersByRequest, RequestData, OfferData } from "@/lib/airtable";
+import { getRequestById, getOffersByRequest } from "@/services";
+import type { RequestData, OfferData } from "@/models";
 import { useNotifications } from "@/context/NotificationsContext";
 import RequestSteps from "@/components/RequestSteps";
 

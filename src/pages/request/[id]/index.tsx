@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import { getRequestById } from "@/lib/airtable";
+import { getRequestById } from "@/services";
 
 export default function RequestIndexPage() {
   return null;

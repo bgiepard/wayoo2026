@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { findUserByEmail, createUser } from "@/lib/airtable";
+import { findUserByEmail, createUser } from "@/services";
 
 export default async function handler(
   req: NextApiRequest,

@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { findUserById, User } from "@/lib/airtable";
+import { findUserById } from "@/services";
+import type { User } from "@/models";
 
 interface Props {
   user: Omit<User, "password">;

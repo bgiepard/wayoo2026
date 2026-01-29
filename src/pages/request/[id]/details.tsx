@@ -1,5 +1,6 @@
 import { GetServerSideProps } from "next";
-import { getRequestById, RequestData } from "@/lib/airtable";
+import { getRequestById } from "@/services";
+import type { RequestData } from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 
 const optionLabels: Record<string, string> = {

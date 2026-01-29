@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import LoginModal from "@/components/LoginModal";
-import { SearchData } from "@/components/SearchForm";
+import type { SearchData } from "@/models";
 
 const optionLabels: Record<string, string> = {
   wifi: "WiFi",

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { updateRequestStatus, RequestStatus } from "@/lib/airtable";
+import { updateRequestStatus } from "@/services";
+import type { RequestStatus } from "@/models";
 
 export default async function handler(
   req: NextApiRequest,
