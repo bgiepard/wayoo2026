@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
 
         const user = await findUserByEmail(credentials.email);
 
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
 
@@ -29,8 +29,11 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.id,
-          name: user.name,
           email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone,
         };
       },
     }),
@@ -39,12 +42,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.firstName = (user as { firstName?: string }).firstName;
+        token.lastName = (user as { lastName?: string }).lastName;
+        token.phone = (user as { phone?: string }).phone;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id?: string }).id = token.id as string;
+        (session.user as { firstName?: string }).firstName = token.firstName as string;
+        (session.user as { lastName?: string }).lastName = token.lastName as string;
+        (session.user as { phone?: string }).phone = token.phone as string;
       }
       return session;
     },

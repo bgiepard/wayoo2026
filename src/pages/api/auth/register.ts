@@ -9,28 +9,40 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { email, password, name } = req.body;
+  const { email, password, firstName, lastName, phone } = req.body;
 
-  if (!email || !password || !name) {
-    return res.status(400).json({ error: "Wszystkie pola są wymagane" });
+  if (!email || !password || !firstName || !lastName) {
+    return res.status(400).json({ error: "Imie, nazwisko, email i haslo sa wymagane" });
   }
 
   try {
     const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
-      return res.status(400).json({ error: "Użytkownik już istnieje" });
+      return res.status(400).json({ error: "Uzytkownik juz istnieje" });
     }
 
-    const user = await createUser(email, password, name);
+    const user = await createUser({
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      provider: "email",
+    });
 
     return res.status(201).json({
-      message: "Konto utworzone pomyślnie",
-      user: { id: user.id, email: user.email, name: user.name },
+      message: "Konto utworzone pomyslnie",
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
     });
   } catch (error: unknown) {
     console.error("Registration error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: "Błąd serwera", details: message });
+    return res.status(500).json({ error: "Blad serwera", details: message });
   }
 }

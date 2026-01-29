@@ -1,4 +1,6 @@
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { getRequestById, getOffersByRequest, RequestData, OfferData } from "@/lib/airtable";
 import RequestSteps from "@/components/RequestSteps";
 
@@ -7,9 +9,31 @@ interface Props {
   acceptedOffer: OfferData | null;
 }
 
-export default function RequestPaymentPage({ request, acceptedOffer }: Props) {
-  // Status requestu determinuje czy platnosc jest dostepna
+export default function RequestPaymentPage({ request: initialRequest, acceptedOffer }: Props) {
+  const router = useRouter();
+  const [request, setRequest] = useState(initialRequest);
+  const [isPaying, setIsPaying] = useState(false);
+
   const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
+
+  const handleMarkAsPaid = async () => {
+    setIsPaying(true);
+    try {
+      const res = await fetch(`/api/requests/${request.id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "paid" }),
+      });
+
+      if (res.ok) {
+        setRequest({ ...request, status: "paid" });
+      }
+    } catch (error) {
+      console.error("Error marking as paid:", error);
+    } finally {
+      setIsPaying(false);
+    }
+  };
 
   if (!acceptedOffer) {
     return (
@@ -72,10 +96,13 @@ export default function RequestPaymentPage({ request, acceptedOffer }: Props) {
             <p className="text-gray-600 text-sm mt-2">Dziekujemy za skorzystanie z naszych uslug</p>
           </div>
         ) : (
-          <div className="bg-yellow-50 border border-yellow-200 p-6 text-center">
-            <p className="text-yellow-800 font-medium">Modul platnosci w przygotowaniu</p>
-            <p className="text-yellow-600 text-sm mt-2">Wkrotce bedzie mozliwosc platnosci online</p>
-          </div>
+          <button
+            onClick={handleMarkAsPaid}
+            disabled={isPaying}
+            className="w-full border border-green-600 bg-green-600 text-white p-4 disabled:opacity-50"
+          >
+            {isPaying ? "Przetwarzanie..." : `Zaplac ${acceptedOffer.price} PLN`}
+          </button>
         )}
       </div>
     </main>
@@ -91,7 +118,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     return { notFound: true };
   }
 
-  // Przekierowanie bazuje na statusie REQUESTU
   const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
 
   if (!isRequestAccepted) {

@@ -10,11 +10,18 @@ const requestsTable = base("Requests");
 const offersTable = base("Offers");
 const driversTable = base("Drivers");
 
+export type AuthProvider = 'email' | 'google' | 'facebook' | 'apple';
+
 export interface User {
   id: string;
   email: string;
-  name: string;
-  password: string;
+  emailVerified: boolean;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  phoneVerified: boolean;
+  provider: AuthProvider;
+  password?: string;
 }
 
 export interface Driver {
@@ -38,29 +45,70 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return {
     id: record.id,
     email: record.get("email") as string,
-    name: record.get("name") as string,
-    password: record.get("password") as string,
+    emailVerified: (record.get("emailVerified") as boolean) || false,
+    firstName: (record.get("firstName") as string) || "",
+    lastName: (record.get("lastName") as string) || "",
+    phone: record.get("phone") as string | undefined,
+    phoneVerified: (record.get("phoneVerified") as boolean) || false,
+    provider: (record.get("provider") as AuthProvider) || "email",
+    password: record.get("password") as string | undefined,
   };
 }
 
-export async function createUser(
-  email: string,
-  password: string,
-  name: string
-): Promise<User> {
-  const hashedPassword = await bcrypt.hash(password, 10);
+export async function findUserById(id: string): Promise<User | null> {
+  try {
+    const record = await usersTable.find(id);
+    return {
+      id: record.id,
+      email: record.get("email") as string,
+      emailVerified: (record.get("emailVerified") as boolean) || false,
+      firstName: (record.get("firstName") as string) || "",
+      lastName: (record.get("lastName") as string) || "",
+      phone: record.get("phone") as string | undefined,
+      phoneVerified: (record.get("phoneVerified") as boolean) || false,
+      provider: (record.get("provider") as AuthProvider) || "email",
+      password: record.get("password") as string | undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export interface CreateUserData {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  provider?: AuthProvider;
+}
+
+export async function createUser(data: CreateUserData): Promise<User> {
+  const hashedPassword = data.password
+    ? await bcrypt.hash(data.password, 10)
+    : undefined;
 
   const record = await usersTable.create({
-    email,
-    password: hashedPassword,
-    name,
+    email: data.email,
+    emailVerified: false,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: data.phone || "",
+    phoneVerified: false,
+    provider: data.provider || "email",
+    ...(hashedPassword && { password: hashedPassword }),
   });
 
   return {
     id: record.id,
     email: record.get("email") as string,
-    name: record.get("name") as string,
-    password: record.get("password") as string,
+    emailVerified: (record.get("emailVerified") as boolean) || false,
+    firstName: record.get("firstName") as string,
+    lastName: record.get("lastName") as string,
+    phone: record.get("phone") as string | undefined,
+    phoneVerified: (record.get("phoneVerified") as boolean) || false,
+    provider: (record.get("provider") as AuthProvider) || "email",
+    password: record.get("password") as string | undefined,
   };
 }
 
@@ -313,4 +361,8 @@ export async function acceptOffer(offerId: string, requestId: string): Promise<v
   for (const offer of otherOffers) {
     await offersTable.update(offer.id, { status: 3 });
   }
+}
+
+export async function updateRequestStatus(requestId: string, status: RequestStatus): Promise<void> {
+  await requestsTable.update(requestId, { status });
 }
