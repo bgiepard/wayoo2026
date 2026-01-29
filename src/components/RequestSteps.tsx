@@ -29,17 +29,23 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer }
   const renderStepContent = (step: Step, accessible: boolean) => (
     <>
       <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center border ${
-          accessible
-            ? "bg-gray-800 text-white border-gray-800"
-            : "border-gray-300"
-        } ${activeStep === step.id ? "ring-2 ring-offset-2 ring-gray-800" : ""}`}
+        className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+          activeStep === step.id
+            ? "bg-blue-600 text-white"
+            : accessible
+            ? "bg-gray-100 text-gray-700"
+            : "bg-gray-50 text-gray-400"
+        }`}
       >
         {step.id}
       </div>
       <span
-        className={`text-sm mt-2 ${
-          accessible ? "font-medium" : "text-gray-400"
+        className={`text-xs mt-2 ${
+          activeStep === step.id
+            ? "text-blue-600 font-medium"
+            : accessible
+            ? "text-gray-600"
+            : "text-gray-400"
         }`}
       >
         {step.label}
@@ -48,7 +54,7 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer }
   );
 
   return (
-    <div className="flex justify-between mb-8 border border-gray-300 p-4">
+    <div className="flex justify-center items-center gap-4 mb-8 py-6 bg-white rounded-lg shadow-sm">
       {steps.map((step, index) => {
         const accessible = isStepAccessible(step.id);
 
@@ -57,7 +63,7 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer }
             {accessible ? (
               <Link
                 href={`/request/${requestId}/${step.path}`}
-                className="flex flex-col items-center cursor-pointer"
+                className="flex flex-col items-center hover:opacity-80 transition-opacity"
               >
                 {renderStepContent(step, accessible)}
               </Link>
@@ -68,8 +74,8 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer }
             )}
             {index < steps.length - 1 && (
               <div
-                className={`w-24 h-0.5 mx-4 ${
-                  isStepAccessible(step.id + 1) ? "bg-gray-800" : "bg-gray-300"
+                className={`w-16 h-0.5 mx-4 rounded ${
+                  isStepAccessible(step.id + 1) ? "bg-blue-200" : "bg-gray-200"
                 }`}
               />
             )}

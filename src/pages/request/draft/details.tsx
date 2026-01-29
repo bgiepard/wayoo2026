@@ -59,8 +59,8 @@ export default function DraftDetailsPage() {
 
   if (!requestData) {
     return (
-      <main className="p-4 max-w-[1250px] mx-auto">
-        <p>Ladowanie...</p>
+      <main className="py-8 px-4 max-w-[1250px] mx-auto">
+        <p className="text-gray-500">Ladowanie...</p>
       </main>
     );
   }
@@ -70,83 +70,74 @@ export default function DraftDetailsPage() {
     .map(([key]) => optionLabels[key] || key);
 
   return (
-    <main className="p-4 max-w-[1250px] mx-auto">
-      {/* Stepy - draft nie ma prawdziwego ID wiec pokazujemy uproszczona wersje */}
-      <div className="flex justify-between mb-8 border border-gray-300 p-4">
-        <div className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center border bg-gray-800 text-white border-gray-800 ring-2 ring-offset-2 ring-gray-800">
-              1
-            </div>
-            <span className="text-sm mt-2 font-medium">Szczegoly</span>
+    <main className="py-8 px-4 max-w-[1250px] mx-auto">
+      {/* Stepy */}
+      <div className="flex justify-center items-center gap-4 mb-8 py-6 bg-white rounded-lg shadow-sm">
+        <div className="flex flex-col items-center">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-blue-600 text-white">
+            1
           </div>
-          <div className="w-24 h-0.5 mx-4 bg-gray-300" />
+          <span className="text-xs mt-2 text-blue-600 font-medium">Szczegoly</span>
         </div>
-        <div className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300">
-              2
-            </div>
-            <span className="text-sm mt-2 text-gray-400">Oferty</span>
+        <div className="w-16 h-0.5 mx-4 rounded bg-gray-200" />
+        <div className="flex flex-col items-center">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-gray-50 text-gray-400">
+            2
           </div>
-          <div className="w-24 h-0.5 mx-4 bg-gray-300" />
+          <span className="text-xs mt-2 text-gray-400">Oferty</span>
         </div>
-        <div className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300">
-              3
-            </div>
-            <span className="text-sm mt-2 text-gray-400">Platnosc</span>
+        <div className="w-16 h-0.5 mx-4 rounded bg-gray-200" />
+        <div className="flex flex-col items-center">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-gray-50 text-gray-400">
+            3
           </div>
+          <span className="text-xs mt-2 text-gray-400">Platnosc</span>
         </div>
       </div>
 
-      <h1 className="text-2xl mb-6">Szczegoly zapytania</h1>
+      <h1 className="text-2xl font-semibold mb-6">Szczegoly zapytania</h1>
 
-      <div className="bg-yellow-50 border border-yellow-200 p-4 mb-6">
+      <div className="bg-yellow-50 rounded-lg p-4 mb-6">
         <p className="text-yellow-800 font-medium">Wersja robocza</p>
-        <p className="text-yellow-600 text-sm">
+        <p className="text-yellow-700 text-sm mt-1">
           To zapytanie nie zostalo jeszcze opublikowane. Kierowcy nie moga go zobaczyc.
         </p>
       </div>
 
-      <div className="border border-gray-300 p-4 flex flex-col gap-4">
-        <div className="flex gap-2">
-          <span className="font-medium">Trasa:</span>
-          <span>{requestData.from} → {requestData.to}</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Data i godzina:</span>
-          <span>{requestData.date} {requestData.time}</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Pasazerowie:</span>
-          <span>{requestData.adults} doroslych, {requestData.children} dzieci</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Dodatkowe opcje:</span>
-          <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
+      <div className="bg-white rounded-lg p-6 mb-6">
+        <div className="space-y-4">
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Trasa</span>
+            <span className="font-medium">{requestData.from} → {requestData.to}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Data i godzina</span>
+            <span>{requestData.date} o {requestData.time}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Pasazerowie</span>
+            <span>{requestData.adults} doroslych, {requestData.children} dzieci</span>
+          </div>
+          <div className="flex justify-between py-3">
+            <span className="text-gray-500">Dodatkowe opcje</span>
+            <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
+          </div>
         </div>
       </div>
 
-      <div className="mt-6">
-        {status === "loading" ? (
-          <button disabled className="border border-gray-300 p-3 w-full opacity-50">
-            Ladowanie...
-          </button>
-        ) : (
-          <button
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="border border-green-600 bg-green-600 text-white p-3 w-full disabled:opacity-50"
-          >
-            {isPublishing ? "Publikowanie..." : session ? "Opublikuj zapytanie" : "Zaloguj sie i opublikuj"}
-          </button>
-        )}
-      </div>
+      {status === "loading" ? (
+        <button disabled className="w-full bg-gray-200 text-gray-500 rounded-lg p-4 font-medium">
+          Ladowanie...
+        </button>
+      ) : (
+        <button
+          onClick={handlePublish}
+          disabled={isPublishing}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-4 font-medium disabled:opacity-50 transition-colors"
+        >
+          {isPublishing ? "Publikowanie..." : session ? "Opublikuj zapytanie" : "Zaloguj sie i opublikuj"}
+        </button>
+      )}
 
       <LoginModal
         isOpen={isLoginModalOpen}

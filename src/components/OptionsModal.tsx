@@ -39,17 +39,23 @@ export default function OptionsModal({ isOpen, onClose, options, onSave }: Optio
     <Modal isOpen={isOpen} onClose={onClose} title="Dodatkowe opcje">
       <div className="flex flex-col gap-3">
         {(Object.keys(optionLabels) as Array<keyof Options>).map((key) => (
-          <label key={key} className="flex items-center gap-2 cursor-pointer">
+          <label
+            key={key}
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+          >
             <input
               type="checkbox"
               checked={localOptions[key]}
               onChange={() => handleToggle(key)}
-              className="w-4 h-4"
+              className="w-4 h-4 accent-blue-600"
             />
-            <span>{optionLabels[key]}</span>
+            <span className="text-sm">{optionLabels[key]}</span>
           </label>
         ))}
-        <button onClick={handleSave} className="border border-gray-300 p-2 mt-2">
+        <button
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-2"
+        >
           Zapisz
         </button>
       </div>

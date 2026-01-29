@@ -38,69 +38,71 @@ export default function RequestPaymentPage({ request: initialRequest, acceptedOf
 
   if (!acceptedOffer) {
     return (
-      <main className="p-4 max-w-[1250px] mx-auto">
+      <main className="py-8 px-4 max-w-[1250px] mx-auto">
         <RequestSteps
           requestId={request.id}
           activeStep={3}
           hasAcceptedOffer={isRequestAccepted}
         />
-        <h1 className="text-2xl mb-6">Platnosc</h1>
-        <p className="text-gray-500">Brak danych o ofercie.</p>
+        <h1 className="text-2xl font-semibold mb-6">Platnosc</h1>
+        <div className="bg-white rounded-lg p-8 text-center text-gray-500">
+          Brak danych o ofercie.
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="p-4 max-w-[1250px] mx-auto">
+    <main className="py-8 px-4 max-w-[1250px] mx-auto">
       <RequestSteps
         requestId={request.id}
         activeStep={3}
         hasAcceptedOffer={isRequestAccepted}
       />
 
-      <h1 className="text-2xl mb-6">Platnosc</h1>
+      <h1 className="text-2xl font-semibold mb-6">Platnosc</h1>
 
-      <div className="border border-gray-300 p-6">
-        <div className="mb-6">
-          <div className="flex justify-between border-b border-gray-200 py-2">
-            <span>Trasa:</span>
-            <span>{request.from} → {request.to}</span>
+      <div className="bg-white rounded-lg p-6">
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Trasa</span>
+            <span className="font-medium">{request.from} → {request.to}</span>
           </div>
-          <div className="flex justify-between border-b border-gray-200 py-2">
-            <span>Data:</span>
-            <span>{request.date} {request.time}</span>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Data</span>
+            <span>{request.date} o {request.time}</span>
           </div>
-          <div className="flex justify-between border-b border-gray-200 py-2">
-            <span>Kierowca:</span>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Kierowca</span>
             <span>{acceptedOffer.driverName || "Nieznany"}</span>
           </div>
           {acceptedOffer.driverPhone && (
-            <div className="flex justify-between border-b border-gray-200 py-2">
-              <span>Telefon:</span>
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Telefon</span>
               <span>{acceptedOffer.driverPhone}</span>
             </div>
           )}
-          <div className="flex justify-between py-2 font-bold text-lg">
-            <span>Do zaplaty:</span>
-            <span>{acceptedOffer.price} PLN</span>
+          <div className="flex justify-between py-4">
+            <span className="text-lg font-medium">Do zaplaty</span>
+            <span className="text-2xl font-semibold">{acceptedOffer.price} PLN</span>
           </div>
         </div>
 
         {request.status === "paid" ? (
-          <div className="bg-green-50 border border-green-200 p-6 text-center">
+          <div className="bg-green-50 rounded-lg p-6 text-center">
             <p className="text-green-800 font-medium">Platnosc zakonczona</p>
-            <p className="text-green-600 text-sm mt-2">Dziekujemy za oplacenie przejazdu</p>
+            <p className="text-green-600 text-sm mt-1">Dziekujemy za oplacenie przejazdu</p>
           </div>
         ) : request.status === "completed" ? (
-          <div className="bg-gray-50 border border-gray-200 p-6 text-center">
+          <div className="bg-gray-50 rounded-lg p-6 text-center">
             <p className="text-gray-800 font-medium">Przejazd zakonczony</p>
-            <p className="text-gray-600 text-sm mt-2">Dziekujemy za skorzystanie z naszych uslug</p>
+            <p className="text-gray-600 text-sm mt-1">Dziekujemy za skorzystanie z naszych uslug</p>
           </div>
         ) : (
           <button
             onClick={handleMarkAsPaid}
             disabled={isPaying}
-            className="w-full border border-green-600 bg-green-600 text-white p-4 disabled:opacity-50"
+            className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg p-4 font-medium disabled:opacity-50 transition-colors"
           >
             {isPaying ? "Przetwarzanie..." : `Zaplac ${acceptedOffer.price} PLN`}
           </button>

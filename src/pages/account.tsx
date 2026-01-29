@@ -10,18 +10,18 @@ interface Props {
   user: Omit<User, "password">;
 }
 
-type Tab = "account" | "notifications" | "logout";
+type Tab = "account" | "notifications";
 
 function VerificationBadge({ verified }: { verified: boolean }) {
   if (verified) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+      <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
         Zweryfikowany
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+    <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 font-medium">
       Niezweryfikowany
     </span>
   );
@@ -43,96 +43,99 @@ export default function AccountPage({ user }: Props) {
     signOut({ callbackUrl: "/" });
   };
 
-  const fullName = `${user.firstName} ${user.lastName}`.trim() || "Brak";
-
   return (
-    <main className="p-4 max-w-[1250px] mx-auto">
-      <h1 className="text-2xl mb-6">Moje konto</h1>
+    <main className="py-8 px-4 max-w-[1250px] mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">Moje konto</h1>
 
-      <div className="flex gap-4">
-        {/* Sidebar z zakladkami */}
-        <div className="w-48 flex flex-col gap-2">
+      <div className="flex gap-6">
+        {/* Sidebar */}
+        <div className="w-52 flex flex-col gap-2">
           <button
             onClick={() => setActiveTab("account")}
-            className={`p-2 text-left border ${activeTab === "account" ? "border-gray-500 bg-gray-100" : "border-gray-300"}`}
+            className={`p-3 text-left text-sm rounded-lg transition-colors ${
+              activeTab === "account"
+                ? "bg-blue-600 text-white font-medium"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
-            Moje konto
+            Dane konta
           </button>
           <button
             onClick={() => setActiveTab("notifications")}
-            className={`p-2 text-left border ${activeTab === "notifications" ? "border-gray-500 bg-gray-100" : "border-gray-300"}`}
+            className={`p-3 text-left text-sm rounded-lg transition-colors ${
+              activeTab === "notifications"
+                ? "bg-blue-600 text-white font-medium"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
             Powiadomienia
           </button>
           <button
             onClick={handleLogout}
-            className="p-2 text-left border border-gray-300"
+            className="p-3 text-left text-sm rounded-lg bg-white text-red-600 hover:bg-red-50 transition-colors mt-4"
           >
-            Wyloguj
+            Wyloguj sie
           </button>
         </div>
 
-        {/* Zawartosc zakladki */}
-        <div className="flex-1 border border-gray-300 p-4">
+        {/* Content */}
+        <div className="flex-1 bg-white rounded-lg p-6">
           {activeTab === "account" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-lg font-medium">Informacje o koncie</h2>
+            <div>
+              <h2 className="text-lg font-medium mb-6">Informacje o koncie</h2>
 
-              {/* Dane osobowe */}
-              <div className="flex flex-col gap-3">
-                <div className="flex gap-2">
-                  <span className="font-medium w-32">Imie:</span>
-                  <span>{user.firstName || <span className="text-gray-400">Nie podano</span>}</span>
+              <div className="space-y-5">
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-500">Imie</span>
+                  <span className="font-medium">
+                    {user.firstName || <span className="text-gray-400 font-normal">Nie podano</span>}
+                  </span>
                 </div>
-                <div className="flex gap-2">
-                  <span className="font-medium w-32">Nazwisko:</span>
-                  <span>{user.lastName || <span className="text-gray-400">Nie podano</span>}</span>
-                </div>
-              </div>
 
-              {/* Email */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex gap-2 items-center">
-                  <span className="font-medium w-32">Email:</span>
-                  <span>{user.email}</span>
-                  <VerificationBadge verified={user.emailVerified} />
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-500">Nazwisko</span>
+                  <span className="font-medium">
+                    {user.lastName || <span className="text-gray-400 font-normal">Nie podano</span>}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-500">Email</span>
+                  <div className="flex items-center gap-2">
+                    <span>{user.email}</span>
+                    <VerificationBadge verified={user.emailVerified} />
+                  </div>
                 </div>
                 {!user.emailVerified && (
-                  <button className="mt-2 text-sm text-blue-600 underline">
+                  <button className="text-sm text-blue-600 hover:text-blue-700">
                     Wyslij link weryfikacyjny
                   </button>
                 )}
-              </div>
 
-              {/* Telefon */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex gap-2 items-center">
-                  <span className="font-medium w-32">Telefon:</span>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-500">Telefon</span>
                   {user.phone ? (
-                    <>
+                    <div className="flex items-center gap-2">
                       <span>{user.phone}</span>
                       <VerificationBadge verified={user.phoneVerified} />
-                    </>
+                    </div>
                   ) : (
                     <span className="text-gray-400">Nie podano</span>
                   )}
                 </div>
                 {user.phone && !user.phoneVerified && (
-                  <button className="mt-2 text-sm text-blue-600 underline">
+                  <button className="text-sm text-blue-600 hover:text-blue-700">
                     Wyslij kod SMS
                   </button>
                 )}
                 {!user.phone && (
-                  <button className="mt-2 text-sm text-blue-600 underline">
+                  <button className="text-sm text-blue-600 hover:text-blue-700">
                     Dodaj numer telefonu
                   </button>
                 )}
-              </div>
 
-              {/* Provider */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex gap-2">
-                  <span className="font-medium w-32">Metoda logowania:</span>
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">Metoda logowania</span>
                   <span className="capitalize">{user.provider}</span>
                 </div>
               </div>
@@ -140,38 +143,44 @@ export default function AccountPage({ user }: Props) {
           )}
 
           {activeTab === "notifications" && (
-            <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-medium">Ustawienia powiadomien</h2>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifications.email}
-                  onChange={() => handleNotificationChange("email")}
-                  className="w-4 h-4"
-                />
-                <span>Powiadomienia email</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifications.push}
-                  onChange={() => handleNotificationChange("push")}
-                  className="w-4 h-4"
-                />
-                <span>Powiadomienia push</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifications.sms}
-                  onChange={() => handleNotificationChange("sms")}
-                  className="w-4 h-4"
-                />
-                <span>Powiadomienia SMS</span>
-              </label>
-              <button className="border border-gray-300 p-2 w-fit mt-2">
-                Zapisz
-              </button>
+            <div>
+              <h2 className="text-lg font-medium mb-6">Ustawienia powiadomien</h2>
+
+              <div className="space-y-4">
+                <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <span className="text-sm">Powiadomienia email</span>
+                  <input
+                    type="checkbox"
+                    checked={notifications.email}
+                    onChange={() => handleNotificationChange("email")}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <span className="text-sm">Powiadomienia push</span>
+                  <input
+                    type="checkbox"
+                    checked={notifications.push}
+                    onChange={() => handleNotificationChange("push")}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <span className="text-sm">Powiadomienia SMS</span>
+                  <input
+                    type="checkbox"
+                    checked={notifications.sms}
+                    onChange={() => handleNotificationChange("sms")}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                </label>
+
+                <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 py-2 text-sm font-medium mt-4 transition-colors">
+                  Zapisz
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -214,7 +223,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     };
   }
 
-  // Usun haslo z danych przekazywanych do frontendu
   const { password, ...userWithoutPassword } = user;
 
   return {

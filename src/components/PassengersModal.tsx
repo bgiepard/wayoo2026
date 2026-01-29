@@ -21,21 +21,21 @@ function Counter({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex justify-between items-center">
-      <span>{label}</span>
-      <div className="flex items-center gap-2">
+    <div className="flex justify-between items-center py-2">
+      <span className="text-sm">{label}</span>
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="border border-gray-300 w-8 h-8"
+          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
         >
           -
         </button>
-        <span className="w-8 text-center">{value}</span>
+        <span className="w-6 text-center font-medium">{value}</span>
         <button
           type="button"
           onClick={() => onChange(value + 1)}
-          className="border border-gray-300 w-8 h-8"
+          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
         >
           +
         </button>
@@ -65,11 +65,14 @@ export default function PassengersModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Pasażerowie">
-      <div className="flex flex-col gap-4">
-        <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} />
+    <Modal isOpen={isOpen} onClose={onClose} title="Pasazerowie">
+      <div className="flex flex-col gap-2">
+        <Counter label="Dorosli" value={localAdults} min={1} onChange={setLocalAdults} />
         <Counter label="Dzieci" value={localChildren} min={0} onChange={setLocalChildren} />
-        <button onClick={handleSave} className="border border-gray-300 p-2">
+        <button
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-4"
+        >
           Zapisz
         </button>
       </div>

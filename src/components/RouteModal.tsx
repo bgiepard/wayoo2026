@@ -28,19 +28,22 @@ export default function RouteModal({ isOpen, onClose, from, to, onSave }: RouteM
       <div className="flex flex-col gap-4">
         <input
           type="text"
-          placeholder="Skąd"
+          placeholder="Skad"
           value={localFrom}
           onChange={(e) => setLocalFrom(e.target.value)}
-          className="border border-gray-300 p-2"
+          className="border border-gray-200 rounded-lg p-3 text-sm focus:border-blue-500"
         />
         <input
           type="text"
-          placeholder="Dokąd"
+          placeholder="Dokad"
           value={localTo}
           onChange={(e) => setLocalTo(e.target.value)}
-          className="border border-gray-300 p-2"
+          className="border border-gray-200 rounded-lg p-3 text-sm focus:border-blue-500"
         />
-        <button onClick={handleSave} className="border border-gray-300 p-2">
+        <button
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium"
+        >
           Zapisz
         </button>
       </div>

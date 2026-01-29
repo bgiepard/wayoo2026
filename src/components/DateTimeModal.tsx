@@ -30,15 +30,18 @@ export default function DateTimeModal({ isOpen, onClose, date, time, onSave }: D
           type="date"
           value={localDate}
           onChange={(e) => setLocalDate(e.target.value)}
-          className="border border-gray-300 p-2"
+          className="border border-gray-200 rounded-lg p-3 text-sm focus:border-blue-500"
         />
         <input
           type="time"
           value={localTime}
           onChange={(e) => setLocalTime(e.target.value)}
-          className="border border-gray-300 p-2"
+          className="border border-gray-200 rounded-lg p-3 text-sm focus:border-blue-500"
         />
-        <button onClick={handleSave} className="border border-gray-300 p-2">
+        <button
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium"
+        >
           Zapisz
         </button>
       </div>

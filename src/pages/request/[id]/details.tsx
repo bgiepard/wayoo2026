@@ -24,34 +24,33 @@ export default function RequestDetailsPage({ request }: Props) {
     .map(([key]) => optionLabels[key] || key);
 
   return (
-    <main className="p-4 max-w-[1250px] mx-auto">
+    <main className="py-8 px-4 max-w-[1250px] mx-auto">
       <RequestSteps
         requestId={request.id}
         activeStep={1}
         hasAcceptedOffer={isRequestAccepted}
       />
 
-      <h1 className="text-2xl mb-6">Szczegoly zapytania</h1>
+      <h1 className="text-2xl font-semibold mb-6">Szczegoly zapytania</h1>
 
-      <div className="border border-gray-300 p-4 flex flex-col gap-4">
-        <div className="flex gap-2">
-          <span className="font-medium">Trasa:</span>
-          <span>{request.from} → {request.to}</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Data i godzina:</span>
-          <span>{request.date} {request.time}</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Pasazerowie:</span>
-          <span>{request.adults} doroslych, {request.children} dzieci</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="font-medium">Dodatkowe opcje:</span>
-          <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
+      <div className="bg-white rounded-lg p-6">
+        <div className="space-y-4">
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Trasa</span>
+            <span className="font-medium">{request.from} → {request.to}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Data i godzina</span>
+            <span>{request.date} o {request.time}</span>
+          </div>
+          <div className="flex justify-between py-3 border-b border-gray-100">
+            <span className="text-gray-500">Pasazerowie</span>
+            <span>{request.adults} doroslych, {request.children} dzieci</span>
+          </div>
+          <div className="flex justify-between py-3">
+            <span className="text-gray-500">Dodatkowe opcje</span>
+            <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
+          </div>
         </div>
       </div>
     </main>

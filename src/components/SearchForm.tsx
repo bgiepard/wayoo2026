@@ -68,42 +68,52 @@ export default function SearchForm() {
     router.push("/request/draft/details");
   };
 
+  const buttonBase = "bg-gray-50 hover:bg-gray-100 rounded-lg p-4 text-left text-sm transition-colors";
+  const buttonError = "ring-2 ring-red-400";
+
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex gap-4">
+      <form onSubmit={handleSubmit} className="flex gap-3">
         <button
           type="button"
           onClick={() => setActiveModal("route")}
-          className={`border p-2 flex-1 text-left ${errors.route ? "border-red-500" : "border-gray-300"}`}
+          className={`${buttonBase} flex-1 ${errors.route ? buttonError : ""}`}
         >
-          {data.from && data.to ? `${data.from} → ${data.to}` : "Trasa"}
+          <span className="text-gray-400 text-xs block mb-1">Trasa</span>
+          {data.from && data.to ? `${data.from} → ${data.to}` : <span className="text-gray-400">Wybierz</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setActiveModal("datetime")}
-          className={`border p-2 flex-1 text-left ${errors.datetime ? "border-red-500" : "border-gray-300"}`}
+          className={`${buttonBase} flex-1 ${errors.datetime ? buttonError : ""}`}
         >
-          {data.date && data.time ? `${data.date} ${data.time}` : "Data i godzina"}
+          <span className="text-gray-400 text-xs block mb-1">Kiedy</span>
+          {data.date && data.time ? `${data.date} ${data.time}` : <span className="text-gray-400">Wybierz</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setActiveModal("passengers")}
-          className="border border-gray-300 p-2 flex-1 text-left"
+          className={`${buttonBase} flex-1`}
         >
-          {`${data.adults} dorosłych, ${data.children} dzieci`}
+          <span className="text-gray-400 text-xs block mb-1">Pasazerowie</span>
+          {`${data.adults + data.children} os.`}
         </button>
 
         <button
           type="button"
           onClick={() => setActiveModal("options")}
-          className="border border-gray-300 p-2 flex-1 text-left"
+          className={`${buttonBase} flex-1`}
         >
-          {getSelectedOptionsCount() > 0 ? `Opcje (${getSelectedOptionsCount()})` : "Dodatkowe opcje"}
+          <span className="text-gray-400 text-xs block mb-1">Opcje</span>
+          {getSelectedOptionsCount() > 0 ? `${getSelectedOptionsCount()} wybrano` : <span className="text-gray-400">Brak</span>}
         </button>
 
-        <button type="submit" className="border border-gray-300 p-2">
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 font-medium transition-colors"
+        >
           Szukaj
         </button>
       </form>

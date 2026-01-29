@@ -38,30 +38,28 @@ const getStatusText = (status: RequestStatus, offersCount: number = 0) => {
   }
 };
 
-const getStatusColor = (status: RequestStatus, offersCount: number = 0) => {
+const getStatusStyle = (status: RequestStatus, offersCount: number = 0) => {
   switch (status) {
     case "draft":
-      return "text-gray-500";
+      return "bg-gray-100 text-gray-600";
     case "published":
-      return offersCount > 0 ? "text-green-600" : "text-yellow-600";
+      return offersCount > 0 ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700";
     case "accepted":
-      return "text-orange-600";
+      return "bg-orange-100 text-orange-700";
     case "paid":
-      return "text-green-600";
+      return "bg-green-100 text-green-700";
     case "completed":
-      return "text-gray-600";
+      return "bg-gray-100 text-gray-600";
     case "cancelled":
-      return "text-red-600";
+      return "bg-red-100 text-red-700";
     default:
-      return "text-gray-600";
+      return "bg-gray-100 text-gray-600";
   }
 };
 
 export default function MyRequestsPage({ requests }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("active");
 
-  // Aktywne: draft, published, accepted, paid
-  // Zakonczone: completed, cancelled
   const activeStatuses: RequestStatus[] = ["draft", "published", "accepted", "paid"];
   const completedStatuses: RequestStatus[] = ["completed", "cancelled"];
 
@@ -71,61 +69,61 @@ export default function MyRequestsPage({ requests }: Props) {
   const displayedRequests = activeTab === "active" ? activeRequests : completedRequests;
 
   return (
-    <main className="p-4 max-w-[1250px] mx-auto">
-      <h1 className="text-2xl mb-6">Moje zapytania</h1>
+    <main className="py-8 px-4 max-w-[1250px] mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">Moje zapytania</h1>
 
-      {/* Taby */}
-      <div className="flex gap-0 mb-6">
+      <div className="flex gap-2 mb-6">
         <button
           onClick={() => setActiveTab("active")}
-          className={`px-4 py-2 border ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === "active"
-              ? "border-gray-800 bg-gray-800 text-white"
-              : "border-gray-300"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Aktywne ({activeRequests.length})
         </button>
         <button
           onClick={() => setActiveTab("completed")}
-          className={`px-4 py-2 border border-l-0 ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === "completed"
-              ? "border-gray-800 bg-gray-800 text-white"
-              : "border-gray-300"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Zakonczone ({completedRequests.length})
         </button>
       </div>
 
-      {/* Lista zapytan */}
       {displayedRequests.length === 0 ? (
-        <p className="text-gray-500">
+        <div className="bg-white rounded-lg p-8 text-center text-gray-500">
           {activeTab === "active"
             ? "Nie masz aktywnych zapytan."
             : "Nie masz zakonczonych zapytan."}
-        </p>
+        </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {displayedRequests.map((request) => (
             <Link
               key={request.id}
               href={`/request/${request.id}`}
-              className="border border-gray-300 p-4 flex justify-between items-center hover:bg-gray-50"
+              className="bg-white rounded-lg p-5 flex justify-between items-center hover:shadow-md transition-shadow"
             >
               <div className="flex flex-col gap-1">
-                <span className="font-medium">
+                <span className="font-medium text-gray-900">
                   {request.from} → {request.to}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {request.date} {request.time}
-                </span>
-                <span className={`text-sm font-medium ${getStatusColor(request.status, request.offersCount)}`}>
-                  {getStatusText(request.status, request.offersCount)}
+                  {request.date} o {request.time}
                 </span>
               </div>
-              <div className="text-sm text-gray-500">
-                {request.adults + request.children} os.
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-500">
+                  {request.adults + request.children} os.
+                </span>
+                <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(request.status, request.offersCount)}`}>
+                  {getStatusText(request.status, request.offersCount)}
+                </span>
               </div>
             </Link>
           ))}
