@@ -76,8 +76,8 @@ export default function SearchForm() {
     }
 
     setErrors({});
-    localStorage.setItem("pending_request", JSON.stringify(data));
-    router.push("/request/new");
+    localStorage.setItem("draft_request", JSON.stringify(data));
+    router.push("/request/draft/details");
   };
 
   return (

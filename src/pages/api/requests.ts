@@ -39,9 +39,9 @@ export default async function handler(
       to,
       date,
       time,
-      adults,
-      children,
-      options,
+      adults: adults || 1,
+      children: children || 0,
+      options: options || {},
     });
 
     return res.status(201).json({ id: request.id });

@@ -71,6 +71,9 @@ export async function verifyPassword(
   return bcrypt.compare(plainPassword, hashedPassword);
 }
 
+// Request status types
+export type RequestStatus = 'draft' | 'published' | 'accepted' | 'paid' | 'completed' | 'cancelled';
+
 // Request types and functions
 export interface RequestData {
   id: string;
@@ -83,7 +86,7 @@ export interface RequestData {
   adults: number;
   children: number;
   options: string;
-  status: number;
+  status: RequestStatus;
 }
 
 // Offer types
@@ -123,7 +126,7 @@ export async function createRequest(
     adults: data.adults,
     children: data.children,
     options: JSON.stringify(data.options),
-    status: 2,
+    status: 'published',
   });
 
   return {
@@ -137,7 +140,7 @@ export async function createRequest(
     adults: record.get("adults") as number,
     children: record.get("children") as number,
     options: record.get("options") as string,
-    status: record.get("status") as number,
+    status: (record.get("status") as RequestStatus) || 'published',
   };
 }
 
@@ -157,7 +160,7 @@ export async function getRequestById(id: string): Promise<RequestData | null> {
       adults: record.get("adults") as number,
       children: record.get("children") as number,
       options: record.get("options") as string,
-      status: (record.get("status") as number) || 2,
+      status: (record.get("status") as RequestStatus) || 'published',
     };
   } catch {
     return null;
@@ -185,7 +188,7 @@ export async function getRequestsByUserId(userId: string): Promise<RequestData[]
       adults: record.get("adults") as number,
       children: record.get("children") as number,
       options: record.get("options") as string,
-      status: (record.get("status") as number) || 2,
+      status: (record.get("status") as RequestStatus) || 'published',
     };
   });
 }
@@ -211,7 +214,7 @@ export async function getRequestsByUserEmail(email: string): Promise<RequestData
       adults: record.get("adults") as number,
       children: record.get("children") as number,
       options: record.get("options") as string,
-      status: (record.get("status") as number) || 2,
+      status: (record.get("status") as RequestStatus) || 'published',
     };
   });
 }
@@ -270,7 +273,27 @@ export async function getOffersByRequest(requestId: string): Promise<OfferData[]
     })
   );
 
-  return offers;
+  // Sortuj od najnowszych (odwróć kolejność - nowsze rekordy mają wyższe ID)
+  return offers.reverse();
+}
+
+export async function getOffersCountByRequestIds(requestIds: string[]): Promise<Record<string, number>> {
+  if (requestIds.length === 0) return {};
+
+  const allRecords = await offersTable.select().all();
+
+  const counts: Record<string, number> = {};
+  requestIds.forEach((id) => (counts[id] = 0));
+
+  allRecords.forEach((record) => {
+    const requestLinks = record.get("Request") as string[] | undefined;
+    const requestId = requestLinks?.[0];
+    if (requestId && requestIds.includes(requestId)) {
+      counts[requestId] = (counts[requestId] || 0) + 1;
+    }
+  });
+
+  return counts;
 }
 
 export async function acceptOffer(offerId: string, requestId: string): Promise<void> {
@@ -278,7 +301,7 @@ export async function acceptOffer(offerId: string, requestId: string): Promise<v
   await offersTable.update(offerId, { status: 2 });
 
   // Update request status to accepted
-  await requestsTable.update(requestId, { status: 4 });
+  await requestsTable.update(requestId, { status: 'accepted' });
 
   // Reject all other offers for this request
   const otherOffers = await offersTable

@@ -3,48 +3,53 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { useState } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { getRequestsByUserEmail, RequestData } from "@/lib/airtable";
+import { getRequestsByUserEmail, getOffersCountByRequestIds, RequestData, RequestStatus } from "@/lib/airtable";
 
-interface SessionUser {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
+interface RequestWithOffers extends RequestData {
+  offersCount: number;
 }
 
 interface Props {
-  requests: RequestData[];
+  requests: RequestWithOffers[];
 }
 
 type Tab = "active" | "completed";
 
-const getStatusText = (status: number) => {
+const getStatusText = (status: RequestStatus, offersCount: number = 0) => {
   switch (status) {
-    case 2:
+    case "draft":
+      return "Wersja robocza";
+    case "published":
+      if (offersCount > 0) {
+        return `${offersCount} ${offersCount === 1 ? "oferta" : offersCount < 5 ? "oferty" : "ofert"}`;
+      }
       return "Oczekuje na oferty";
-    case 3:
-      return "Ma oferty";
-    case 4:
-      return "Zaakceptowane";
-    case 5:
+    case "accepted":
+      return "Oczekuje na platnosc";
+    case "paid":
+      return "Oplacone";
+    case "completed":
       return "Zakonczone";
-    case 6:
+    case "cancelled":
       return "Anulowane";
     default:
       return "Nieznany";
   }
 };
 
-const getStatusColor = (status: number) => {
+const getStatusColor = (status: RequestStatus, offersCount: number = 0) => {
   switch (status) {
-    case 2:
-      return "text-yellow-600";
-    case 3:
-      return "text-blue-600";
-    case 4:
+    case "draft":
+      return "text-gray-500";
+    case "published":
+      return offersCount > 0 ? "text-green-600" : "text-yellow-600";
+    case "accepted":
+      return "text-orange-600";
+    case "paid":
       return "text-green-600";
-    case 5:
+    case "completed":
       return "text-gray-600";
-    case 6:
+    case "cancelled":
       return "text-red-600";
     default:
       return "text-gray-600";
@@ -54,10 +59,13 @@ const getStatusColor = (status: number) => {
 export default function MyRequestsPage({ requests }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("active");
 
-  // Aktywne: status 2 (nowy), 3 (ma oferty), 4 (zaakceptowane)
-  // Zakonczone: status 5, 6
-  const activeRequests = requests.filter((r) => r.status >= 2 && r.status <= 4);
-  const completedRequests = requests.filter((r) => r.status >= 5);
+  // Aktywne: draft, published, accepted, paid
+  // Zakonczone: completed, cancelled
+  const activeStatuses: RequestStatus[] = ["draft", "published", "accepted", "paid"];
+  const completedStatuses: RequestStatus[] = ["completed", "cancelled"];
+
+  const activeRequests = requests.filter((r) => activeStatuses.includes(r.status));
+  const completedRequests = requests.filter((r) => completedStatuses.includes(r.status));
 
   const displayedRequests = activeTab === "active" ? activeRequests : completedRequests;
 
@@ -111,8 +119,8 @@ export default function MyRequestsPage({ requests }: Props) {
                 <span className="text-sm text-gray-500">
                   {request.date} {request.time}
                 </span>
-                <span className={`text-sm font-medium ${getStatusColor(request.status)}`}>
-                  {getStatusText(request.status)}
+                <span className={`text-sm font-medium ${getStatusColor(request.status, request.offersCount)}`}>
+                  {getStatusText(request.status, request.offersCount)}
                 </span>
               </div>
               <div className="text-sm text-gray-500">
@@ -139,10 +147,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   }
 
   const requests = await getRequestsByUserEmail(session.user.email);
+  const requestIds = requests.map((r) => r.id);
+  const offersCounts = await getOffersCountByRequestIds(requestIds);
+
+  const requestsWithOffers: RequestWithOffers[] = requests.map((r) => ({
+    ...r,
+    offersCount: offersCounts[r.id] || 0,
+  }));
 
   return {
     props: {
-      requests,
+      requests: requestsWithOffers,
     },
   };
 };
