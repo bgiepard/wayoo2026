@@ -150,10 +150,30 @@ export interface SearchData {
 }
 
 // --------------------------------------------
-// NOTIFICATION - Powiadomienia
+// NOTIFICATION - Powiadomienia (Tabela Notifications)
 // --------------------------------------------
 export type NotificationType = 'new_offer' | 'offer_accepted' | 'info';
 
+export interface NotificationData {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  read: boolean;
+  createdAt: string; // ISO string w Airtable
+}
+
+export interface CreateNotificationData {
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+}
+
+// Frontend notification (z Date zamiast string)
 export interface Notification {
   id: string;
   type: NotificationType;

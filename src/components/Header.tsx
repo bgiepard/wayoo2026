@@ -59,7 +59,14 @@ export default function Header() {
             <>
               <div className="relative" ref={dropdownRef}>
                 <button
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  onClick={() => {
+                    const wasOpen = isNotificationsOpen;
+                    setIsNotificationsOpen(!isNotificationsOpen);
+                    // Oznacz jako przeczytane gdy otwieramy dropdown i są nieprzeczytane
+                    if (!wasOpen && unreadCount > 0) {
+                      markAllAsRead();
+                    }
+                  }}
                   className={`relative p-2 text-gray-500 hover:text-gray-800 ${isAnimating ? "animate-bell" : ""}`}
                 >
                   <svg

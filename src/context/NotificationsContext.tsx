@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 
 export interface Notification {
   id: string;
@@ -17,62 +18,130 @@ interface NotificationsContextType {
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
+  refreshNotifications: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const hasFetched = useRef(false);
 
-  // Zaladuj powiadomienia z localStorage przy starcie
-  useEffect(() => {
-    const saved = localStorage.getItem("wayoo_notifications");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
+  // Pobierz powiadomienia z bazy danych gdy użytkownik jest zalogowany
+  const fetchNotifications = useCallback(async () => {
+    if (!session?.user) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
         setNotifications(
-          parsed.map((n: Notification) => ({
-            ...n,
+          data.map((n: { id: string; type: string; title: string; message: string; link?: string; read: boolean; createdAt: string }) => ({
+            id: n.id,
+            type: n.type,
+            title: n.title,
+            message: n.message,
+            link: n.link,
+            read: n.read,
             createdAt: new Date(n.createdAt),
           }))
         );
-      } catch {
-        // Ignoruj bledy parsowania
       }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [session?.user]);
 
-  // Zapisz powiadomienia do localStorage przy zmianie
+  // Fetch notifications when user logs in
   useEffect(() => {
-    localStorage.setItem("wayoo_notifications", JSON.stringify(notifications));
-  }, [notifications]);
+    if (status === "authenticated" && session?.user && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchNotifications();
+    }
+
+    if (status === "unauthenticated") {
+      hasFetched.current = false;
+      setNotifications([]);
+    }
+  }, [status, session?.user, fetchNotifications]);
 
   const addNotification = useCallback(
-    (notification: Omit<Notification, "id" | "read" | "createdAt">) => {
+    async (notification: Omit<Notification, "id" | "read" | "createdAt">) => {
+      // Dodaj lokalnie natychmiast (optimistic update)
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const newNotification: Notification = {
         ...notification,
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: tempId,
         read: false,
         createdAt: new Date(),
       };
-      setNotifications((prev) => [newNotification, ...prev].slice(0, 50)); // Max 50 powiadomien
+      setNotifications((prev) => [newNotification, ...prev].slice(0, 50));
+
+      // Zapisz do bazy danych jeśli użytkownik jest zalogowany
+      if (session?.user) {
+        try {
+          const res = await fetch("/api/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(notification),
+          });
+
+          if (res.ok) {
+            const saved = await res.json();
+            // Zamień tymczasowe ID na prawdziwe z bazy
+            setNotifications((prev) =>
+              prev.map((n) =>
+                n.id === tempId
+                  ? { ...n, id: saved.id, createdAt: new Date(saved.createdAt) }
+                  : n
+              )
+            );
+          }
+        } catch (error) {
+          console.error("Error saving notification:", error);
+        }
+      }
     },
-    []
+    [session?.user]
   );
 
   const markAsRead = useCallback((id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
+    // Pojedyncze powiadomienie - nie robimy osobnego API call
+    // markAllAsRead obsługuje synchronizację z bazą
   }, []);
 
-  const markAllAsRead = useCallback(() => {
+  const markAllAsRead = useCallback(async () => {
+    // Aktualizuj lokalnie natychmiast
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }, []);
+
+    // Zapisz do bazy danych jeśli użytkownik jest zalogowany
+    if (session?.user) {
+      try {
+        await fetch("/api/notifications", {
+          method: "PATCH",
+        });
+      } catch (error) {
+        console.error("Error marking notifications as read:", error);
+      }
+    }
+  }, [session?.user]);
 
   const clearAll = useCallback(() => {
     setNotifications([]);
   }, []);
+
+  const refreshNotifications = useCallback(async () => {
+    await fetchNotifications();
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -85,6 +154,8 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         markAsRead,
         markAllAsRead,
         clearAll,
+        refreshNotifications,
+        isLoading,
       }}
     >
       {children}

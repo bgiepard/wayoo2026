@@ -10,6 +10,7 @@ export const usersTable = base(process.env.AIRTABLE_TABLE_NAME || "Users");
 export const requestsTable = base("Requests");
 export const offersTable = base("Offers");
 export const driversTable = base("Drivers");
+export const notificationsTable = base("Notifications");
 
 // Re-eksport typów z models dla wstecznej kompatybilności
 export type {
