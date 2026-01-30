@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { getRequestById, getOffersByRequest } from "@/services";
-import type { RequestData, OfferData } from "@/models";
+import type { RequestData, OfferData, Route } from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 
 interface Props {
@@ -66,7 +66,14 @@ export default function RequestPaymentPage({ request: initialRequest, acceptedOf
         <div className="space-y-3 mb-6">
           <div className="flex justify-between py-3 border-b border-gray-100">
             <span className="text-gray-500">Trasa</span>
-            <span className="font-medium">{request.from} → {request.to}</span>
+            <span className="font-medium">
+              {(() => {
+                const route: Route = JSON.parse(request.route || "{}");
+                const originName = route.origin?.address?.split(",")[0] || "";
+                const destName = route.destination?.address?.split(",")[0] || "";
+                return originName && destName ? `${originName} → ${destName}` : "Brak trasy";
+              })()}
+            </span>
           </div>
           <div className="flex justify-between py-3 border-b border-gray-100">
             <span className="text-gray-500">Data</span>

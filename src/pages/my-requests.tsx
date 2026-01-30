@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { getRequestsByUserEmail, getOffersCountByRequestIds } from "@/services";
-import type { RequestData, RequestStatus } from "@/models";
+import type { RequestData, RequestStatus, Route } from "@/models";
 
 interface RequestWithOffers extends RequestData {
   offersCount: number;
@@ -103,30 +103,37 @@ export default function MyRequestsPage({ requests }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {displayedRequests.map((request) => (
-            <Link
-              key={request.id}
-              href={`/request/${request.id}`}
-              className="bg-white rounded-lg p-5 flex justify-between items-center hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col gap-1">
-                <span className="font-medium text-gray-900">
-                  {request.from} → {request.to}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {request.date} o {request.time}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-500">
-                  {request.adults + request.children} os.
-                </span>
-                <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(request.status, request.offersCount)}`}>
-                  {getStatusText(request.status, request.offersCount)}
-                </span>
-              </div>
-            </Link>
-          ))}
+          {displayedRequests.map((request) => {
+            const route: Route = JSON.parse(request.route || "{}");
+            const originName = route.origin?.address?.split(",")[0] || "";
+            const destName = route.destination?.address?.split(",")[0] || "";
+            const routeDisplay = originName && destName ? `${originName} → ${destName}` : "Brak trasy";
+
+            return (
+              <Link
+                key={request.id}
+                href={`/request/${request.id}`}
+                className="bg-white rounded-lg p-5 flex justify-between items-center hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium text-gray-900">
+                    {routeDisplay}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {request.date} o {request.time}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-500">
+                    {request.adults + request.children} os.
+                  </span>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(request.status, request.offersCount)}`}>
+                    {getStatusText(request.status, request.offersCount)}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </main>

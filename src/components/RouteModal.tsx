@@ -1,78 +1,80 @@
 import { useState, useEffect } from "react";
 import Modal from "./ui/Modal";
 import PlaceAutocomplete from "./PlaceAutocomplete";
+import type { Route, Place } from "@/models";
+import { emptyPlace } from "@/models";
 
 const MAX_STOPS = 3;
 
 interface RouteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  from: string;
-  to: string;
-  stops?: string[];
-  onSave: (from: string, to: string, stops: string[]) => void;
+  route: Route;
+  onSave: (route: Route) => void;
 }
 
 export default function RouteModal({
   isOpen,
   onClose,
-  from,
-  to,
-  stops = [],
+  route,
   onSave,
 }: RouteModalProps) {
-  const [localFrom, setLocalFrom] = useState(from);
-  const [localTo, setLocalTo] = useState(to);
-  const [localStops, setLocalStops] = useState<string[]>(stops);
+  const [localOrigin, setLocalOrigin] = useState<Place>(route.origin);
+  const [localDestination, setLocalDestination] = useState<Place>(route.destination);
+  const [localWaypoints, setLocalWaypoints] = useState<Place[]>(route.waypoints);
 
   useEffect(() => {
-    setLocalFrom(from);
-    setLocalTo(to);
-    setLocalStops(stops);
-  }, [from, to, stops]);
+    setLocalOrigin(route.origin);
+    setLocalDestination(route.destination);
+    setLocalWaypoints(route.waypoints);
+  }, [route]);
 
   const handleSave = () => {
-    // Filter out empty stops
-    const filteredStops = localStops.filter((stop) => stop.trim() !== "");
-    onSave(localFrom, localTo, filteredStops);
+    // Filter out empty waypoints
+    const filteredWaypoints = localWaypoints.filter((wp) => wp.address.trim() !== "");
+    onSave({
+      origin: localOrigin,
+      destination: localDestination,
+      waypoints: filteredWaypoints,
+    });
     onClose();
   };
 
-  const handleAddStop = () => {
-    if (localStops.length < MAX_STOPS) {
-      setLocalStops([...localStops, ""]);
+  const handleAddWaypoint = () => {
+    if (localWaypoints.length < MAX_STOPS) {
+      setLocalWaypoints([...localWaypoints, { ...emptyPlace }]);
     }
   };
 
-  const handleStopChange = (index: number, value: string) => {
-    const newStops = [...localStops];
-    newStops[index] = value;
-    setLocalStops(newStops);
+  const handleWaypointChange = (index: number, place: Place) => {
+    const newWaypoints = [...localWaypoints];
+    newWaypoints[index] = place;
+    setLocalWaypoints(newWaypoints);
   };
 
-  const handleRemoveStop = (index: number) => {
-    setLocalStops(localStops.filter((_, i) => i !== index));
+  const handleRemoveWaypoint = (index: number) => {
+    setLocalWaypoints(localWaypoints.filter((_, i) => i !== index));
   };
 
-  const canAddStop = localStops.length < MAX_STOPS;
+  const canAddWaypoint = localWaypoints.length < MAX_STOPS;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Trasa" width="w-96">
       <div className="flex flex-col gap-3">
-        {/* From */}
+        {/* Origin */}
         <PlaceAutocomplete
-          value={localFrom}
-          onChange={setLocalFrom}
+          value={localOrigin}
+          onChange={setLocalOrigin}
           placeholder="Skad"
           showLocateButton
         />
 
-        {/* Stops */}
-        {localStops.map((stop, index) => (
+        {/* Waypoints */}
+        {localWaypoints.map((waypoint, index) => (
           <div key={index} className="relative">
             <PlaceAutocomplete
-              value={stop}
-              onChange={(value) => handleStopChange(index, value)}
+              value={waypoint}
+              onChange={(place) => handleWaypointChange(index, place)}
               placeholder={`Przystanek ${index + 1}`}
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +89,7 @@ export default function RouteModal({
             />
             <button
               type="button"
-              onClick={() => handleRemoveStop(index)}
+              onClick={() => handleRemoveWaypoint(index)}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
               title="Usun przystanek"
             >
@@ -98,24 +100,24 @@ export default function RouteModal({
           </div>
         ))}
 
-        {/* Add Stop Button */}
-        {canAddStop && (
+        {/* Add Waypoint Button */}
+        {canAddWaypoint && (
           <button
             type="button"
-            onClick={handleAddStop}
+            onClick={handleAddWaypoint}
             className="flex items-center justify-center gap-2 py-2 px-4 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-dashed border-blue-300 rounded-lg transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Dodaj przystanek ({localStops.length}/{MAX_STOPS})
+            Dodaj przystanek ({localWaypoints.length}/{MAX_STOPS})
           </button>
         )}
 
-        {/* To */}
+        {/* Destination */}
         <PlaceAutocomplete
-          value={localTo}
-          onChange={setLocalTo}
+          value={localDestination}
+          onChange={setLocalDestination}
           placeholder="Dokad"
           icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

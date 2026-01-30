@@ -4,7 +4,8 @@ import RouteModal from "./RouteModal";
 import DateTimeModal from "./DateTimeModal";
 import PassengersModal from "./PassengersModal";
 import OptionsModal from "./OptionsModal";
-import type { SearchData, Options } from "@/models";
+import type { SearchData, Options, Route } from "@/models";
+import { emptyRoute } from "@/models";
 
 const defaultOptions: Options = {
   wifi: false,
@@ -17,9 +18,7 @@ const defaultOptions: Options = {
 export default function SearchForm() {
   const router = useRouter();
   const [data, setData] = useState<SearchData>({
-    from: "",
-    to: "",
-    stops: [],
+    route: { ...emptyRoute },
     date: "",
     time: "",
     adults: 1,
@@ -30,9 +29,11 @@ export default function SearchForm() {
   const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "options" | null>(null);
   const [errors, setErrors] = useState<{ route?: boolean; datetime?: boolean }>({});
 
-  const handleRouteChange = (from: string, to: string, stops: string[]) => {
-    setData({ ...data, from, to, stops });
-    if (from && to) setErrors((prev) => ({ ...prev, route: false }));
+  const handleRouteChange = (route: Route) => {
+    setData({ ...data, route });
+    if (route.origin.address && route.destination.address) {
+      setErrors((prev) => ({ ...prev, route: false }));
+    }
   };
 
   const handleDateTimeChange = (date: string, time: string) => {
@@ -56,7 +57,7 @@ export default function SearchForm() {
     e.preventDefault();
 
     const newErrors: { route?: boolean; datetime?: boolean } = {};
-    if (!data.from || !data.to) newErrors.route = true;
+    if (!data.route.origin.address || !data.route.destination.address) newErrors.route = true;
     if (!data.date || !data.time) newErrors.datetime = true;
 
     if (Object.keys(newErrors).length > 0) {
@@ -72,6 +73,9 @@ export default function SearchForm() {
   const buttonBase = "bg-gray-50 hover:bg-gray-100 rounded-lg p-4 text-left text-sm transition-colors";
   const buttonError = "ring-2 ring-red-400";
 
+  const hasRoute = data.route.origin.address && data.route.destination.address;
+  const waypointsCount = data.route.waypoints.length;
+
   return (
     <>
       <form onSubmit={handleSubmit} className="flex gap-3">
@@ -81,9 +85,12 @@ export default function SearchForm() {
           className={`${buttonBase} flex-1 ${errors.route ? buttonError : ""}`}
         >
           <span className="text-gray-400 text-xs block mb-1">Trasa</span>
-          {data.from && data.to ? (
+          {hasRoute ? (
             <span className="truncate block">
-              {data.from} {data.stops.length > 0 && `→ ${data.stops.length} przyst.`} → {data.to}
+              {data.route.origin.address.split(",")[0]}
+              {waypointsCount > 0 && ` → ${waypointsCount} przyst.`}
+              {" → "}
+              {data.route.destination.address.split(",")[0]}
             </span>
           ) : (
             <span className="text-gray-400">Wybierz</span>
@@ -128,9 +135,7 @@ export default function SearchForm() {
       <RouteModal
         isOpen={activeModal === "route"}
         onClose={() => setActiveModal(null)}
-        from={data.from}
-        to={data.to}
-        stops={data.stops}
+        route={data.route}
         onSave={handleRouteChange}
       />
       <DateTimeModal

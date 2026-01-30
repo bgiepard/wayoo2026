@@ -41,6 +41,37 @@ export interface Driver {
 }
 
 // --------------------------------------------
+// ROUTE - Struktura trasy z koordynatami
+// --------------------------------------------
+export interface Place {
+  address: string;
+  placeId: string;
+  lat: number;
+  lng: number;
+}
+
+export interface Route {
+  origin: Place;
+  destination: Place;
+  waypoints: Place[];
+}
+
+// Pusta lokalizacja (dla inicjalizacji)
+export const emptyPlace: Place = {
+  address: '',
+  placeId: '',
+  lat: 0,
+  lng: 0,
+};
+
+// Pusta trasa (dla inicjalizacji)
+export const emptyRoute: Route = {
+  origin: { ...emptyPlace },
+  destination: { ...emptyPlace },
+  waypoints: [],
+};
+
+// --------------------------------------------
 // REQUEST - Tabela Requests
 // --------------------------------------------
 export type RequestStatus =
@@ -55,9 +86,7 @@ export interface RequestData {
   id: string;
   userId: string;
   userEmail: string;
-  from: string;
-  to: string;
-  stops: string; // JSON string array
+  route: string; // JSON string (Route)
   date: string;
   time: string;
   adults: number;
@@ -67,9 +96,7 @@ export interface RequestData {
 }
 
 export interface CreateRequestData {
-  from: string;
-  to: string;
-  stops: string[];
+  route: Route;
   date: string;
   time: string;
   adults: number;
@@ -114,9 +141,7 @@ export interface Options {
 // SEARCH FORM - Dane formularza wyszukiwania
 // --------------------------------------------
 export interface SearchData {
-  from: string;
-  to: string;
-  stops: string[];
+  route: Route;
   date: string;
   time: string;
   adults: number;

@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import type { Route } from "@/models";
 
 interface RouteMapProps {
-  from: string;
-  to: string;
-  stops?: string[];
+  route: Route;
 }
 
-export default function RouteMap({ from, to, stops = [] }: RouteMapProps) {
+export default function RouteMap({ route }: RouteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [distance, setDistance] = useState<string | null>(null);
@@ -15,7 +14,7 @@ export default function RouteMap({ from, to, stops = [] }: RouteMapProps) {
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
   useEffect(() => {
-    if (!from || !to) return;
+    if (!route.origin.lat || !route.destination.lat) return;
 
     const initMap = () => {
       if (!window.google?.maps || !mapRef.current) {
@@ -51,15 +50,17 @@ export default function RouteMap({ from, to, stops = [] }: RouteMapProps) {
 
       const directionsService = new window.google.maps.DirectionsService();
 
-      // Build waypoints from stops
-      const waypoints: google.maps.DirectionsWaypoint[] = stops.map((stop) => ({
-        location: stop,
-        stopover: true,
-      }));
+      // Build waypoints from route waypoints using coordinates
+      const waypoints: google.maps.DirectionsWaypoint[] = route.waypoints
+        .filter((wp) => wp.lat && wp.lng)
+        .map((wp) => ({
+          location: new google.maps.LatLng(wp.lat, wp.lng),
+          stopover: true,
+        }));
 
       const request: google.maps.DirectionsRequest = {
-        origin: from,
-        destination: to,
+        origin: new google.maps.LatLng(route.origin.lat, route.origin.lng),
+        destination: new google.maps.LatLng(route.destination.lat, route.destination.lng),
         waypoints: waypoints,
         travelMode: google.maps.TravelMode.DRIVING,
         region: "pl",
@@ -88,6 +89,11 @@ export default function RouteMap({ from, to, stops = [] }: RouteMapProps) {
       });
     };
 
+    // Reset state
+    setIsLoading(true);
+    setError(null);
+    setDistance(null);
+
     // Wait for Google Maps to load
     const checkAndInit = () => {
       if (initMap()) {
@@ -106,7 +112,16 @@ export default function RouteMap({ from, to, stops = [] }: RouteMapProps) {
 
       return () => clearInterval(interval);
     }
-  }, [from, to, stops]);
+  }, [route]);
+
+  // Don't render if no valid coordinates
+  if (!route.origin.lat || !route.destination.lat) {
+    return (
+      <div className="w-full h-[350px] rounded-lg bg-gray-100 flex items-center justify-center">
+        <span className="text-gray-500 text-sm">Wybierz trase, aby zobaczyc mape</span>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

@@ -27,17 +27,15 @@ export default async function handler(
   const userId = user.id || "";
   const userEmail = user.email || "";
 
-  const { from, to, stops, date, time, adults, children, options } = req.body;
+  const { route, date, time, adults, children, options } = req.body;
 
-  if (!from || !to || !date || !time) {
+  if (!route || !route.origin || !route.destination || !date || !time) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
     const request = await createRequest(userId, userEmail, {
-      from,
-      to,
-      stops: stops || [],
+      route,
       date,
       time,
       adults: adults || 1,

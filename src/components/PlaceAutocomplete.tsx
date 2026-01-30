@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import type { Place } from "@/models";
 
 interface PlaceAutocompleteProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSelect?: (value: string) => void;
+  value: Place;
+  onChange: (place: Place) => void;
   placeholder: string;
   icon?: React.ReactNode;
   disabled?: boolean;
@@ -19,15 +19,22 @@ interface PlacePrediction {
   };
 }
 
+const emptyPlace: Place = {
+  address: "",
+  placeId: "",
+  lat: 0,
+  lng: 0,
+};
+
 export default function PlaceAutocomplete({
   value,
   onChange,
-  onSelect,
   placeholder,
   icon,
   disabled = false,
   showLocateButton = false,
 }: PlaceAutocompleteProps) {
+  const [inputValue, setInputValue] = useState(value.address);
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,22 +42,35 @@ export default function PlaceAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const dummyDivRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize Google Places Autocomplete Service
+  // Sync input value with prop
   useEffect(() => {
-    const initService = () => {
+    setInputValue(value.address);
+  }, [value.address]);
+
+  // Initialize Google Places Services
+  useEffect(() => {
+    const initServices = () => {
       if (typeof window !== "undefined" && window.google?.maps?.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
         geocoderRef.current = new window.google.maps.Geocoder();
+
+        // PlacesService requires a DOM element or map
+        if (!dummyDivRef.current) {
+          dummyDivRef.current = document.createElement("div");
+        }
+        placesServiceRef.current = new window.google.maps.places.PlacesService(dummyDivRef.current);
         return true;
       }
       return false;
     };
 
-    if (!initService()) {
+    if (!initServices()) {
       const interval = setInterval(() => {
-        if (initService()) {
+        if (initServices()) {
           clearInterval(interval);
         }
       }, 100);
@@ -81,7 +101,6 @@ export default function PlaceAutocomplete({
       if (typeof window !== "undefined" && window.google?.maps?.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
       } else {
-        console.error("Google Places API not loaded");
         return;
       }
     }
@@ -114,27 +133,61 @@ export default function PlaceAutocomplete({
   }, []);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    onChange(inputValue);
+    const newValue = e.target.value;
+    setInputValue(newValue);
     setShowDropdown(true);
+
+    // Clear place data if user is typing
+    if (value.placeId) {
+      onChange({ ...emptyPlace, address: newValue });
+    }
 
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
     debounceTimerRef.current = setTimeout(() => {
-      fetchSuggestions(inputValue);
+      fetchSuggestions(newValue);
     }, 300);
   };
 
   const handleSelect = (prediction: PlacePrediction) => {
-    const placeName = prediction.description;
-    onChange(placeName);
+    setInputValue(prediction.description);
     setSuggestions([]);
     setShowDropdown(false);
-    if (onSelect) {
-      onSelect(placeName);
+
+    // Get place details with coordinates
+    if (!placesServiceRef.current) {
+      if (!dummyDivRef.current) {
+        dummyDivRef.current = document.createElement("div");
+      }
+      placesServiceRef.current = new window.google.maps.places.PlacesService(dummyDivRef.current);
     }
+
+    placesServiceRef.current.getDetails(
+      {
+        placeId: prediction.place_id,
+        fields: ["geometry", "formatted_address", "place_id"],
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
+          onChange({
+            address: place.formatted_address || prediction.description,
+            placeId: place.place_id || prediction.place_id,
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+          });
+        } else {
+          // Fallback - just use the description without coordinates
+          onChange({
+            address: prediction.description,
+            placeId: prediction.place_id,
+            lat: 0,
+            lng: 0,
+          });
+        }
+      }
+    );
   };
 
   const handleLocateMe = () => {
@@ -164,11 +217,15 @@ export default function PlaceAutocomplete({
           (results, status) => {
             setIsLocating(false);
             if (status === "OK" && results && results[0]) {
-              const address = results[0].formatted_address;
-              onChange(address);
-              if (onSelect) {
-                onSelect(address);
-              }
+              const result = results[0];
+              const place: Place = {
+                address: result.formatted_address,
+                placeId: result.place_id,
+                lat: latitude,
+                lng: longitude,
+              };
+              setInputValue(place.address);
+              onChange(place);
             } else {
               alert("Nie udalo sie pobrac adresu");
             }
@@ -239,7 +296,7 @@ export default function PlaceAutocomplete({
         )}
         <input
           type="text"
-          value={value}
+          value={inputValue}
           onChange={handleInput}
           onFocus={() => setShowDropdown(true)}
           placeholder={placeholder}

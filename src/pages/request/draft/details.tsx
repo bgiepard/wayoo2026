@@ -70,6 +70,16 @@ export default function DraftDetailsPage() {
     .filter(([, value]) => value)
     .map(([key]) => optionLabels[key] || key);
 
+  const { route } = requestData;
+
+  // Build route display string
+  const routeParts = [route.origin.address.split(",")[0]];
+  route.waypoints.forEach((wp) => {
+    if (wp.address) routeParts.push(wp.address.split(",")[0]);
+  });
+  routeParts.push(route.destination.address.split(",")[0]);
+  const routeDisplay = routeParts.join(" → ");
+
   return (
     <main className="py-8 px-4 max-w-[1250px] mx-auto">
       {/* Stepy */}
@@ -111,12 +121,8 @@ export default function DraftDetailsPage() {
           <div className="space-y-4">
             <div className="flex justify-between py-3 border-b border-gray-100">
               <span className="text-gray-500">Trasa</span>
-              <span className="font-medium text-right">
-                {requestData.from}
-                {requestData.stops && requestData.stops.length > 0 && (
-                  <> → {requestData.stops.join(" → ")}</>
-                )}
-                {" → "}{requestData.to}
+              <span className="font-medium text-right max-w-[60%]">
+                {routeDisplay}
               </span>
             </div>
             <div className="flex justify-between py-3 border-b border-gray-100">
@@ -136,11 +142,7 @@ export default function DraftDetailsPage() {
 
         {/* Mapa z trasa */}
         <div className="bg-white rounded-lg p-6">
-          <RouteMap
-            from={requestData.from}
-            to={requestData.to}
-            stops={requestData.stops}
-          />
+          <RouteMap route={route} />
         </div>
       </div>
 
