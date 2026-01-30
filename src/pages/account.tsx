@@ -201,33 +201,48 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     };
   }
 
-  const userId = (session.user as { id?: string }).id;
+  const sessionUser = session.user as {
+    id?: string;
+    email?: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    provider?: string;
+  };
 
-  if (!userId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+  const userId = sessionUser.id;
 
-  const user = await findUserById(userId);
+  // Spróbuj pobrać użytkownika z bazy
+  let user = userId ? await findUserById(userId) : null;
 
+  // Jeśli nie znaleziono w bazie, użyj danych z sesji (dla OAuth)
   if (!user) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
+    const nameParts = (sessionUser.name || "").split(" ");
+    user = {
+      id: userId || "",
+      email: sessionUser.email || "",
+      emailVerified: true, // OAuth weryfikuje email
+      firstName: sessionUser.firstName || nameParts[0] || "",
+      lastName: sessionUser.lastName || nameParts.slice(1).join(" ") || "",
+      phone: sessionUser.phone || "",
+      phoneVerified: false,
+      provider: (sessionUser.provider as "email" | "google" | "facebook" | "apple") || "google",
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...userWithoutPassword } = user;
 
+  // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
   return {
     props: {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        phone: userWithoutPassword.phone || "",
+        firstName: userWithoutPassword.firstName || "",
+        lastName: userWithoutPassword.lastName || "",
+      },
     },
   };
 };

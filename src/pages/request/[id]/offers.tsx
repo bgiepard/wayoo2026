@@ -160,7 +160,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     return { notFound: true };
   }
 
-  const initialOffers = await getOffersByRequest(id);
+  const offers = await getOffersByRequest(id);
+
+  // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
+  const initialOffers = offers.map((offer) => ({
+    ...offer,
+    message: offer.message || "",
+    driverName: offer.driverName || "",
+    driverEmail: offer.driverEmail || "",
+    driverPhone: offer.driverPhone || "",
+  }));
 
   return {
     props: {

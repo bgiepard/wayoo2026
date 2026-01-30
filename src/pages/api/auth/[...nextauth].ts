@@ -1,9 +1,14 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { findUserByEmail, verifyPassword } from "@/services";
+import GoogleProvider from "next-auth/providers/google";
+import { findUserByEmail, verifyPassword, findOrCreateUserByOAuth } from "@/services";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -39,12 +44,33 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      // Dla logowania OAuth (Google) - znajdź lub utwórz użytkownika w bazie
+      if (account?.provider === "google" && user.email) {
+        try {
+          const dbUser = await findOrCreateUserByOAuth({
+            email: user.email,
+            name: user.name || "",
+            provider: "google",
+          });
+          // Przekaż ID z bazy danych
+          user.id = dbUser.id;
+          (user as { firstName?: string }).firstName = dbUser.firstName;
+          (user as { lastName?: string }).lastName = dbUser.lastName;
+        } catch (error) {
+          console.error("Error in signIn callback:", error);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.firstName = (user as { firstName?: string }).firstName;
         token.lastName = (user as { lastName?: string }).lastName;
         token.phone = (user as { phone?: string }).phone;
+        token.provider = account?.provider;
       }
       return token;
     },
@@ -54,6 +80,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as { firstName?: string }).firstName = token.firstName as string;
         (session.user as { lastName?: string }).lastName = token.lastName as string;
         (session.user as { phone?: string }).phone = token.phone as string;
+        (session.user as { provider?: string }).provider = token.provider as string;
       }
       return session;
     },

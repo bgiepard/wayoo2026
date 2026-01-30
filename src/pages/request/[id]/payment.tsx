@@ -133,7 +133,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
   }
 
   const offers = await getOffersByRequest(id);
-  const acceptedOffer = offers.find((o) => o.status === "accepted" || o.status === "paid") || null;
+  const foundOffer = offers.find((o) => o.status === "accepted" || o.status === "paid");
+
+  // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
+  const acceptedOffer = foundOffer ? {
+    ...foundOffer,
+    message: foundOffer.message || "",
+    driverName: foundOffer.driverName || "",
+    driverEmail: foundOffer.driverEmail || "",
+    driverPhone: foundOffer.driverPhone || "",
+  } : null;
 
   return {
     props: {

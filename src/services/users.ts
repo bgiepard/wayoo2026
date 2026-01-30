@@ -64,3 +64,33 @@ export async function verifyPassword(
 ): Promise<boolean> {
   return bcrypt.compare(plainPassword, hashedPassword);
 }
+
+export async function findOrCreateUserByOAuth(data: {
+  email: string;
+  name: string;
+  provider: AuthProvider;
+}): Promise<User> {
+  // Sprawdź czy użytkownik już istnieje
+  const existingUser = await findUserByEmail(data.email);
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  // Utwórz nowego użytkownika
+  const nameParts = data.name.split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  const record = await usersTable.create({
+    email: data.email,
+    emailVerified: true, // OAuth weryfikuje email
+    firstName,
+    lastName,
+    phone: "",
+    phoneVerified: false,
+    provider: data.provider,
+  });
+
+  return mapRecordToUser(record);
+}
