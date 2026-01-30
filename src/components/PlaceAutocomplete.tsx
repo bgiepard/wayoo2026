@@ -7,6 +7,7 @@ interface PlaceAutocompleteProps {
   placeholder: string;
   icon?: React.ReactNode;
   disabled?: boolean;
+  showLocateButton?: boolean;
 }
 
 interface PlacePrediction {
@@ -25,26 +26,29 @@ export default function PlaceAutocomplete({
   placeholder,
   icon,
   disabled = false,
+  showLocateButton = false,
 }: PlaceAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
 
   // Initialize Google Places Autocomplete Service
   useEffect(() => {
     const initService = () => {
       if (typeof window !== "undefined" && window.google?.maps?.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+        geocoderRef.current = new window.google.maps.Geocoder();
         return true;
       }
       return false;
     };
 
     if (!initService()) {
-      // Retry initialization if Google Maps not loaded yet
       const interval = setInterval(() => {
         if (initService()) {
           clearInterval(interval);
@@ -74,7 +78,6 @@ export default function PlaceAutocomplete({
     }
 
     if (!autocompleteServiceRef.current) {
-      // Try to initialize again
       if (typeof window !== "undefined" && window.google?.maps?.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
       } else {
@@ -115,7 +118,6 @@ export default function PlaceAutocomplete({
     onChange(inputValue);
     setShowDropdown(true);
 
-    // Debounce API calls
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
@@ -135,12 +137,104 @@ export default function PlaceAutocomplete({
     }
   };
 
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      alert("Twoja przegladarka nie wspiera geolokalizacji");
+      return;
+    }
+
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        if (!geocoderRef.current) {
+          if (window.google?.maps) {
+            geocoderRef.current = new window.google.maps.Geocoder();
+          } else {
+            setIsLocating(false);
+            alert("Google Maps nie zostal zaladowany");
+            return;
+          }
+        }
+
+        geocoderRef.current.geocode(
+          { location: { lat: latitude, lng: longitude } },
+          (results, status) => {
+            setIsLocating(false);
+            if (status === "OK" && results && results[0]) {
+              const address = results[0].formatted_address;
+              onChange(address);
+              if (onSelect) {
+                onSelect(address);
+              }
+            } else {
+              alert("Nie udalo sie pobrac adresu");
+            }
+          }
+        );
+      },
+      (error) => {
+        setIsLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Odmowiono dostepu do lokalizacji");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Lokalizacja niedostepna");
+            break;
+          case error.TIMEOUT:
+            alert("Przekroczono czas oczekiwania");
+            break;
+          default:
+            alert("Wystapil blad podczas pobierania lokalizacji");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const hasLeftContent = icon || showLocateButton;
+
   return (
     <div className="relative" ref={dropdownRef}>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 z-10">
-            {icon}
+        {hasLeftContent && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1">
+            {showLocateButton ? (
+              <button
+                type="button"
+                onClick={handleLocateMe}
+                disabled={disabled || isLocating}
+                className="p-1 -m-1 text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Uzyj mojej lokalizacji"
+              >
+                {isLocating ? (
+                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0013 3.06V1h-2v2.06A8.994 8.994 0 003.06 11H1v2h2.06A8.994 8.994 0 0011 20.94V23h2v-2.06A8.994 8.994 0 0020.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"
+                    />
+                  </svg>
+                )}
+              </button>
+            ) : (
+              <div className="text-blue-500">{icon}</div>
+            )}
           </div>
         )}
         <input
@@ -150,7 +244,7 @@ export default function PlaceAutocomplete({
           onFocus={() => setShowDropdown(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full ${icon ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
+          className={`w-full ${hasLeftContent ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
         />
       </div>
 
