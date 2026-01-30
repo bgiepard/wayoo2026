@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { updateRequestStatus } from "@/services";
+import { updateRequestStatus, markOfferAsPaid } from "@/services";
 import type { RequestStatus } from "@/models";
 
 export default async function handler(
@@ -24,6 +24,12 @@ export default async function handler(
 
   try {
     await updateRequestStatus(id, status);
+
+    // Jeśli status zmienia się na "paid", zaktualizuj też status oferty
+    if (status === "paid") {
+      await markOfferAsPaid(id);
+    }
+
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error updating request status:", error);

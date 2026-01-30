@@ -88,3 +88,20 @@ export async function acceptOffer(offerId: string, requestId: string): Promise<v
     }
   }
 }
+
+export async function markOfferAsPaid(requestId: string): Promise<void> {
+  // Znajdź zaakceptowaną ofertę dla tego zlecenia i zmień jej status na "paid"
+  const allOffers = await offersTable.select().all();
+
+  for (const record of allOffers) {
+    const requestLinks = record.get("Request") as string[] | undefined;
+    const requestIdField = record.get("requestId") as string | undefined;
+    const belongsToRequest = requestLinks?.includes(requestId) || requestIdField === requestId;
+    const status = record.get("status") as OfferStatus;
+
+    if (belongsToRequest && status === "accepted") {
+      await offersTable.update(record.id, { status: "paid" });
+      break;
+    }
+  }
+}
