@@ -22,6 +22,7 @@ export default function RequestDetailsPage({ request }: Props) {
   const selectedOptions = Object.entries(options)
     .filter(([, value]) => value)
     .map(([key]) => optionLabels[key] || key);
+  const stops: string[] = JSON.parse(request.stops || "[]");
 
   return (
     <main className="py-8 px-4 max-w-[1250px] mx-auto">
@@ -37,7 +38,13 @@ export default function RequestDetailsPage({ request }: Props) {
         <div className="space-y-4">
           <div className="flex justify-between py-3 border-b border-gray-100">
             <span className="text-gray-500">Trasa</span>
-            <span className="font-medium">{request.from} → {request.to}</span>
+            <span className="font-medium text-right">
+              {request.from}
+              {stops.length > 0 && (
+                <> → {stops.join(" → ")}</>
+              )}
+              {" → "}{request.to}
+            </span>
           </div>
           <div className="flex justify-between py-3 border-b border-gray-100">
             <span className="text-gray-500">Data i godzina</span>

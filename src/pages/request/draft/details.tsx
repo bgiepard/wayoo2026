@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import LoginModal from "@/components/LoginModal";
+import RouteMap from "@/components/RouteMap";
 import type { SearchData } from "@/models";
 
 const optionLabels: Record<string, string> = {
@@ -104,24 +105,42 @@ export default function DraftDetailsPage() {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg p-6 mb-6">
-        <div className="space-y-4">
-          <div className="flex justify-between py-3 border-b border-gray-100">
-            <span className="text-gray-500">Trasa</span>
-            <span className="font-medium">{requestData.from} → {requestData.to}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Dane zapytania */}
+        <div className="bg-white rounded-lg p-6">
+          <div className="space-y-4">
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Trasa</span>
+              <span className="font-medium text-right">
+                {requestData.from}
+                {requestData.stops && requestData.stops.length > 0 && (
+                  <> → {requestData.stops.join(" → ")}</>
+                )}
+                {" → "}{requestData.to}
+              </span>
+            </div>
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Data i godzina</span>
+              <span>{requestData.date} o {requestData.time}</span>
+            </div>
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Pasazerowie</span>
+              <span>{requestData.adults} doroslych, {requestData.children} dzieci</span>
+            </div>
+            <div className="flex justify-between py-3">
+              <span className="text-gray-500">Dodatkowe opcje</span>
+              <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
+            </div>
           </div>
-          <div className="flex justify-between py-3 border-b border-gray-100">
-            <span className="text-gray-500">Data i godzina</span>
-            <span>{requestData.date} o {requestData.time}</span>
-          </div>
-          <div className="flex justify-between py-3 border-b border-gray-100">
-            <span className="text-gray-500">Pasazerowie</span>
-            <span>{requestData.adults} doroslych, {requestData.children} dzieci</span>
-          </div>
-          <div className="flex justify-between py-3">
-            <span className="text-gray-500">Dodatkowe opcje</span>
-            <span>{selectedOptions.length > 0 ? selectedOptions.join(", ") : "Brak"}</span>
-          </div>
+        </div>
+
+        {/* Mapa z trasa */}
+        <div className="bg-white rounded-lg p-6">
+          <RouteMap
+            from={requestData.from}
+            to={requestData.to}
+            stops={requestData.stops}
+          />
         </div>
       </div>
 

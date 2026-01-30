@@ -19,6 +19,7 @@ export default function SearchForm() {
   const [data, setData] = useState<SearchData>({
     from: "",
     to: "",
+    stops: [],
     date: "",
     time: "",
     adults: 1,
@@ -29,8 +30,8 @@ export default function SearchForm() {
   const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "options" | null>(null);
   const [errors, setErrors] = useState<{ route?: boolean; datetime?: boolean }>({});
 
-  const handleRouteChange = (from: string, to: string) => {
-    setData({ ...data, from, to });
+  const handleRouteChange = (from: string, to: string, stops: string[]) => {
+    setData({ ...data, from, to, stops });
     if (from && to) setErrors((prev) => ({ ...prev, route: false }));
   };
 
@@ -80,7 +81,13 @@ export default function SearchForm() {
           className={`${buttonBase} flex-1 ${errors.route ? buttonError : ""}`}
         >
           <span className="text-gray-400 text-xs block mb-1">Trasa</span>
-          {data.from && data.to ? `${data.from} → ${data.to}` : <span className="text-gray-400">Wybierz</span>}
+          {data.from && data.to ? (
+            <span className="truncate block">
+              {data.from} {data.stops.length > 0 && `→ ${data.stops.length} przyst.`} → {data.to}
+            </span>
+          ) : (
+            <span className="text-gray-400">Wybierz</span>
+          )}
         </button>
 
         <button
@@ -123,6 +130,7 @@ export default function SearchForm() {
         onClose={() => setActiveModal(null)}
         from={data.from}
         to={data.to}
+        stops={data.stops}
         onSave={handleRouteChange}
       />
       <DateTimeModal

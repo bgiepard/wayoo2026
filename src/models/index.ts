@@ -57,6 +57,7 @@ export interface RequestData {
   userEmail: string;
   from: string;
   to: string;
+  stops: string; // JSON string array
   date: string;
   time: string;
   adults: number;
@@ -68,6 +69,7 @@ export interface RequestData {
 export interface CreateRequestData {
   from: string;
   to: string;
+  stops: string[];
   date: string;
   time: string;
   adults: number;
@@ -114,6 +116,7 @@ export interface Options {
 export interface SearchData {
   from: string;
   to: string;
+  stops: string[];
   date: string;
   time: string;
   adults: number;
