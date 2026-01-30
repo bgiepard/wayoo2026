@@ -1,6 +1,6 @@
 import { offersTable, requestsTable } from "@/lib/airtable";
 import { getDriverById } from "./drivers";
-import type { OfferData } from "@/models";
+import type { OfferData, OfferStatus } from "@/models";
 
 export async function getOffersByRequest(requestId: string): Promise<OfferData[]> {
   const allRecords = await offersTable.select().all();
@@ -36,7 +36,7 @@ export async function getOffersByRequest(requestId: string): Promise<OfferData[]
         driverPhone,
         price: record.get("price") as number,
         message: record.get("message") as string,
-        status: (record.get("status") as number) || 1,
+        status: (record.get("status") as OfferStatus) || "new",
       } as OfferData;
     })
   );
@@ -68,19 +68,23 @@ export async function getOffersCountByRequestIds(
 
 export async function acceptOffer(offerId: string, requestId: string): Promise<void> {
   // Zaakceptuj ofertę
-  await offersTable.update(offerId, { status: 2 });
+  await offersTable.update(offerId, { status: "accepted" });
 
   // Zmień status zapytania
   await requestsTable.update(requestId, { status: "accepted" });
 
-  // Odrzuć pozostałe oferty
-  const otherOffers = await offersTable
-    .select({
-      filterByFormula: `AND(FIND("${requestId}", ARRAYJOIN({Request})), NOT(RECORD_ID() = "${offerId}"))`,
-    })
-    .all();
+  // Odrzuć pozostałe oferty na to samo zlecenie
+  const allOffers = await offersTable.select().all();
 
-  for (const offer of otherOffers) {
-    await offersTable.update(offer.id, { status: 3 });
+  for (const record of allOffers) {
+    if (record.id === offerId) continue;
+
+    const requestLinks = record.get("Request") as string[] | undefined;
+    const requestIdField = record.get("requestId") as string | undefined;
+    const belongsToRequest = requestLinks?.includes(requestId) || requestIdField === requestId;
+
+    if (belongsToRequest) {
+      await offersTable.update(record.id, { status: "rejected" });
+    }
   }
 }

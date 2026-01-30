@@ -133,7 +133,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
   }
 
   const offers = await getOffersByRequest(id);
-  const acceptedOffer = offers.find((o) => o.status === 2) || null;
+  const acceptedOffer = offers.find((o) => o.status === "accepted" || o.status === "paid") || null;
 
   return {
     props: {

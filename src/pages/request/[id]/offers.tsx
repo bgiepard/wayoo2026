@@ -19,8 +19,8 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
   const prevOffersRef = useRef<Set<string>>(new Set(initialOffers.map((o) => o.id)));
 
   const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
-  const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === 2) : null;
-  const pendingOffers = offers.filter((o) => o.status === 1);
+  const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted" || o.status === "paid") : null;
+  const pendingOffers = offers.filter((o) => o.status === "new");
 
   const fetchOffers = useCallback(async () => {
     try {
