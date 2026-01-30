@@ -3,13 +3,28 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import LoginModal from "./LoginModal";
 import { useNotifications } from "@/context/NotificationsContext";
+import { usePusher } from "@/context/PusherContext";
 
 export default function Header() {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { hasNewNotification, clearNewNotificationFlag } = usePusher();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Animacja dzwoneczka gdy przychodzi nowe powiadomienie
+  useEffect(() => {
+    if (hasNewNotification) {
+      setIsAnimating(true);
+      const timeout = setTimeout(() => {
+        setIsAnimating(false);
+        clearNewNotificationFlag();
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [hasNewNotification, clearNewNotificationFlag]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -45,7 +60,7 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                  className="relative p-2 text-gray-500 hover:text-gray-800"
+                  className={`relative p-2 text-gray-500 hover:text-gray-800 ${isAnimating ? "animate-bell" : ""}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -57,12 +72,13 @@ export default function Header() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    className={isAnimating ? "text-blue-600" : ""}
                   >
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className={`absolute top-0 right-0 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center ${isAnimating ? "animate-pulse" : ""}`}>
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}

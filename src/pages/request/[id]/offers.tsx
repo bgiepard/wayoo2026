@@ -1,10 +1,10 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getRequestById, getOffersByRequest } from "@/services";
 import type { RequestData, OfferData } from "@/models";
-import { useNotifications } from "@/context/NotificationsContext";
 import RequestSteps from "@/components/RequestSteps";
+import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
 
 interface Props {
   request: RequestData;
@@ -15,8 +15,6 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
   const router = useRouter();
   const [offers, setOffers] = useState<OfferData[]>(initialOffers);
   const [acceptingOffer, setAcceptingOffer] = useState<string | null>(null);
-  const { addNotification } = useNotifications();
-  const prevOffersRef = useRef<Set<string>>(new Set(initialOffers.map((o) => o.id)));
 
   const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
   const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted" || o.status === "paid") : null;
@@ -27,36 +25,30 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
       const res = await fetch(`/api/offers?requestId=${request.id}`);
       if (res.ok) {
         const data: OfferData[] = await res.json();
-        const newOffers = data.filter((o) => !prevOffersRef.current.has(o.id));
-
-        if (newOffers.length > 0) {
-          newOffers.forEach((offer) => {
-            addNotification({
-              type: "new_offer",
-              title: "Nowa oferta!",
-              message: `${offer.driverName || "Kierowca"} zlozyl oferte: ${offer.price} PLN`,
-              link: `/request/${request.id}/offers`,
-            });
-          });
-        }
-
-        prevOffersRef.current = new Set(data.map((o) => o.id));
         setOffers(data);
       }
     } catch {
       // Ignore errors silently
     }
-  }, [request.id, addNotification]);
+  }, [request.id]);
 
+  // Pusher - odśwież listę ofert gdy przyjdzie nowa (powiadomienie obsługuje PusherContext globalnie)
   useEffect(() => {
     if (isRequestAccepted) return;
 
-    const interval = setInterval(() => {
-      fetchOffers();
-    }, 5000);
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe(`request-${request.id}`);
 
-    return () => clearInterval(interval);
-  }, [isRequestAccepted, fetchOffers]);
+    channel.bind("new-offer", (_data: NewOfferEvent) => {
+      // Odśwież listę ofert z serwera (żeby mieć pełne dane)
+      fetchOffers();
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`request-${request.id}`);
+    };
+  }, [request.id, isRequestAccepted, fetchOffers]);
 
   const handleAcceptOffer = async (offerId: string) => {
     setAcceptingOffer(offerId);
@@ -125,7 +117,7 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
         <div className="bg-white rounded-lg p-12 text-center">
           <div className="w-10 h-10 border-3 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-900 font-medium">Oczekiwanie na oferty...</p>
-          <p className="text-sm text-gray-500 mt-1">Automatycznie sprawdzamy co 5 sekund</p>
+          <p className="text-sm text-gray-500 mt-1">Powiadomienie pojawi sie automatycznie</p>
         </div>
       )}
 
