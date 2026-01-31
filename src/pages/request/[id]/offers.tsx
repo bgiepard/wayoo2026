@@ -252,13 +252,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
   const offers = await getOffersByRequest(id);
 
   // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
-  const initialOffers = offers.map((offer) => ({
-    ...offer,
+  const initialOffers: OfferData[] = offers.map((offer) => ({
+    id: offer.id,
+    requestId: offer.requestId,
+    driverId: offer.driverId,
+    price: offer.price,
+    status: offer.status,
     message: offer.message || "",
     driverName: offer.driverName || "",
     driverEmail: offer.driverEmail || "",
     driverPhone: offer.driverPhone || "",
-    vehicle: offer.vehicle || null,
+    vehicle: offer.vehicle,
   }));
 
   return {
