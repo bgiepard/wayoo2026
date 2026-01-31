@@ -114,6 +114,21 @@ export type OfferStatus =
   | 'canceled'  // Anulowana przez kierowcę
   | 'rejected'; // Odrzucona (gdy inna oferta została zaakceptowana)
 
+export interface VehicleInfo {
+  id: string;
+  name: string;
+  type: string;
+  brand: string;
+  model: string;
+  year: number;
+  seats: number;
+  photos: string[];
+  hasWifi: boolean;
+  hasWC: boolean;
+  hasTV: boolean;
+  hasAirConditioning: boolean;
+}
+
 export interface OfferData {
   id: string;
   requestId: string;
@@ -121,6 +136,7 @@ export interface OfferData {
   driverName?: string;
   driverEmail?: string;
   driverPhone?: string;
+  vehicle?: VehicleInfo;
   price: number;
   message: string;
   status: OfferStatus;

@@ -6,6 +6,31 @@ import type { RequestData, OfferData } from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
 
+// Funkcja do zakropkowania imienia i nazwiska
+function maskName(name?: string): string {
+  if (!name) return "Kierowca";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) {
+    // Tylko imię
+    const firstName = parts[0];
+    if (firstName.length <= 2) return firstName + "***";
+    return firstName[0] + firstName[1] + "***";
+  }
+  // Imię i nazwisko
+  const firstName = parts[0];
+  const lastName = parts[parts.length - 1];
+  const maskedFirst = firstName.length > 2 ? firstName[0] + firstName[1] + "***" : firstName + "***";
+  const maskedLast = lastName.length > 1 ? lastName[0] + "***" : "***";
+  return `${maskedFirst} ${maskedLast}`;
+}
+
+const vehicleTypeLabels: Record<string, string> = {
+  bus: "Autobus",
+  minibus: "Minibus",
+  van: "Van",
+  car: "Samochód",
+};
+
 interface Props {
   request: RequestData;
   initialOffers: OfferData[];
@@ -87,6 +112,40 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
       {acceptedOffer && (
         <div className="bg-green-50 rounded-lg p-6 mb-6">
           <p className="font-semibold text-green-800 mb-4">Zaakceptowana oferta</p>
+
+          {/* Pojazd */}
+          {acceptedOffer.vehicle && (
+            <div className="mb-4 p-4 bg-white rounded-lg">
+              <div className="flex gap-4">
+                {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
+                  <div className="flex gap-2">
+                    {acceptedOffer.vehicle.photos.slice(0, 3).map((photo, idx) => (
+                      <img
+                        key={idx}
+                        src={photo}
+                        alt={acceptedOffer.vehicle?.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{acceptedOffer.vehicle.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} • {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type}
+                  </p>
+                  <p className="text-sm text-gray-500">{acceptedOffer.vehicle.seats} miejsc</p>
+                  <div className="flex gap-2 mt-2">
+                    {acceptedOffer.vehicle.hasWifi && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">WiFi</span>}
+                    {acceptedOffer.vehicle.hasWC && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">WC</span>}
+                    {acceptedOffer.vehicle.hasTV && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">TV</span>}
+                    {acceptedOffer.vehicle.hasAirConditioning && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">Klimatyzacja</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span className="text-gray-500">Cena</span>
@@ -123,26 +182,56 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
 
       {/* Lista ofert do wyboru */}
       {!acceptedOffer && pendingOffers.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {pendingOffers.map((offer) => (
-            <div key={offer.id} className="bg-white rounded-lg p-5 flex justify-between items-start">
-              <div>
-                <p className="text-xl font-semibold text-gray-900">{offer.price} PLN</p>
-                <p className="text-gray-600 mt-1">{offer.driverName || "Nieznany kierowca"}</p>
-                {offer.driverPhone && (
-                  <p className="text-sm text-gray-500">Tel: {offer.driverPhone}</p>
-                )}
-                {offer.message && (
-                  <p className="text-sm text-gray-500 mt-2">{offer.message}</p>
-                )}
+            <div key={offer.id} className="bg-white rounded-lg p-5">
+              {/* Pojazd */}
+              {offer.vehicle && (
+                <div className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
+                  {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
+                    <div className="flex gap-2">
+                      {offer.vehicle.photos.slice(0, 4).map((photo, idx) => (
+                        <img
+                          key={idx}
+                          src={photo}
+                          alt={offer.vehicle?.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">{offer.vehicle.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {offer.vehicle.brand} {offer.vehicle.model} • {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type}
+                    </p>
+                    <p className="text-sm text-gray-500">{offer.vehicle.seats} miejsc</p>
+                    <div className="flex gap-1.5 mt-1.5">
+                      {offer.vehicle.hasWifi && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">WiFi</span>}
+                      {offer.vehicle.hasWC && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">WC</span>}
+                      {offer.vehicle.hasTV && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">TV</span>}
+                      {offer.vehicle.hasAirConditioning && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">Klima</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-xl font-semibold text-gray-900">{offer.price} PLN</p>
+                  <p className="text-gray-600 mt-1">{maskName(offer.driverName)}</p>
+                  {offer.message && (
+                    <p className="text-sm text-gray-500 mt-2 italic">&quot;{offer.message}&quot;</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleAcceptOffer(offer.id)}
+                  disabled={acceptingOffer === offer.id}
+                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                >
+                  {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj"}
+                </button>
               </div>
-              <button
-                onClick={() => handleAcceptOffer(offer.id)}
-                disabled={acceptingOffer === offer.id}
-                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
-              >
-                {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj"}
-              </button>
             </div>
           ))}
         </div>
@@ -169,6 +258,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     driverName: offer.driverName || "",
     driverEmail: offer.driverEmail || "",
     driverPhone: offer.driverPhone || "",
+    vehicle: offer.vehicle || null,
   }));
 
   return {

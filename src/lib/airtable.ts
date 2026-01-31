@@ -11,6 +11,7 @@ export const requestsTable = base("Requests");
 export const offersTable = base("Offers");
 export const driversTable = base("Drivers");
 export const notificationsTable = base("Notifications");
+export const vehiclesTable = base("Vehicles");
 
 // Re-eksport typów z models dla wstecznej kompatybilności
 export type {
