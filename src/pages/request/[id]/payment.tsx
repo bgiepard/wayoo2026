@@ -142,21 +142,33 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
   const offers = await getOffersByRequest(id);
   const foundOffer = offers.find((o) => o.status === "accepted" || o.status === "paid");
 
-  // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
+  // Upewnij sie, ze wszystkie wartosci sa serializowalne (brak undefined)
   const acceptedOffer = foundOffer ? {
-    ...foundOffer,
+    id: foundOffer.id,
+    requestId: foundOffer.requestId,
+    driverId: foundOffer.driverId,
+    price: foundOffer.price,
+    status: foundOffer.status,
     message: foundOffer.message || "",
     driverName: foundOffer.driverName || "",
     driverEmail: foundOffer.driverEmail || "",
     driverPhone: foundOffer.driverPhone || "",
-    vehicle: foundOffer.vehicle ? {
-      ...foundOffer.vehicle,
-      hasWifi: foundOffer.vehicle.hasWifi ?? false,
-      hasWC: foundOffer.vehicle.hasWC ?? false,
-      hasTV: foundOffer.vehicle.hasTV ?? false,
-      hasAirConditioning: foundOffer.vehicle.hasAirConditioning ?? false,
-      photos: foundOffer.vehicle.photos || [],
-    } : null,
+    ...(foundOffer.vehicle && {
+      vehicle: {
+        id: foundOffer.vehicle.id,
+        name: foundOffer.vehicle.name,
+        type: foundOffer.vehicle.type,
+        brand: foundOffer.vehicle.brand,
+        model: foundOffer.vehicle.model,
+        year: foundOffer.vehicle.year,
+        seats: foundOffer.vehicle.seats,
+        photos: foundOffer.vehicle.photos || [],
+        hasWifi: foundOffer.vehicle.hasWifi ?? false,
+        hasWC: foundOffer.vehicle.hasWC ?? false,
+        hasTV: foundOffer.vehicle.hasTV ?? false,
+        hasAirConditioning: foundOffer.vehicle.hasAirConditioning ?? false,
+      },
+    }),
   } : null;
 
   return {
