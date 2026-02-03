@@ -19,13 +19,23 @@ export function PusherProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
+  // Przechowuj funkcje w refach aby uniknac problemow z zaleznosciami
+  const addLocalNotificationRef = useRef(addLocalNotification);
+  const refreshNotificationsRef = useRef(refreshNotifications);
+
+  // Aktualizuj refy gdy funkcje sie zmienia
+  useEffect(() => {
+    addLocalNotificationRef.current = addLocalNotification;
+    refreshNotificationsRef.current = refreshNotifications;
+  }, [addLocalNotification, refreshNotifications]);
+
   const clearNewNotificationFlag = useCallback(() => {
     setHasNewNotification(false);
   }, []);
 
   useEffect(() => {
     if (!session?.user) {
-      // Wyczyść subskrypcje gdy użytkownik się wyloguje
+      // Wyczysc subskrypcje gdy uzytkownik sie wyloguje
       const pusher = getPusherClient();
       channelsRef.current.forEach((_, requestId) => {
         pusher.unsubscribe(`request-${requestId}`);
@@ -35,7 +45,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Pobierz aktywne zlecenia użytkownika
+    // Pobierz aktywne zlecenia uzytkownika
     const fetchAndSubscribe = async () => {
       try {
         const res = await fetch("/api/my-requests?status=published");
@@ -44,9 +54,9 @@ export function PusherProvider({ children }: { children: ReactNode }) {
         const requests: { id: string }[] = await res.json();
         const pusher = getPusherClient();
 
-        // Subskrybuj do każdego aktywnego zlecenia
+        // Subskrybuj do kazdego aktywnego zlecenia
         requests.forEach((request) => {
-          if (channelsRef.current.has(request.id)) return; // Już subskrybowany
+          if (channelsRef.current.has(request.id)) return; // Juz subskrybowany
 
           const channel = pusher.subscribe(`request-${request.id}`);
 
@@ -54,7 +64,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
             console.log("[Pusher] Otrzymano event new-offer:", data);
 
             // Dodaj lokalnie (bez zapisu do bazy - juz zapisane przez nadawce)
-            addLocalNotification({
+            addLocalNotificationRef.current({
               type: "new_offer",
               title: "Nowa oferta!",
               message: `${data.driverName || "Kierowca"} zlozyl oferte: ${data.price} PLN`,
@@ -63,15 +73,15 @@ export function PusherProvider({ children }: { children: ReactNode }) {
             setHasNewNotification(true);
 
             // Odswierz powiadomienia z bazy (zsynchronizuje prawdziwe ID)
-            setTimeout(() => refreshNotifications(), 500);
+            setTimeout(() => refreshNotificationsRef.current(), 500);
           });
 
           channelsRef.current.set(request.id, channel);
         });
 
-        // Usuń subskrypcje dla zleceń które już nie są aktywne
+        // Usun subskrypcje dla zlecen ktore juz nie sa aktywne
         const activeIds = new Set(requests.map(r => r.id));
-        channelsRef.current.forEach((channel, requestId) => {
+        channelsRef.current.forEach((_, requestId) => {
           if (!activeIds.has(requestId)) {
             pusher.unsubscribe(`request-${requestId}`);
             channelsRef.current.delete(requestId);
@@ -86,24 +96,19 @@ export function PusherProvider({ children }: { children: ReactNode }) {
 
     fetchAndSubscribe();
 
-    // Odświeżaj subskrypcje co 30 sekund (na wypadek nowych zleceń)
+    // Odswiezaj subskrypcje co 30 sekund (na wypadek nowych zlecen)
     const interval = setInterval(fetchAndSubscribe, 30000);
 
     return () => {
       clearInterval(interval);
-    };
-  }, [session, addLocalNotification, refreshNotifications]);
-
-  // Cleanup przy unmount
-  useEffect(() => {
-    return () => {
+      // Wyczysc wszystkie subskrypcje przy cleanup
       const pusher = getPusherClient();
       channelsRef.current.forEach((_, requestId) => {
         pusher.unsubscribe(`request-${requestId}`);
       });
       channelsRef.current.clear();
     };
-  }, []);
+  }, [session]); // Tylko session w deps - funkcje sa w refach
 
   return (
     <PusherContext.Provider value={{ isConnected, hasNewNotification, clearNewNotificationFlag }}>
