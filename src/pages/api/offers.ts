@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { getOffersByRequest, acceptOffer, getRequestById } from "@/services";
+import { offersTable, notificationsTable } from "@/lib/airtable";
 
 interface SessionUser {
   id?: string;
@@ -70,6 +71,29 @@ export default async function handler(
         }
 
         await acceptOffer(offerId, requestId);
+
+        // Wyślij powiadomienie do kierowcy
+        try {
+          const offerRecord = await offersTable.find(offerId);
+          const driverLinks = offerRecord.get("Driver") as string[] | undefined;
+          const driverId = driverLinks?.[0];
+
+          if (driverId) {
+            await notificationsTable.create({
+              userId: driverId,
+              type: "offer_accepted",
+              title: "Oferta zaakceptowana!",
+              message: `Twoja oferta na zlecenie została zaakceptowana.`,
+              link: `/my-offers`,
+              read: false,
+              createdAt: new Date().toISOString(),
+            });
+            console.log("[API/offers] Notification sent to driver:", driverId);
+          }
+        } catch (notifError) {
+          console.error("[API/offers] Error sending notification to driver:", notifError);
+        }
+
         return res.status(200).json({ success: true });
       } catch (error) {
         console.error("Error accepting offer:", error);
