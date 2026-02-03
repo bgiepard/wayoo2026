@@ -15,6 +15,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
   const { addLocalNotification, refreshNotifications } = useNotifications();
   const subscribedChannelsRef = useRef<Set<string>>(new Set());
+  const boundEventsRef = useRef<Set<string>>(new Set());
   const [isConnected, setIsConnected] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
@@ -40,6 +41,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
           });
         }
         subscribedChannelsRef.current.clear();
+        boundEventsRef.current.clear();
         setIsConnected(false);
       }
       return;
@@ -58,10 +60,14 @@ export function PusherProvider({ children }: { children: ReactNode }) {
         requests.forEach((request) => {
           const channelName = `request-${request.id}`;
 
-          if (subscribedChannelsRef.current.has(channelName)) return;
+          // Sprawdz czy juz mamy handler dla tego kanalu
+          if (boundEventsRef.current.has(channelName)) return;
 
           const channel = pusher.subscribe(channelName);
+          subscribedChannelsRef.current.add(channelName);
 
+          // Bind tylko jesli jeszcze nie zrobione
+          channel.unbind("new-offer"); // Usun stary handler jesli istnieje
           channel.bind("new-offer", (data: NewOfferEvent) => {
             addLocalNotificationRef.current({
               type: "new_offer",
@@ -73,18 +79,20 @@ export function PusherProvider({ children }: { children: ReactNode }) {
             setTimeout(() => refreshNotificationsRef.current(), 500);
           });
 
+          boundEventsRef.current.add(channelName);
+
           channel.bind("pusher:subscription_succeeded", () => {
             setIsConnected(true);
           });
-
-          subscribedChannelsRef.current.add(channelName);
         });
 
+        // Odsubskrybuj nieaktywne kanaly
         const activeChannels = new Set(requests.map((r) => `request-${r.id}`));
         subscribedChannelsRef.current.forEach((channelName) => {
           if (!activeChannels.has(channelName)) {
             pusher.unsubscribe(channelName);
             subscribedChannelsRef.current.delete(channelName);
+            boundEventsRef.current.delete(channelName);
           }
         });
       } catch {
@@ -108,6 +116,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
           pusher.unsubscribe(channelName);
         });
         subscribedChannelsRef.current.clear();
+        boundEventsRef.current.clear();
       }
     };
   }, []);
