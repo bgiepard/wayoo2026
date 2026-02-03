@@ -92,7 +92,6 @@ export default async function handler(
               read: false,
               createdAt: new Date().toISOString(),
             });
-            console.log("[API/offers] Notification saved to DB for driver:", driverId);
 
             // 2. Wyslij przez Pusher (real-time)
             await notifyDriverOfferAccepted(driverId, {
@@ -100,7 +99,6 @@ export default async function handler(
               requestId,
               message: notificationMessage,
             });
-            console.log("[API/offers] Pusher event sent to driver:", driverId);
           }
         } catch (notifError) {
           console.error("[API/offers] Error sending notification to driver:", notifError);

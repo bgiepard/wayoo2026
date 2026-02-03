@@ -59,7 +59,6 @@ export default async function handler(
               read: false,
               createdAt: new Date().toISOString(),
             });
-            console.log("[API/status] Notification saved to DB for driver:", driverId);
 
             // 2. Wyslij przez Pusher (real-time)
             await notifyDriverOfferPaid(driverId, {
@@ -67,7 +66,6 @@ export default async function handler(
               requestId: id,
               message: notificationMessage,
             });
-            console.log("[API/status] Pusher event sent to driver:", driverId);
           }
         }
       } catch (notifError) {

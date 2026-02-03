@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef, ReactNode, useState, useC
 import { useSession } from "next-auth/react";
 import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
 import { useNotifications } from "./NotificationsContext";
-import type { Channel } from "pusher-js";
 
 interface PusherContextType {
   isConnected: boolean;
@@ -13,17 +12,15 @@ interface PusherContextType {
 const PusherContext = createContext<PusherContextType | null>(null);
 
 export function PusherProvider({ children }: { children: ReactNode }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { addLocalNotification, refreshNotifications } = useNotifications();
-  const channelsRef = useRef<Map<string, Channel>>(new Map());
+  const subscribedChannelsRef = useRef<Set<string>>(new Set());
   const [isConnected, setIsConnected] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
-  // Przechowuj funkcje w refach aby uniknac problemow z zaleznosciami
   const addLocalNotificationRef = useRef(addLocalNotification);
   const refreshNotificationsRef = useRef(refreshNotifications);
 
-  // Aktualizuj refy gdy funkcje sie zmienia
   useEffect(() => {
     addLocalNotificationRef.current = addLocalNotification;
     refreshNotificationsRef.current = refreshNotifications;
@@ -34,36 +31,38 @@ export function PusherProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!session?.user) {
-      // Wyczysc subskrypcje gdy uzytkownik sie wyloguje
-      const pusher = getPusherClient();
-      channelsRef.current.forEach((_, requestId) => {
-        pusher.unsubscribe(`request-${requestId}`);
-      });
-      channelsRef.current.clear();
-      setIsConnected(false);
+    if (status !== "authenticated" || !session?.user) {
+      if (subscribedChannelsRef.current.size > 0) {
+        const pusher = getPusherClient();
+        if (pusher) {
+          subscribedChannelsRef.current.forEach((channelName) => {
+            pusher.unsubscribe(channelName);
+          });
+        }
+        subscribedChannelsRef.current.clear();
+        setIsConnected(false);
+      }
       return;
     }
 
-    // Pobierz aktywne zlecenia uzytkownika
-    const fetchAndSubscribe = async () => {
+    const pusher = getPusherClient();
+    if (!pusher) return;
+
+    const subscribeToRequests = async () => {
       try {
         const res = await fetch("/api/my-requests?status=published");
         if (!res.ok) return;
 
         const requests: { id: string }[] = await res.json();
-        const pusher = getPusherClient();
 
-        // Subskrybuj do kazdego aktywnego zlecenia
         requests.forEach((request) => {
-          if (channelsRef.current.has(request.id)) return; // Juz subskrybowany
+          const channelName = `request-${request.id}`;
 
-          const channel = pusher.subscribe(`request-${request.id}`);
+          if (subscribedChannelsRef.current.has(channelName)) return;
+
+          const channel = pusher.subscribe(channelName);
 
           channel.bind("new-offer", (data: NewOfferEvent) => {
-            console.log("[Pusher] Otrzymano event new-offer:", data);
-
-            // Dodaj lokalnie (bez zapisu do bazy - juz zapisane przez nadawce)
             addLocalNotificationRef.current({
               type: "new_offer",
               title: "Nowa oferta!",
@@ -71,44 +70,47 @@ export function PusherProvider({ children }: { children: ReactNode }) {
               link: `/request/${data.requestId}/offers`,
             });
             setHasNewNotification(true);
-
-            // Odswierz powiadomienia z bazy (zsynchronizuje prawdziwe ID)
             setTimeout(() => refreshNotificationsRef.current(), 500);
           });
 
-          channelsRef.current.set(request.id, channel);
+          channel.bind("pusher:subscription_succeeded", () => {
+            setIsConnected(true);
+          });
+
+          subscribedChannelsRef.current.add(channelName);
         });
 
-        // Usun subskrypcje dla zlecen ktore juz nie sa aktywne
-        const activeIds = new Set(requests.map(r => r.id));
-        channelsRef.current.forEach((_, requestId) => {
-          if (!activeIds.has(requestId)) {
-            pusher.unsubscribe(`request-${requestId}`);
-            channelsRef.current.delete(requestId);
+        const activeChannels = new Set(requests.map((r) => `request-${r.id}`));
+        subscribedChannelsRef.current.forEach((channelName) => {
+          if (!activeChannels.has(channelName)) {
+            pusher.unsubscribe(channelName);
+            subscribedChannelsRef.current.delete(channelName);
           }
         });
-
-        setIsConnected(true);
-      } catch (error) {
-        console.error("[PusherContext] Error fetching requests:", error);
+      } catch {
+        // Ignore errors
       }
     };
 
-    fetchAndSubscribe();
-
-    // Odswiezaj subskrypcje co 30 sekund (na wypadek nowych zlecen)
-    const interval = setInterval(fetchAndSubscribe, 30000);
+    subscribeToRequests();
+    const interval = setInterval(subscribeToRequests, 30000);
 
     return () => {
       clearInterval(interval);
-      // Wyczysc wszystkie subskrypcje przy cleanup
-      const pusher = getPusherClient();
-      channelsRef.current.forEach((_, requestId) => {
-        pusher.unsubscribe(`request-${requestId}`);
-      });
-      channelsRef.current.clear();
     };
-  }, [session]); // Tylko session w deps - funkcje sa w refach
+  }, [status, session]);
+
+  useEffect(() => {
+    return () => {
+      const pusher = getPusherClient();
+      if (pusher && subscribedChannelsRef.current.size > 0) {
+        subscribedChannelsRef.current.forEach((channelName) => {
+          pusher.unsubscribe(channelName);
+        });
+        subscribedChannelsRef.current.clear();
+      }
+    };
+  }, []);
 
   return (
     <PusherContext.Provider value={{ isConnected, hasNewNotification, clearNewNotificationFlag }}>
