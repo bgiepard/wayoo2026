@@ -92,6 +92,16 @@ export const authOptions: NextAuthOptions = {
     signIn: undefined,
   },
   secret: process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token.wayoo`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      },
+    },
+  },
 };
 
 export default NextAuth(authOptions);

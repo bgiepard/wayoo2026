@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { getOffersByRequest, acceptOffer, getRequestById } from "@/services";
 import { offersTable, notificationsTable } from "@/lib/airtable";
+import { notifyDriverOfferAccepted } from "@/lib/pusher";
 
 interface SessionUser {
   id?: string;
@@ -72,23 +73,34 @@ export default async function handler(
 
         await acceptOffer(offerId, requestId);
 
-        // Wyślij powiadomienie do kierowcy
+        // Wyslij powiadomienie do kierowcy (baza + Pusher)
         try {
           const offerRecord = await offersTable.find(offerId);
           const driverLinks = offerRecord.get("Driver") as string[] | undefined;
           const driverId = driverLinks?.[0];
 
           if (driverId) {
+            const notificationMessage = "Twoja oferta na zlecenie zostala zaakceptowana.";
+
+            // 1. Zapisz do bazy danych
             await notificationsTable.create({
               userId: driverId,
               type: "offer_accepted",
               title: "Oferta zaakceptowana!",
-              message: `Twoja oferta na zlecenie została zaakceptowana.`,
-              link: `/my-offers`,
+              message: notificationMessage,
+              link: "/my-offers",
               read: false,
               createdAt: new Date().toISOString(),
             });
-            console.log("[API/offers] Notification sent to driver:", driverId);
+            console.log("[API/offers] Notification saved to DB for driver:", driverId);
+
+            // 2. Wyslij przez Pusher (real-time)
+            await notifyDriverOfferAccepted(driverId, {
+              offerId,
+              requestId,
+              message: notificationMessage,
+            });
+            console.log("[API/offers] Pusher event sent to driver:", driverId);
           }
         } catch (notifError) {
           console.error("[API/offers] Error sending notification to driver:", notifError);

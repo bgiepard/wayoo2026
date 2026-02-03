@@ -14,7 +14,7 @@ const PusherContext = createContext<PusherContextType | null>(null);
 
 export function PusherProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
-  const { addNotification } = useNotifications();
+  const { addLocalNotification, refreshNotifications } = useNotifications();
   const channelsRef = useRef<Map<string, Channel>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
@@ -51,13 +51,19 @@ export function PusherProvider({ children }: { children: ReactNode }) {
           const channel = pusher.subscribe(`request-${request.id}`);
 
           channel.bind("new-offer", (data: NewOfferEvent) => {
-            addNotification({
+            console.log("[Pusher] Otrzymano event new-offer:", data);
+
+            // Dodaj lokalnie (bez zapisu do bazy - juz zapisane przez nadawce)
+            addLocalNotification({
               type: "new_offer",
               title: "Nowa oferta!",
               message: `${data.driverName || "Kierowca"} zlozyl oferte: ${data.price} PLN`,
               link: `/request/${data.requestId}/offers`,
             });
             setHasNewNotification(true);
+
+            // Odswierz powiadomienia z bazy (zsynchronizuje prawdziwe ID)
+            setTimeout(() => refreshNotifications(), 500);
           });
 
           channelsRef.current.set(request.id, channel);
@@ -86,7 +92,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
     return () => {
       clearInterval(interval);
     };
-  }, [session, addNotification]);
+  }, [session, addLocalNotification, refreshNotifications]);
 
   // Cleanup przy unmount
   useEffect(() => {

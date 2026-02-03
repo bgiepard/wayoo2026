@@ -149,6 +149,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     driverName: foundOffer.driverName || "",
     driverEmail: foundOffer.driverEmail || "",
     driverPhone: foundOffer.driverPhone || "",
+    vehicle: foundOffer.vehicle ? {
+      ...foundOffer.vehicle,
+      hasWifi: foundOffer.vehicle.hasWifi ?? false,
+      hasWC: foundOffer.vehicle.hasWC ?? false,
+      hasTV: foundOffer.vehicle.hasTV ?? false,
+      hasAirConditioning: foundOffer.vehicle.hasAirConditioning ?? false,
+      photos: foundOffer.vehicle.photos || [],
+    } : null,
   } : null;
 
   return {
