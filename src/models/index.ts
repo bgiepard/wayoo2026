@@ -93,6 +93,7 @@ export interface RequestData {
   children: number;
   options: string; // JSON string
   status: RequestStatus;
+  createdAt: string; // ISO string - data złożenia zlecenia
 }
 
 export interface CreateRequestData {

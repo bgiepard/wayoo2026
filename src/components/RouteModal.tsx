@@ -11,6 +11,7 @@ interface RouteModalProps {
   onClose: () => void;
   route: Route;
   onSave: (route: Route) => void;
+  onNext?: () => void;
 }
 
 export default function RouteModal({
@@ -18,6 +19,7 @@ export default function RouteModal({
   onClose,
   route,
   onSave,
+  onNext,
 }: RouteModalProps) {
   const [localOrigin, setLocalOrigin] = useState<Place>(route.origin);
   const [localDestination, setLocalDestination] = useState<Place>(route.destination);
@@ -37,7 +39,11 @@ export default function RouteModal({
       destination: localDestination,
       waypoints: filteredWaypoints,
     });
-    onClose();
+    if (onNext) {
+      onNext();
+    } else {
+      onClose();
+    }
   };
 
   const handleAddWaypoint = () => {
@@ -137,7 +143,7 @@ export default function RouteModal({
           onClick={handleSave}
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-2 transition-colors"
         >
-          Zapisz
+          {onNext ? "Dalej" : "Zapisz"}
         </button>
       </div>
     </Modal>

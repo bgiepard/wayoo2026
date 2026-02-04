@@ -57,6 +57,23 @@ const getStatusStyle = (status: RequestStatus, offersCount: number = 0) => {
   }
 };
 
+const getTimeAgo = (dateString: string): string => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes} min temu`;
+  } else if (diffHours < 24) {
+    return `${diffHours} ${diffHours === 1 ? "godzine" : diffHours < 5 ? "godziny" : "godzin"} temu`;
+  } else {
+    return `${diffDays} ${diffDays === 1 ? "dzien" : "dni"} temu`;
+  }
+};
+
 export default function MyRequestsPage({ requests }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("active");
 
@@ -113,23 +130,28 @@ export default function MyRequestsPage({ requests }: Props) {
               <Link
                 key={request.id}
                 href={`/request/${request.id}`}
-                className="bg-white rounded-lg p-5 flex justify-between items-center hover:shadow-md transition-shadow"
+                className="bg-white rounded-lg p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
               >
-                <div className="flex flex-col gap-1">
-                  <span className="font-medium text-gray-900">
-                    {routeDisplay}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {request.date} o {request.time}
-                  </span>
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium text-gray-900">
+                      {routeDisplay}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {request.date} o {request.time}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-500">
+                      {request.adults + request.children} os.
+                    </span>
+                    <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(request.status, request.offersCount)}`}>
+                      {getStatusText(request.status, request.offersCount)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-500">
-                    {request.adults + request.children} os.
-                  </span>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(request.status, request.offersCount)}`}>
-                    {getStatusText(request.status, request.offersCount)}
-                  </span>
+                <div className="flex justify-end">
+                  <span className="text-xs text-gray-400 font-medium">Zlozone {getTimeAgo(request.createdAt)}</span>
                 </div>
               </Link>
             );

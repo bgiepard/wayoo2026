@@ -7,6 +7,7 @@ interface PassengersModalProps {
   adults: number;
   children: number;
   onSave: (adults: number, children: number) => void;
+  onNext?: () => void;
 }
 
 function Counter({
@@ -50,6 +51,7 @@ export default function PassengersModal({
   adults,
   children,
   onSave,
+  onNext,
 }: PassengersModalProps) {
   const [localAdults, setLocalAdults] = useState(adults);
   const [localChildren, setLocalChildren] = useState(children);
@@ -61,7 +63,11 @@ export default function PassengersModal({
 
   const handleSave = () => {
     onSave(localAdults, localChildren);
-    onClose();
+    if (onNext) {
+      onNext();
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -73,7 +79,7 @@ export default function PassengersModal({
           onClick={handleSave}
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-4"
         >
-          Zapisz
+          {onNext ? "Dalej" : "Zapisz"}
         </button>
       </div>
     </Modal>

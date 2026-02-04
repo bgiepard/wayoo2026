@@ -4,8 +4,45 @@ import RouteModal from "./RouteModal";
 import DateTimeModal from "./DateTimeModal";
 import PassengersModal from "./PassengersModal";
 import OptionsModal from "./OptionsModal";
-import type { SearchData, Options, Route } from "@/models";
+import type { SearchData, Options, Route, Place } from "@/models";
 import { emptyRoute } from "@/models";
+
+const mockPlaces: Place[] = [
+  { address: "Warszawa, Polska", placeId: "mock-warszawa", lat: 52.2297, lng: 21.0122 },
+  { address: "Krakow, Polska", placeId: "mock-krakow", lat: 50.0647, lng: 19.945 },
+  { address: "Gdansk, Polska", placeId: "mock-gdansk", lat: 54.352, lng: 18.6466 },
+  { address: "Wroclaw, Polska", placeId: "mock-wroclaw", lat: 51.1079, lng: 17.0385 },
+  { address: "Poznan, Polska", placeId: "mock-poznan", lat: 52.4064, lng: 16.9252 },
+  { address: "Lodz, Polska", placeId: "mock-lodz", lat: 51.7592, lng: 19.456 },
+  { address: "Szczecin, Polska", placeId: "mock-szczecin", lat: 53.4285, lng: 14.5528 },
+  { address: "Lublin, Polska", placeId: "mock-lublin", lat: 51.2465, lng: 22.5684 },
+  { address: "Katowice, Polska", placeId: "mock-katowice", lat: 50.2649, lng: 19.0238 },
+  { address: "Bialystok, Polska", placeId: "mock-bialystok", lat: 53.1325, lng: 23.1688 },
+  { address: "Zakopane, Polska", placeId: "mock-zakopane", lat: 49.2992, lng: 19.9496 },
+  { address: "Sopot, Polska", placeId: "mock-sopot", lat: 54.4418, lng: 18.5601 },
+  { address: "Torun, Polska", placeId: "mock-torun", lat: 53.0138, lng: 18.5984 },
+  { address: "Rzeszow, Polska", placeId: "mock-rzeszow", lat: 50.0412, lng: 21.999 },
+  { address: "Olsztyn, Polska", placeId: "mock-olsztyn", lat: 53.778, lng: 20.4942 },
+];
+
+const getRandomPlace = (exclude: Place[] = []): Place => {
+  const excludeIds = exclude.map((p) => p.placeId);
+  const available = mockPlaces.filter((p) => !excludeIds.includes(p.placeId));
+  return available[Math.floor(Math.random() * available.length)];
+};
+
+const getRandomDate = (): string => {
+  const today = new Date();
+  const daysAhead = Math.floor(Math.random() * 30) + 1;
+  today.setDate(today.getDate() + daysAhead);
+  return today.toISOString().split("T")[0];
+};
+
+const getRandomTime = (): string => {
+  const hours = Math.floor(Math.random() * 14) + 6; // 06:00 - 20:00
+  const minutes = Math.random() > 0.5 ? "00" : "30";
+  return `${hours.toString().padStart(2, "0")}:${minutes}`;
+};
 
 const defaultOptions: Options = {
   wifi: false,
@@ -53,6 +90,35 @@ export default function SearchForm() {
     return Object.values(data.options).filter(Boolean).length;
   };
 
+  const handleTestRoute = () => {
+    const origin = getRandomPlace();
+    const destination = getRandomPlace([origin]);
+    const waypointsCount = Math.floor(Math.random() * 3); // 0-2 przystanki
+    const waypoints: Place[] = [];
+    const usedPlaces = [origin, destination];
+    for (let i = 0; i < waypointsCount; i++) {
+      const wp = getRandomPlace(usedPlaces);
+      waypoints.push(wp);
+      usedPlaces.push(wp);
+    }
+
+    setData({
+      route: { origin, destination, waypoints },
+      date: getRandomDate(),
+      time: getRandomTime(),
+      adults: Math.floor(Math.random() * 4) + 1,
+      children: Math.floor(Math.random() * 3),
+      options: {
+        wifi: Math.random() > 0.5,
+        wc: Math.random() > 0.5,
+        tv: Math.random() > 0.7,
+        airConditioning: Math.random() > 0.5,
+        powerOutlet: Math.random() > 0.6,
+      },
+    });
+    setErrors({});
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -77,7 +143,7 @@ export default function SearchForm() {
   const waypointsCount = data.route.waypoints.length;
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <form onSubmit={handleSubmit} className="flex gap-3">
         <button
           type="button"
@@ -132,11 +198,20 @@ export default function SearchForm() {
         </button>
       </form>
 
+      <button
+        type="button"
+        onClick={handleTestRoute}
+        className="self-start text-xs text-gray-400 hover:text-gray-600 underline transition-colors"
+      >
+        Testowa trasa
+      </button>
+
       <RouteModal
         isOpen={activeModal === "route"}
         onClose={() => setActiveModal(null)}
         route={data.route}
         onSave={handleRouteChange}
+        onNext={() => setActiveModal("datetime")}
       />
       <DateTimeModal
         isOpen={activeModal === "datetime"}
@@ -144,6 +219,7 @@ export default function SearchForm() {
         date={data.date}
         time={data.time}
         onSave={handleDateTimeChange}
+        onNext={() => setActiveModal("passengers")}
       />
       <PassengersModal
         isOpen={activeModal === "passengers"}
@@ -151,6 +227,7 @@ export default function SearchForm() {
         adults={data.adults}
         children={data.children}
         onSave={handlePassengersChange}
+        onNext={() => setActiveModal("options")}
       />
       <OptionsModal
         isOpen={activeModal === "options"}
@@ -158,6 +235,6 @@ export default function SearchForm() {
         options={data.options}
         onSave={handleOptionsChange}
       />
-    </>
+    </div>
   );
 }

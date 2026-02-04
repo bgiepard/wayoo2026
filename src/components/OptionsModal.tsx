@@ -9,6 +9,7 @@ interface OptionsModalProps {
   onClose: () => void;
   options: Options;
   onSave: (options: Options) => void;
+  onNext?: () => void;
 }
 
 const optionLabels: Record<keyof Options, string> = {
@@ -19,7 +20,7 @@ const optionLabels: Record<keyof Options, string> = {
   powerOutlet: "Gniazdko elektryczne",
 };
 
-export default function OptionsModal({ isOpen, onClose, options, onSave }: OptionsModalProps) {
+export default function OptionsModal({ isOpen, onClose, options, onSave, onNext }: OptionsModalProps) {
   const [localOptions, setLocalOptions] = useState<Options>(options);
 
   useEffect(() => {
@@ -32,7 +33,11 @@ export default function OptionsModal({ isOpen, onClose, options, onSave }: Optio
 
   const handleSave = () => {
     onSave(localOptions);
-    onClose();
+    if (onNext) {
+      onNext();
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -56,7 +61,7 @@ export default function OptionsModal({ isOpen, onClose, options, onSave }: Optio
           onClick={handleSave}
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-2"
         >
-          Zapisz
+          {onNext ? "Dalej" : "Zapisz"}
         </button>
       </div>
     </Modal>

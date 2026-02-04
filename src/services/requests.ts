@@ -17,6 +17,7 @@ function mapRecordToRequest(record: AirtableRecord<FieldSet>): RequestData {
     children: record.get("children") as number,
     options: record.get("options") as string,
     status: (record.get("status") as RequestStatus) || "published",
+    createdAt: (record.get("Created") as string) || new Date().toISOString(),
   };
 }
 
@@ -64,6 +65,7 @@ export async function getRequestsByUserEmail(email: string): Promise<RequestData
   const records = await requestsTable
     .select({
       filterByFormula: `{userEmail} = '${email}'`,
+      sort: [{ field: "Created", direction: "desc" }],
     })
     .all();
 

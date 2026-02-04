@@ -7,9 +7,10 @@ interface DateTimeModalProps {
   date: string;
   time: string;
   onSave: (date: string, time: string) => void;
+  onNext?: () => void;
 }
 
-export default function DateTimeModal({ isOpen, onClose, date, time, onSave }: DateTimeModalProps) {
+export default function DateTimeModal({ isOpen, onClose, date, time, onSave, onNext }: DateTimeModalProps) {
   const [localDate, setLocalDate] = useState(date);
   const [localTime, setLocalTime] = useState(time);
 
@@ -20,7 +21,11 @@ export default function DateTimeModal({ isOpen, onClose, date, time, onSave }: D
 
   const handleSave = () => {
     onSave(localDate, localTime);
-    onClose();
+    if (onNext) {
+      onNext();
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -42,7 +47,7 @@ export default function DateTimeModal({ isOpen, onClose, date, time, onSave }: D
           onClick={handleSave}
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium"
         >
-          Zapisz
+          {onNext ? "Dalej" : "Zapisz"}
         </button>
       </div>
     </Modal>
