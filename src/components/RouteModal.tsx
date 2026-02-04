@@ -4,7 +4,7 @@ import PlaceAutocomplete from "./PlaceAutocomplete";
 import type { Route, Place } from "@/models";
 import { emptyPlace } from "@/models";
 
-const MAX_STOPS = 3;
+const MAX_STOPS = 10;
 
 interface RouteModalProps {
   isOpen: boolean;
@@ -116,7 +116,7 @@ export default function RouteModal({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Dodaj przystanek ({localWaypoints.length}/{MAX_STOPS})
+            Dodaj przystanek
           </button>
         )}
 
