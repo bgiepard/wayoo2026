@@ -3,6 +3,7 @@ import Modal from "./ui/Modal";
 import PlaceAutocomplete from "./PlaceAutocomplete";
 import type { Route, Place } from "@/models";
 import { emptyPlace } from "@/models";
+import { CloseIcon, DotsCircleIcon, LocationMarkerIcon, PlusIcon } from "./icons";
 
 const MAX_STOPS = 10;
 
@@ -82,16 +83,7 @@ export default function RouteModal({
               value={waypoint}
               onChange={(place) => handleWaypointChange(index, place)}
               placeholder={`Przystanek ${index + 1}`}
-              icon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
+              icon={<DotsCircleIcon className="w-5 h-5" />}
             />
             <button
               type="button"
@@ -99,9 +91,7 @@ export default function RouteModal({
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
               title="Usun przystanek"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <CloseIcon className="w-4 h-4" />
             </button>
           </div>
         ))}
@@ -113,9 +103,7 @@ export default function RouteModal({
             onClick={handleAddWaypoint}
             className="flex items-center justify-center gap-2 py-2 px-4 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-dashed border-blue-300 rounded-lg transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <PlusIcon className="w-4 h-4" />
             Dodaj przystanek
           </button>
         )}
@@ -125,17 +113,7 @@ export default function RouteModal({
           value={localDestination}
           onChange={setLocalDestination}
           placeholder="Dokad"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          }
+          icon={<LocationMarkerIcon className="w-5 h-5" />}
         />
 
         {/* Save Button */}

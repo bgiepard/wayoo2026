@@ -1,83 +1,52 @@
 import Link from "next/link";
 
-interface Step {
-  id: number;
-  label: string;
-  path: string;
-}
-
 interface Props {
-  requestId: string;
+  requestId?: string;
   activeStep: number;
-  hasAcceptedOffer: boolean;
+  hasAcceptedOffer?: boolean;
 }
 
-const steps: Step[] = [
-  { id: 1, label: "Szczegoly", path: "details" },
-  { id: 2, label: "Oferty", path: "offers" },
-  { id: 3, label: "Platnosc", path: "payment" },
+const steps = [
+  { id: 1, label: "Potwierdź swoje zamówienie", path: "details" },
+  { id: 2, label: "Sprawdź oferty przewoźników", path: "offers" },
+  { id: 3, label: "Wybierz ofertę i ruszaj w drogę", path: "payment" },
 ];
 
-export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer }: Props) {
-  const isStepAccessible = (stepId: number) => {
-    if (stepId === 1) return true;
-    if (stepId === 2) return true;
-    if (stepId === 3) return hasAcceptedOffer;
-    return false;
-  };
-
-  const renderStepContent = (step: Step, accessible: boolean) => (
-    <>
-      <div
-        className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-          activeStep === step.id
-            ? "bg-blue-600 text-white"
-            : accessible
-            ? "bg-gray-100 text-gray-700"
-            : "bg-gray-50 text-gray-400"
-        }`}
-      >
-        {step.id}
-      </div>
-      <span
-        className={`text-xs mt-2 ${
-          activeStep === step.id
-            ? "text-blue-600 font-medium"
-            : accessible
-            ? "text-gray-600"
-            : "text-gray-400"
-        }`}
-      >
-        {step.label}
-      </span>
-    </>
-  );
+export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer = false }: Props) {
+  const isAccessible = (stepId: number) => requestId && (stepId < 3 || hasAcceptedOffer);
 
   return (
-    <div className="flex justify-center items-center gap-4 mb-8 py-6 bg-white rounded-lg shadow-sm">
-      {steps.map((step, index) => {
-        const accessible = isStepAccessible(step.id);
+    <div className="flex justify-center items-center gap-6 mt-[64px] mb-[96px] w-full">
+      {steps.map((step) => {
+        const accessible = isAccessible(step.id);
+        const isActive = activeStep === step.id;
+
+        const content = (
+          <div className="w-full flex-col">
+            <div className="flex items-center justify-center gap-[10px]">
+              <div className={`w-6 h-6 rounded-[8px] flex shrink-0 items-center justify-center text-[16px] transition-colors ${
+                isActive ? "bg-[#0B298F] text-white" : accessible ? "bg-gray-100 text-gray-700" : "bg-gray-50 text-gray-400"
+              }`}>
+                {step.id}
+              </div>
+              <span className={`font-[13px] block w-full ${
+                isActive ? "text-[#0B298F]" : accessible ? "text-gray-600" : "text-gray-400"
+              }`}>
+                {step.label}
+              </span>
+            </div>
+            <div className={`w-full h-1 rounded mt-3 ${isActive ? "bg-[#0B298F]" : "bg-gray-200"}`} />
+          </div>
+        );
 
         return (
-          <div key={step.id} className="flex items-center">
+          <div key={step.id} className="flex items-center w-full">
             {accessible ? (
-              <Link
-                href={`/request/${requestId}/${step.path}`}
-                className="flex flex-col items-center hover:opacity-80 transition-opacity"
-              >
-                {renderStepContent(step, accessible)}
+              <Link href={`/request/${requestId}/${step.path}`} className="flex flex-col items-center w-full hover:opacity-80 transition-opacity">
+                {content}
               </Link>
             ) : (
-              <div className="flex flex-col items-center">
-                {renderStepContent(step, accessible)}
-              </div>
-            )}
-            {index < steps.length - 1 && (
-              <div
-                className={`w-16 h-0.5 mx-4 rounded ${
-                  isStepAccessible(step.id + 1) ? "bg-blue-200" : "bg-gray-200"
-                }`}
-              />
+              <div className="flex flex-col items-center w-full">{content}</div>
             )}
           </div>
         );

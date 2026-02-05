@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import LoginModal from "@/components/LoginModal";
 import RouteMap from "@/components/RouteMap";
+import RequestSteps from "@/components/RequestSteps";
 import type { SearchData } from "@/models";
 
 const optionLabels: Record<string, string> = {
@@ -82,29 +83,7 @@ export default function DraftDetailsPage() {
 
   return (
     <main className="py-8 px-4 max-w-[1250px] mx-auto">
-      {/* Stepy */}
-      <div className="flex justify-center items-center gap-4 mb-8 py-6 bg-white rounded-lg shadow-sm">
-        <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-blue-600 text-white">
-            1
-          </div>
-          <span className="text-xs mt-2 text-blue-600 font-medium">Szczegoly</span>
-        </div>
-        <div className="w-16 h-0.5 mx-4 rounded bg-gray-200" />
-        <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-gray-50 text-gray-400">
-            2
-          </div>
-          <span className="text-xs mt-2 text-gray-400">Oferty</span>
-        </div>
-        <div className="w-16 h-0.5 mx-4 rounded bg-gray-200" />
-        <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium bg-gray-50 text-gray-400">
-            3
-          </div>
-          <span className="text-xs mt-2 text-gray-400">Platnosc</span>
-        </div>
-      </div>
+      <RequestSteps activeStep={1} />
 
       <h1 className="text-2xl font-semibold mb-6">Szczegoly zapytania</h1>
 

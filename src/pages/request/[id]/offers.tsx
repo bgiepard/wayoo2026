@@ -5,6 +5,7 @@ import { getRequestById, getOffersByRequest } from "@/services";
 import type { RequestData, OfferData } from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@/components/icons";
 
 // Funkcja do zakropkowania imienia i nazwiska
 function maskName(name?: string): string {
@@ -283,9 +284,7 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
             onClick={closeLightbox}
             className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-8 h-8" />
           </button>
 
           {/* Previous button */}
@@ -297,9 +296,7 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
               }}
               className="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeftIcon className="w-10 h-10" />
             </button>
           )}
 
@@ -320,9 +317,7 @@ export default function RequestOffersPage({ request, initialOffers }: Props) {
               }}
               className="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRightIcon className="w-10 h-10" />
             </button>
           )}
 

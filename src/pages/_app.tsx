@@ -6,6 +6,12 @@ import { NotificationsProvider } from "@/context/NotificationsContext";
 import { PusherProvider } from "@/context/PusherContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { DM_Sans } from "next/font/google";
+
+const dmSans = DM_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
@@ -16,9 +22,11 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       />
       <NotificationsProvider>
         <PusherProvider>
-          <Header />
-          <Component {...pageProps} />
-          <Footer />
+          <div className={dmSans.className}>
+            <Header />
+            <Component {...pageProps} />
+            <Footer />
+          </div>
         </PusherProvider>
       </NotificationsProvider>
     </SessionProvider>

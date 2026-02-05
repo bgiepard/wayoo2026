@@ -1,163 +1,103 @@
 import { useSession } from "next-auth/react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import LoginModal from "./LoginModal";
-import { useNotifications } from "@/context/NotificationsContext";
-import { usePusher } from "@/context/PusherContext";
+import NotificationDropdown from "./NotificationDropdown";
+import { ChevronDownIcon } from "./icons";
+import logo from "@/assets/logo.png";
+
+const navMenus = [
+  {
+    label: "Podróżuj z Wayoo",
+    items: [
+      { href: "/transfers", label: "Transfery lotniskowe" },
+      { href: "/city-rides", label: "Przejazdy miejskie" },
+      { href: "/long-distance", label: "Trasy dalekobieżne" },
+    ],
+  },
+  {
+    label: "Dla hoteli i obiektów",
+    items: [
+      { href: "/for-hotels", label: "Oferta dla hoteli" },
+      { href: "/for-resorts", label: "Oferta dla resortów" },
+      { href: "/partnership", label: "Zostań partnerem" },
+    ],
+  },
+  {
+    label: "Partnerzy transportowi",
+    items: [
+      { href: "/become-driver", label: "Zostań kierowcą" },
+      { href: "/fleet-partners", label: "Partnerzy flotowi" },
+      { href: "/driver-app", label: "Aplikacja kierowcy" },
+    ],
+  },
+  {
+    label: "O nas",
+    items: [
+      { href: "/about", label: "O firmie" },
+      { href: "/careers", label: "Kariera" },
+      { href: "/press", label: "Dla mediów" },
+    ],
+  },
+  {
+    label: "Pomoc i kontakt",
+    items: [
+      { href: "/faq", label: "FAQ" },
+      { href: "/contact", label: "Kontakt" },
+      { href: "/support", label: "Wsparcie" },
+    ],
+  },
+];
 
 export default function Header() {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { hasNewNotification, clearNewNotificationFlag } = usePusher();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Animacja dzwoneczka gdy przychodzi nowe powiadomienie
-  useEffect(() => {
-    if (hasNewNotification) {
-      setIsAnimating(true);
-      const timeout = setTimeout(() => {
-        setIsAnimating(false);
-        clearNewNotificationFlag();
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [hasNewNotification, clearNewNotificationFlag]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsNotificationsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return "Teraz";
-    if (minutes < 60) return `${minutes} min temu`;
-    if (hours < 24) return `${hours} godz temu`;
-    return `${days} dni temu`;
-  };
 
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="flex justify-between items-center py-4 px-4 max-w-[1250px] mx-auto">
-        <Link href="/" className="text-xl font-semibold">wayoo</Link>
+    <header>
+      <div className="bg-[#0B298F] px-4 py-[18px]">
+        <div className="max-w-[1150px] mx-auto flex justify-between items-center">
+          <Link href="/" className="text-xl font-semibold">
+            <Image src={logo} width={120} height={40} alt="Wayoo logo" />
+          </Link>
 
-        <nav className="flex gap-6 items-center text-sm">
-          {session ? (
-            <>
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => {
-                    const wasOpen = isNotificationsOpen;
-                    setIsNotificationsOpen(!isNotificationsOpen);
-                    // Oznacz jako przeczytane gdy otwieramy dropdown i są nieprzeczytane
-                    if (!wasOpen && unreadCount > 0) {
-                      markAllAsRead();
-                    }
-                  }}
-                  className={`relative p-2 text-gray-500 hover:text-gray-800 ${isAnimating ? "animate-bell" : ""}`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={isAnimating ? "text-blue-600" : ""}
-                  >
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <span className={`absolute top-0 right-0 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center ${isAnimating ? "animate-pulse" : ""}`}>
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </button>
+          <nav className="flex gap-8 items-center text-sm">
+            {session ? (
+              <>
+                <NotificationDropdown />
+                <Link href="/my-requests" className="text-white hover:text-gray-300 text-[16px]">Moje zapytania</Link>
+                <Link href="/account" className="text-white hover:text-gray-300 text-[16px]">Moje konto</Link>
+              </>
+            ) : (
+              <button onClick={() => setIsModalOpen(true)} className="text-white hover:text-gray-300 text-[16px]">
+                Zaloguj sie
+              </button>
+            )}
+          </nav>
+        </div>
+      </div>
 
-                {isNotificationsOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="flex justify-between items-center p-3 border-b border-gray-100">
-                      <span className="font-medium text-sm">Powiadomienia</span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllAsRead}
-                          className="text-xs text-gray-500 hover:text-gray-800"
-                        >
-                          Oznacz jako przeczytane
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="p-4 text-center text-gray-400 text-sm">
-                          Brak powiadomien
-                        </div>
-                      ) : (
-                        notifications.slice(0, 10).map((notification) => (
-                          <div
-                            key={notification.id}
-                            className={`p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${
-                              !notification.read ? "bg-blue-50" : ""
-                            }`}
-                            onClick={() => {
-                              markAsRead(notification.id);
-                              if (notification.link) {
-                                window.location.href = notification.link;
-                              }
-                            }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <p className={`text-sm ${!notification.read ? "font-medium" : ""}`}>
-                                  {notification.title}
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {notification.message}
-                                </p>
-                              </div>
-                              <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
-                                {formatTime(notification.createdAt)}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
+      <div className="bg-[#081D66]">
+        <nav className="max-w-[1150px] mx-auto flex justify-center items-center gap-8 py-2 text-sm text-white">
+          {navMenus.map((menu) => (
+            <div key={menu.label} className="relative group">
+              <button className="flex items-center gap-2 hover:text-gray-300 py-2 px-4 text-[14px] font-[600]">
+                {menu.label}
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+              <div className="absolute left-0 top-full hidden group-hover:block bg-white text-gray-800 rounded shadow-lg min-w-[200px] z-50">
+                {menu.items.map((item) => (
+                  <Link key={item.href} href={item.href} className="block px-4 py-2 hover:bg-gray-100">
+                    {item.label}
+                  </Link>
+                ))}
               </div>
-
-              <Link href="/my-requests" className="text-gray-600 hover:text-gray-900">Moje zapytania</Link>
-              <Link href="/account" className="text-gray-600 hover:text-gray-900">Moje konto</Link>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              Zaloguj sie
-            </button>
-          )}
+            </div>
+          ))}
         </nav>
       </div>
+
       <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </header>
   );
