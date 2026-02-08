@@ -1,40 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# WAYOO 2026 — Aplikacja pasażera
 
-## Getting Started
+Frontendowa aplikacja Next.js dla pasażerów platformy WAYOO. Umożliwia wyszukiwanie tras, składanie zleceń przejazdów, przeglądanie ofert kierowców i płatności.
 
-First, run the development server:
+## Uruchamianie
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Skrypty
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+| Komenda | Opis |
+|---------|------|
+| `npm run dev` | Serwer developerski (port 3000) |
+| `npm run build` | Build produkcyjny |
+| `npm run start` | Start produkcyjny |
+| `npm run lint` | ESLint |
+| `npm run migrate:offers` | Migracja statusów ofert |
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Główne strony
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+| Ścieżka | Plik | Opis |
+|----------|------|------|
+| `/` | `pages/index.tsx` | Strona główna z formularzem wyszukiwania |
+| `/my-requests` | `pages/my-requests.tsx` | Lista zleceń użytkownika |
+| `/request/[id]` | `pages/request/[id]/index.tsx` | Szczegóły zlecenia |
+| `/request/[id]/offers` | `pages/request/[id]/offers.tsx` | Oferty na zlecenie |
+| `/request/[id]/payment` | `pages/request/[id]/payment.tsx` | Płatność za przejazd |
+| `/request/draft/details` | `pages/request/draft/details.tsx` | Edycja wersji roboczej |
+| `/account` | `pages/account.tsx` | Ustawienia konta |
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Routes
 
-## Learn More
+| Metoda | Endpoint | Opis |
+|--------|----------|------|
+| POST | `/api/requests` | Utwórz zlecenie |
+| GET | `/api/my-requests` | Pobierz zlecenia użytkownika |
+| GET | `/api/offers?requestId=X` | Pobierz oferty na zlecenie |
+| PATCH | `/api/requests/[id]/status` | Zmień status zlecenia |
+| GET/POST | `/api/notifications` | Powiadomienia |
+| POST | `/api/auth/register` | Rejestracja |
 
-To learn more about Next.js, take a look at the following resources:
+## Kluczowe komponenty
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+- **SearchForm** — 4-krokowy formularz wyszukiwania (trasa → data → pasażerowie → opcje)
+- **RouteModal** — wybór trasy z Google Places Autocomplete
+- **RouteMap** — wizualizacja trasy na mapie Google
+- **RequestSteps** — stepper postępu zlecenia
+- **NotificationDropdown** — powiadomienia real-time
