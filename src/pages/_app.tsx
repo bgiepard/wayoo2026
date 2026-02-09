@@ -11,6 +11,7 @@ import { DM_Sans } from "next/font/google";
 const dmSans = DM_Sans({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
 });
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
@@ -22,7 +23,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       />
       <NotificationsProvider>
         <PusherProvider>
-          <div className={dmSans.className}>
+          <div className={`${dmSans.variable} ${dmSans.className}`}>
             <Header />
             <Component {...pageProps} />
             <Footer />
