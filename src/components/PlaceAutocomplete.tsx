@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { Place } from "@/models";
-import { LocateIcon, LocationMarkerIcon } from "./icons";
+import { LocationMarkerIcon } from "./icons";
 
 interface PlaceAutocompleteProps {
   value: Place;
   onChange: (place: Place) => void;
   placeholder: string;
+  id?: string;
   icon?: React.ReactNode;
   disabled?: boolean;
-  showLocateButton?: boolean;
+  inputClassName?: string;
 }
 
 interface PlacePrediction {
@@ -31,20 +32,19 @@ export default function PlaceAutocomplete({
   value,
   onChange,
   placeholder,
+  id,
   icon,
   disabled = false,
-  showLocateButton = false,
+  inputClassName,
 }: PlaceAutocompleteProps) {
   const [inputValue, setInputValue] = useState(value.address);
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
-  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const dummyDivRef = useRef<HTMLDivElement | null>(null);
 
   // Sync input value with prop
@@ -57,8 +57,6 @@ export default function PlaceAutocomplete({
     const initServices = () => {
       if (typeof window !== "undefined" && window.google?.maps?.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-        geocoderRef.current = new window.google.maps.Geocoder();
-
         // PlacesService requires a DOM element or map
         if (!dummyDivRef.current) {
           dummyDivRef.current = document.createElement("div");
@@ -191,106 +189,25 @@ export default function PlaceAutocomplete({
     );
   };
 
-  const handleLocateMe = () => {
-    if (!navigator.geolocation) {
-      alert("Twoja przegladarka nie wspiera geolokalizacji");
-      return;
-    }
-
-    setIsLocating(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-
-        if (!geocoderRef.current) {
-          if (window.google?.maps) {
-            geocoderRef.current = new window.google.maps.Geocoder();
-          } else {
-            setIsLocating(false);
-            alert("Google Maps nie zostal zaladowany");
-            return;
-          }
-        }
-
-        geocoderRef.current.geocode(
-          { location: { lat: latitude, lng: longitude } },
-          (results, status) => {
-            setIsLocating(false);
-            if (status === "OK" && results && results[0]) {
-              const result = results[0];
-              const place: Place = {
-                address: result.formatted_address,
-                placeId: result.place_id,
-                lat: latitude,
-                lng: longitude,
-              };
-              setInputValue(place.address);
-              onChange(place);
-            } else {
-              alert("Nie udalo sie pobrac adresu");
-            }
-          }
-        );
-      },
-      (error) => {
-        setIsLocating(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            alert("Odmowiono dostepu do lokalizacji");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert("Lokalizacja niedostepna");
-            break;
-          case error.TIMEOUT:
-            alert("Przekroczono czas oczekiwania");
-            break;
-          default:
-            alert("Wystapil blad podczas pobierania lokalizacji");
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  };
-
-  const hasLeftContent = icon || showLocateButton;
+  const hasLeftContent = !!icon;
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative flex-1 min-w-0" ref={dropdownRef}>
       <div className="relative">
         {hasLeftContent && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1">
-            {showLocateButton ? (
-              <button
-                type="button"
-                onClick={handleLocateMe}
-                disabled={disabled || isLocating}
-                className="p-1 -m-1 text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Uzyj mojej lokalizacji"
-              >
-                {isLocating ? (
-                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <LocateIcon className="w-5 h-5" />
-                )}
-              </button>
-            ) : (
-              <div className="text-blue-500">{icon}</div>
-            )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center text-[#5B5E68]">
+            {icon}
           </div>
         )}
         <input
+          id={id}
           type="text"
           value={inputValue}
           onChange={handleInput}
           onFocus={() => setShowDropdown(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full ${hasLeftContent ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
+          className={inputClassName || `w-full ${hasLeftContent ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
         />
       </div>
 
@@ -304,7 +221,7 @@ export default function PlaceAutocomplete({
               className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
             >
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-blue-500 flex-shrink-0">
+                <div className="mt-0.5 text-[#5B5E68] flex-shrink-0">
                   <LocationMarkerIcon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">

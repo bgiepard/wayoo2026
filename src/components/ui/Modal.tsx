@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { CloseIcon } from "../icons";
 
 interface ModalProps {
   isOpen: boolean;
@@ -6,6 +7,8 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   width?: string;
+  onConfirm?: () => void;
+  confirmDisabled?: boolean;
 }
 
 export default function Modal({
@@ -14,22 +17,36 @@ export default function Modal({
   title,
   children,
   width = "w-80",
+  onConfirm,
+  confirmDisabled = false,
 }: ModalProps) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className={`bg-white rounded-lg p-6 shadow-xl ${width}`}>
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-medium">{title}</h2>
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-lg font-[20px] text-[#0B298F]">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            className="text-gray-400 hover:text-gray-600  p-3"
           >
-            ×
+            <CloseIcon />
           </button>
         </div>
         {children}
+        {onConfirm && (
+          <div className="flex justify-end mt-8">
+            <button
+              onClick={onConfirm}
+              disabled={confirmDisabled}
+              className="px-6 py-3 text-white text-[14px] font-medium rounded-lg transition-colors leading-[140%]"
+              style={{ backgroundColor: confirmDisabled ? "#8E8F96" : "#0B298F" }}
+            >
+              Potwierdź
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

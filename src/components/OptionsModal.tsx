@@ -41,7 +41,12 @@ export default function OptionsModal({ isOpen, onClose, options, onSave, onNext 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Dodatkowe opcje">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Dodatkowe opcje"
+      onConfirm={handleSave}
+    >
       <div className="flex flex-col gap-3">
         {(Object.keys(optionLabels) as Array<keyof Options>).map((key) => (
           <label
@@ -57,12 +62,6 @@ export default function OptionsModal({ isOpen, onClose, options, onSave, onNext 
             <span className="text-sm">{optionLabels[key]}</span>
           </label>
         ))}
-        <button
-          onClick={handleSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-2"
-        >
-          {onNext ? "Dalej" : "Zapisz"}
-        </button>
       </div>
     </Modal>
   );

@@ -163,6 +163,8 @@ export interface SearchData {
   time: string;
   adults: number;
   children: number;
+  needsChildSeats: boolean;
+  childrenAges: number[];
   options: Options;
 }
 

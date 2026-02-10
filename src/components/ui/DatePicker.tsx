@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 
 const MONTH_NAMES = [
@@ -6,17 +6,7 @@ const MONTH_NAMES = [
   "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień",
 ];
 
-const MONTH_NAMES_GENITIVE = [
-  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
-  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
-];
-
 const DAY_NAMES_SHORT = ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"];
-
-const DAY_NAMES_FULL = [
-  "niedziela", "poniedziałek", "wtorek", "środa",
-  "czwartek", "piątek", "sobota",
-];
 
 interface DatePickerProps {
   value: string; // format YYYY-MM-DD
@@ -39,53 +29,6 @@ export default function DatePicker({
   const [viewMonth, setViewMonth] = useState(
     () => selectedDate?.getMonth() ?? new Date().getMonth()
   );
-
-  // --- Edycja ręczna daty ---
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
-  const startEdit = () => {
-    setEditValue(selectedDate
-      ? `${String(selectedDate.getDate()).padStart(2, "0")}.${String(selectedDate.getMonth() + 1).padStart(2, "0")}.${selectedDate.getFullYear()}`
-      : ""
-    );
-    setIsEditing(true);
-  };
-
-  const commitEdit = () => {
-    // Akceptowane formaty: DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY
-    const match = editValue.match(/^(\d{1,2})[./\-](\d{1,2})[./\-](\d{4})$/);
-    if (match) {
-      const [, dayStr, monthStr, yearStr] = match;
-      const day = parseInt(dayStr);
-      const month = parseInt(monthStr);
-      const year = parseInt(yearStr);
-
-      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-        const testDate = new Date(year, month - 1, day);
-        if (testDate.getDate() === day && testDate >= (minDateObj ?? today)) {
-          const formatted = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-          onChange(formatted);
-          setViewYear(year);
-          setViewMonth(month - 1);
-        }
-      }
-    }
-    setIsEditing(false);
-  };
-
-  const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") commitEdit();
-    if (e.key === "Escape") setIsEditing(false);
-  };
 
   // --- Stałe ---
 
@@ -174,15 +117,6 @@ export default function DatePicker({
     const formatted = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     onChange(formatted);
   };
-
-  const selectionSummary = useMemo(() => {
-    if (!selectedDate) return null;
-    const dayOfWeek = DAY_NAMES_FULL[selectedDate.getDay()];
-    const dayNum = selectedDate.getDate();
-    const monthGen = MONTH_NAMES_GENITIVE[selectedDate.getMonth()];
-    const year = selectedDate.getFullYear();
-    return `${dayOfWeek}, ${dayNum} ${monthGen} ${year}`;
-  }, [selectedDate]);
 
   const isCurrentMonthView =
     viewYear === today.getFullYear() && viewMonth === today.getMonth();
@@ -274,41 +208,6 @@ export default function DatePicker({
         ))}
       </div>
 
-      {/* Podsumowanie — klikalne do edycji ręcznej */}
-      <div className="mt-4 pt-3 border-t border-gray-100">
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={commitEdit}
-            onKeyDown={handleEditKeyDown}
-            placeholder="DD.MM.YYYY"
-            className="w-full text-center text-sm bg-blue-50 text-blue-700 font-medium
-                       rounded-lg py-2 px-3 outline-none ring-1 ring-blue-200"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={startEdit}
-            className="w-full text-center py-2 rounded-lg transition-colors
-                       hover:bg-gray-50 group cursor-text"
-          >
-            {selectionSummary ? (
-              <p className="text-sm">
-                <span className="text-gray-700 font-medium capitalize group-hover:text-blue-600 transition-colors">
-                  {selectionSummary}
-                </span>
-              </p>
-            ) : (
-              <p className="text-sm text-gray-400">
-                Wpisz datę ręcznie...
-              </p>
-            )}
-          </button>
-        )}
-      </div>
     </div>
   );
 }

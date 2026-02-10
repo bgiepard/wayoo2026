@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import Modal from "./ui/Modal";
+import { labelBase, inputBase } from "./ui/modalStyles";
 import PlaceAutocomplete from "./PlaceAutocomplete";
 import type { Route, Place } from "@/models";
 import { emptyPlace } from "@/models";
-import { CloseIcon, DotsCircleIcon, LocationMarkerIcon, PlusIcon } from "./icons";
+import { AddIcon, RemoveRouteStopIcon, RouteStartIcon, RouteStopIcon, RouteEndIcon } from "./icons";
 
 const MAX_STOPS = 10;
 
@@ -33,7 +34,6 @@ export default function RouteModal({
   }, [route]);
 
   const handleSave = () => {
-    // Filter out empty waypoints
     const filteredWaypoints = localWaypoints.filter((wp) => wp.address.trim() !== "");
     onSave({
       origin: localOrigin,
@@ -64,35 +64,53 @@ export default function RouteModal({
   };
 
   const canAddWaypoint = localWaypoints.length < MAX_STOPS;
+  const isValid = localOrigin.address.trim() !== "" && localDestination.address.trim() !== "";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Trasa" width="w-96">
-      <div className="flex flex-col gap-3">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Wybierz punkty na trasie"
+      width="w-96"
+      onConfirm={handleSave}
+      confirmDisabled={!isValid}
+    >
+      <div className="flex flex-col">
         {/* Origin */}
-        <PlaceAutocomplete
-          value={localOrigin}
-          onChange={setLocalOrigin}
-          placeholder="Skad"
-          showLocateButton
-        />
+        <div className="mb-6">
+          <label htmlFor="route-origin" className={labelBase}>Miejsce wyjazdu</label>
+          <PlaceAutocomplete
+            id="route-origin"
+            value={localOrigin}
+            onChange={setLocalOrigin}
+            placeholder="Wprowadź adres miejsca wyjazdu"
+            icon={<RouteStartIcon className="" />}
+            inputClassName={inputBase}
+          />
+        </div>
 
         {/* Waypoints */}
         {localWaypoints.map((waypoint, index) => (
-          <div key={index} className="relative">
-            <PlaceAutocomplete
-              value={waypoint}
-              onChange={(place) => handleWaypointChange(index, place)}
-              placeholder={`Przystanek ${index + 1}`}
-              icon={<DotsCircleIcon className="w-5 h-5" />}
-            />
-            <button
-              type="button"
-              onClick={() => handleRemoveWaypoint(index)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-              title="Usun przystanek"
-            >
-              <CloseIcon className="w-4 h-4" />
-            </button>
+          <div key={index} className="mb-6">
+            <label htmlFor={`route-waypoint-${index}`} className={labelBase}>Przystanek #{index + 1}</label>
+            <div className="flex items-center gap-3">
+              <PlaceAutocomplete
+                id={`route-waypoint-${index}`}
+                value={waypoint}
+                onChange={(place) => handleWaypointChange(index, place)}
+                placeholder={`Przystanek ${index + 1}`}
+                icon={<RouteStopIcon className="" />}
+                inputClassName={inputBase}
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveWaypoint(index)}
+                className="p-3 rounded-lg text-[#5B5E68] hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0"
+                title="Usuń przystanek"
+              >
+                <RemoveRouteStopIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         ))}
 
@@ -101,28 +119,25 @@ export default function RouteModal({
           <button
             type="button"
             onClick={handleAddWaypoint}
-            className="flex items-center justify-center gap-2 py-2 px-4 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-dashed border-blue-300 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-3 mb-6 text-[#0B298F] font-[600] hover:bg-gray-50 rounded-lg transition-colors"
           >
-            <PlusIcon className="w-4 h-4" />
+            <AddIcon className="w-5 h-5" />
             Dodaj przystanek
           </button>
         )}
 
         {/* Destination */}
-        <PlaceAutocomplete
-          value={localDestination}
-          onChange={setLocalDestination}
-          placeholder="Dokad"
-          icon={<LocationMarkerIcon className="w-5 h-5" />}
-        />
-
-        {/* Save Button */}
-        <button
-          onClick={handleSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium mt-2 transition-colors"
-        >
-          {onNext ? "Dalej" : "Zapisz"}
-        </button>
+        <div>
+          <label htmlFor="route-destination" className={labelBase}>Lokalizacja końcowa</label>
+          <PlaceAutocomplete
+            id="route-destination"
+            value={localDestination}
+            onChange={setLocalDestination}
+            placeholder="Wprowadź adres lokalizacji końcowej"
+            icon={<RouteEndIcon className="w-5 h-5" />}
+            inputClassName={inputBase}
+          />
+        </div>
       </div>
     </Modal>
   );

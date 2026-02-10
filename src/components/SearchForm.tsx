@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import RouteModal from "./RouteModal";
 import DateTimeModal from "./DateTimeModal";
 import PassengersModal from "./PassengersModal";
-import OptionsModal from "./OptionsModal";
+import { RouteIcon, DatesIcon, PassengersIcon } from "./icons";
 import type { SearchData, Options, Route, Place } from "@/models";
 import { emptyRoute } from "@/models";
 
@@ -60,10 +60,12 @@ export default function SearchForm() {
     time: "",
     adults: 1,
     children: 0,
+    needsChildSeats: false,
+    childrenAges: [],
     options: defaultOptions,
   });
 
-  const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "options" | null>(null);
+  const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | null>(null);
   const [errors, setErrors] = useState<{ route?: boolean; datetime?: boolean }>({});
 
   const handleRouteChange = (route: Route) => {
@@ -78,17 +80,10 @@ export default function SearchForm() {
     if (date && time) setErrors((prev) => ({ ...prev, datetime: false }));
   };
 
-  const handlePassengersChange = (adults: number, children: number) => {
-    setData({ ...data, adults, children });
+  const handlePassengersChange = (adults: number, children: number, needsChildSeats: boolean, childrenAges: number[]) => {
+    setData({ ...data, adults, children, needsChildSeats, childrenAges });
   };
 
-  const handleOptionsChange = (options: Options) => {
-    setData({ ...data, options });
-  };
-
-  const getSelectedOptionsCount = () => {
-    return Object.values(data.options).filter(Boolean).length;
-  };
 
   const handleTestRoute = () => {
     const origin = getRandomPlace();
@@ -108,6 +103,8 @@ export default function SearchForm() {
       time: getRandomTime(),
       adults: Math.floor(Math.random() * 4) + 1,
       children: Math.floor(Math.random() * 3),
+      needsChildSeats: false,
+      childrenAges: [],
       options: {
         wifi: Math.random() > 0.5,
         wc: Math.random() > 0.5,
@@ -136,65 +133,70 @@ export default function SearchForm() {
     router.push("/request/draft/details");
   };
 
-  const buttonBase = "bg-gray-50 hover:bg-gray-100 rounded-lg p-4 text-left text-sm transition-colors";
+  const buttonBase = "hover:bg-gray-100 text-left text-sm transition-colors border-[#D9DADC] pl-3 border-r-[1px] rounded-[4px]";
   const buttonError = "ring-2 ring-red-400";
+  const labelBase = "text-[#5B5E68] text-xs block";
+  const iconBase = "shrink-0 text-gray-500";
+  const placeholderBase = "text-gray-400";
 
   const hasRoute = data.route.origin.address && data.route.destination.address;
   const waypointsCount = data.route.waypoints.length;
 
   return (
-    <div className="flex flex-col gap-2">
-      <form onSubmit={handleSubmit} className="flex gap-3">
+    <div className="flex flex-col gap-2 w-full">
+      <form onSubmit={handleSubmit} className="flex w-full bg-white p-3 rounded-[8px]">
         <button
           type="button"
           onClick={() => setActiveModal("route")}
-          className={`${buttonBase} flex-1 ${errors.route ? buttonError : ""}`}
+          className={`${buttonBase} flex-2 flex items-center gap-3 ${errors.route ? buttonError : ""}`}
         >
-          <span className="text-gray-400 text-xs block mb-1">Trasa</span>
-          {hasRoute ? (
-            <span className="truncate block">
-              {data.route.origin.address.split(",")[0]}
-              {waypointsCount > 0 && ` → ${waypointsCount} przyst.`}
-              {" → "}
-              {data.route.destination.address.split(",")[0]}
-            </span>
-          ) : (
-            <span className="text-gray-400">Wybierz</span>
-          )}
+          <RouteIcon className={iconBase} />
+          <div className="min-w-0">
+            <span className={labelBase}>Trasa</span>
+            {hasRoute ? (
+              <span className="truncate block">
+                {data.route.origin.address.split(",")[0]}
+                {waypointsCount > 0 && ` → ${waypointsCount} przyst.`}
+                {" → "}
+                {data.route.destination.address.split(",")[0]}
+              </span>
+            ) : (
+              <span className={placeholderBase}>Wybierz punkty trasy</span>
+            )}
+          </div>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveModal("datetime")}
-          className={`${buttonBase} flex-1 ${errors.datetime ? buttonError : ""}`}
+          className={`${buttonBase} flex-1 flex items-center gap-3 ${errors.datetime ? buttonError : ""}`}
         >
-          <span className="text-gray-400 text-xs block mb-1">Kiedy</span>
-          {data.date && data.time ? `${data.date} ${data.time}` : <span className="text-gray-400">Wybierz</span>}
+          <DatesIcon className={iconBase} />
+          <div className="min-w-0">
+            <span className={labelBase}>Wybierz termin wyjazdu</span>
+            {data.date && data.time ? `${data.date} ${data.time}` : <span className={placeholderBase}>Wybierz</span>}
+          </div>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveModal("passengers")}
-          className={`${buttonBase} flex-1`}
+          className={`${buttonBase} flex-1 flex items-center gap-3`}
         >
-          <span className="text-gray-400 text-xs block mb-1">Pasazerowie</span>
-          {`${data.adults + data.children} os.`}
+          <PassengersIcon className={iconBase} />
+          <div className="min-w-0">
+            <span className={labelBase}>Wybierz liczbę pasażerów</span>
+            {`${data.adults + data.children} os.`}
+          </div>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveModal("options")}
-          className={`${buttonBase} flex-1`}
-        >
-          <span className="text-gray-400 text-xs block mb-1">Opcje</span>
-          {getSelectedOptionsCount() > 0 ? `${getSelectedOptionsCount()} wybrano` : <span className="text-gray-400">Brak</span>}
-        </button>
 
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 font-medium transition-colors"
+          className="px-6 py-3 text-white text-[14px] font-medium rounded-lg transition-colors leading-[140%]"
+          style={{ backgroundColor: "#0B298F" }}
         >
-          Szukaj
+          Dalej
         </button>
       </form>
 
@@ -226,14 +228,10 @@ export default function SearchForm() {
         onClose={() => setActiveModal(null)}
         adults={data.adults}
         children={data.children}
+        needsChildSeats={data.needsChildSeats}
+        childrenAges={data.childrenAges}
         onSave={handlePassengersChange}
-        onNext={() => setActiveModal("options")}
-      />
-      <OptionsModal
-        isOpen={activeModal === "options"}
-        onClose={() => setActiveModal(null)}
-        options={data.options}
-        onSave={handleOptionsChange}
+        onNext={() => setActiveModal(null)}
       />
     </div>
   );

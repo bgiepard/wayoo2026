@@ -1,4 +1,6 @@
+export { default as AddIcon } from "./AddIcon";
 export { default as BellIcon } from "./BellIcon";
+export { default as ChildIcon } from "./ChildIcon";
 export { default as ChevronDownIcon } from "./ChevronDownIcon";
 export { default as ChevronLeftIcon } from "./ChevronLeftIcon";
 export { default as ChevronRightIcon } from "./ChevronRightIcon";
@@ -8,4 +10,11 @@ export { default as GoogleIcon } from "./GoogleIcon";
 export { default as LocateIcon } from "./LocateIcon";
 export { default as LocationMarkerIcon } from "./LocationMarkerIcon";
 export { default as MapIcon } from "./MapIcon";
+export { default as PassengersIcon } from "./PassengersIcon";
 export { default as PlusIcon } from "./PlusIcon";
+export { default as RemoveRouteStopIcon } from "./RemoveRouteStopIcon";
+export { default as RouteEndIcon } from "./RouteEndIcon";
+export { default as RouteIcon } from "./RouteIcon";
+export { default as RouteStartIcon } from "./RouteStartIcon";
+export { default as RouteStopIcon } from "./RouteStopIcon";
+export { default as DatesIcon } from "./DatesIcon";
