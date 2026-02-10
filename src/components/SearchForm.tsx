@@ -133,7 +133,7 @@ export default function SearchForm() {
     router.push("/request/draft/details");
   };
 
-  const buttonBase = "hover:bg-gray-100 text-left text-sm transition-colors border-[#D9DADC] pl-3 border-r-[1px] rounded-[4px]";
+  const buttonBase = "hover:bg-gray-100 text-left text-sm transition-colors pl-3 rounded-[4px]";
   const buttonError = "ring-2 ring-red-400";
   const labelBase = "text-[#5B5E68] text-xs block";
   const iconBase = "shrink-0 text-gray-500";
@@ -166,6 +166,8 @@ export default function SearchForm() {
           </div>
         </button>
 
+        <span className="w-[1px] bg-[#D9DADC] self-stretch my-1" />
+
         <button
           type="button"
           onClick={() => setActiveModal("datetime")}
@@ -178,6 +180,8 @@ export default function SearchForm() {
           </div>
         </button>
 
+        <span className="w-[1px] bg-[#D9DADC] self-stretch my-1" />
+
         <button
           type="button"
           onClick={() => setActiveModal("passengers")}
@@ -189,7 +193,6 @@ export default function SearchForm() {
             {`${data.adults + data.children} os.`}
           </div>
         </button>
-
 
         <button
           type="submit"
