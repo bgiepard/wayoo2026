@@ -18,3 +18,7 @@ export { default as RouteIcon } from "./RouteIcon";
 export { default as RouteStartIcon } from "./RouteStartIcon";
 export { default as RouteStopIcon } from "./RouteStopIcon";
 export { default as DatesIcon } from "./DatesIcon";
+export { default as WhyIcon1 } from "./WhyIcon1";
+export { default as WhyIcon2 } from "./WhyIcon2";
+export { default as WhyIcon3 } from "./WhyIcon3";
+export { default as WhyIcon4 } from "./WhyIcon4";
