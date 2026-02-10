@@ -77,33 +77,52 @@ function AgeDropdown({
   );
 }
 
+const counterBox = "w-[44px] h-[44px] flex items-center justify-center rounded-[6px] border text-sm font-medium select-none";
+
 function Counter({
   label,
   value,
   min,
+  max,
   onChange,
 }: {
   label: string;
   value: number;
   min: number;
+  max?: number;
   onChange: (value: number) => void;
 }) {
+  const canDecrement = value > min;
+  const canIncrement = max === undefined || value < max;
+
   return (
     <div className="flex justify-between items-center py-2">
       <span className="text-sm">{label}</span>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-[10px]">
         <button
           type="button"
+          disabled={!canDecrement}
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
+          className={`${counterBox} transition-colors ${
+            canDecrement
+              ? "border-[#0B298F] text-[#0B298F] hover:bg-blue-50"
+              : "border-[#D9DADC] bg-[#F0F0F1] text-[#8E8F96] cursor-not-allowed"
+          }`}
         >
           -
         </button>
-        <span className="w-6 text-center font-medium">{value}</span>
+        <span className={`${counterBox} border-[#D9DADC] bg-[#FCFDFD] text-gray-900`}>
+          {value}
+        </span>
         <button
           type="button"
+          disabled={!canIncrement}
           onClick={() => onChange(value + 1)}
-          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
+          className={`${counterBox} transition-colors ${
+            canIncrement
+              ? "border-[#0B298F] text-[#0B298F] hover:bg-blue-50"
+              : "border-[#D9DADC] bg-[#F0F0F1] text-[#8E8F96] cursor-not-allowed"
+          }`}
         >
           +
         </button>
@@ -171,11 +190,13 @@ export default function PassengersModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Wybierz liczbę pasażerów"
+
       onConfirm={handleSave}
       confirmDisabled={!isValid}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} />
+        <div className="h-[24px]" />
         <Counter label="Dzieci" value={localChildren} min={0} onChange={handleChildrenChange} />
 
         {localChildren > 0 && (

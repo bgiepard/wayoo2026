@@ -16,7 +16,7 @@ export default function Modal({
   onClose,
   title,
   children,
-  width = "w-80",
+  width = "w-[480px]",
   onConfirm,
   confirmDisabled = false,
 }: ModalProps) {

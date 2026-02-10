@@ -95,7 +95,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
       isOpen={isOpen}
       onClose={onClose}
       title={isRegister ? "Zarejestruj sie" : "Zaloguj sie"}
-      width="w-96"
+
     >
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">

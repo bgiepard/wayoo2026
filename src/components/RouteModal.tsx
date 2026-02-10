@@ -71,7 +71,7 @@ export default function RouteModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Wybierz punkty na trasie"
-      width="w-96"
+
       onConfirm={handleSave}
       confirmDisabled={!isValid}
     >

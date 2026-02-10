@@ -45,7 +45,7 @@ export default function DateTimeModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Data i godzina"
-      width="w-96"
+
       onConfirm={handleSave}
       confirmDisabled={!isValid}
     >
