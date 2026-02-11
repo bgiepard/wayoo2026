@@ -4,9 +4,29 @@ import { MapIcon } from "./icons";
 
 interface RouteMapProps {
   route: Route;
+  height?: string;
+  lightTheme?: boolean;
 }
 
-export default function RouteMap({ route }: RouteMapProps) {
+const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#c9c9c9" }] },
+  { featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+  { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#dbeafe" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+];
+
+export default function RouteMap({ route, height = "350px", lightTheme = false }: RouteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [distance, setDistance] = useState<string | null>(null);
@@ -25,11 +45,12 @@ export default function RouteMap({ route }: RouteMapProps) {
       // Initialize map centered on Poland
       if (!mapInstanceRef.current) {
         mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
-          zoom: 7,
-          center: { lat: 52.0, lng: 19.0 },
+          zoom: 6,
+          center: { lat: 52.0, lng: 19.5 },
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,
+          ...(lightTheme && { styles: LIGHT_MAP_STYLES }),
         });
 
         directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
@@ -118,7 +139,7 @@ export default function RouteMap({ route }: RouteMapProps) {
   // Don't render if no valid coordinates
   if (!route.origin.lat || !route.destination.lat) {
     return (
-      <div className="w-full h-[350px] rounded-lg bg-gray-100 flex items-center justify-center">
+      <div className="w-full rounded-lg bg-gray-100 flex items-center justify-center" style={{ height }}>
         <span className="text-gray-500 text-sm">Wybierz trase, aby zobaczyc mape</span>
       </div>
     );
@@ -146,8 +167,8 @@ export default function RouteMap({ route }: RouteMapProps) {
       {/* Map */}
       <div
         ref={mapRef}
-        className="w-full h-[350px] rounded-lg"
-        style={{ opacity: isLoading ? 0 : 1 }}
+        className="w-full rounded-lg"
+        style={{ height, opacity: isLoading ? 0 : 1 }}
       />
 
       {/* Distance */}

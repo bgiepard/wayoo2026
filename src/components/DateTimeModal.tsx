@@ -11,6 +11,7 @@ interface DateTimeModalProps {
   time: string;
   onSave: (date: string, time: string) => void;
   onNext?: () => void;
+  confirmLabel?: string;
 }
 
 export default function DateTimeModal({
@@ -20,6 +21,7 @@ export default function DateTimeModal({
   time,
   onSave,
   onNext,
+  confirmLabel,
 }: DateTimeModalProps) {
   const [localDate, setLocalDate] = useState(date);
   const [localTime, setLocalTime] = useState(time);
@@ -48,6 +50,7 @@ export default function DateTimeModal({
 
       onConfirm={handleSave}
       confirmDisabled={!isValid}
+      confirmLabel={confirmLabel}
     >
       <div className="flex flex-col">
         <div className="mb-6">

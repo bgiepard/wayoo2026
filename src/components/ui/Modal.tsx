@@ -9,6 +9,7 @@ interface ModalProps {
   width?: string;
   onConfirm?: () => void;
   confirmDisabled?: boolean;
+  confirmLabel?: string;
 }
 
 export default function Modal({
@@ -19,6 +20,7 @@ export default function Modal({
   width = "w-[480px]",
   onConfirm,
   confirmDisabled = false,
+  confirmLabel = "Potwierdź",
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -43,7 +45,7 @@ export default function Modal({
               className="px-6 py-3 text-white text-[14px] font-medium rounded-lg transition-colors leading-[140%]"
               style={{ backgroundColor: confirmDisabled ? "#8E8F96" : "#0B298F" }}
             >
-              Potwierdź
+              {confirmLabel}
             </button>
           </div>
         )}

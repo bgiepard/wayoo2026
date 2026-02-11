@@ -14,6 +14,7 @@ interface RouteModalProps {
   route: Route;
   onSave: (route: Route) => void;
   onNext?: () => void;
+  confirmLabel?: string;
 }
 
 export default function RouteModal({
@@ -22,6 +23,7 @@ export default function RouteModal({
   route,
   onSave,
   onNext,
+  confirmLabel,
 }: RouteModalProps) {
   const [localOrigin, setLocalOrigin] = useState<Place>(route.origin);
   const [localDestination, setLocalDestination] = useState<Place>(route.destination);
@@ -74,6 +76,7 @@ export default function RouteModal({
 
       onConfirm={handleSave}
       confirmDisabled={!isValid}
+      confirmLabel={confirmLabel}
     >
       <div className="flex flex-col">
         {/* Origin */}

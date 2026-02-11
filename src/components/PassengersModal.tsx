@@ -12,6 +12,7 @@ interface PassengersModalProps {
   childrenAges: number[];
   onSave: (adults: number, children: number, needsChildSeats: boolean, childrenAges: number[]) => void;
   onNext?: () => void;
+  confirmLabel?: string;
 }
 
 const AGE_OPTIONS = Array.from({ length: 12 }, (_, i) => {
@@ -140,6 +141,7 @@ export default function PassengersModal({
   childrenAges,
   onSave,
   onNext,
+  confirmLabel,
 }: PassengersModalProps) {
   const [localAdults, setLocalAdults] = useState(adults);
   const [localChildren, setLocalChildren] = useState(children);
@@ -193,6 +195,7 @@ export default function PassengersModal({
 
       onConfirm={handleSave}
       confirmDisabled={!isValid}
+      confirmLabel={confirmLabel}
     >
       <div className="flex flex-col">
         <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} />
