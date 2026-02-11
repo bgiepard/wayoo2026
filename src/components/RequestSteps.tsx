@@ -7,9 +7,9 @@ interface Props {
 }
 
 const steps = [
-  { id: 1, label: "Potwierdź swoje zamówienie", path: "details" },
-  { id: 2, label: "Sprawdź oferty przewoźników", path: "offers" },
-  { id: 3, label: "Wybierz ofertę i ruszaj w drogę", path: "payment" },
+  { id: 1, label: "Szczegóły zapytania", path: "details" },
+  { id: 2, label: "Oferty przewoźników", path: "offers" },
+  { id: 3, label: "Potwierdzenie zamówienia", path: "payment" },
 ];
 
 export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer = false }: Props) {

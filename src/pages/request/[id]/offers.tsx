@@ -1,390 +1,387 @@
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
-import { useState, useEffect, useCallback } from "react";
-import { getRequestById, getOffersByRequest } from "@/services";
-import type { RequestData, OfferData } from "@/models";
+import {GetServerSideProps} from "next";
+import {useRouter} from "next/router";
+import {useState, useEffect, useCallback} from "react";
+import {getRequestById, getOffersByRequest} from "@/services";
+import type {RequestData, OfferData} from "@/models";
 import RequestSteps from "@/components/RequestSteps";
-import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@/components/icons";
+import {getPusherClient, type NewOfferEvent} from "@/lib/pusher-client";
+import {ChevronLeftIcon, ChevronRightIcon, CloseIcon} from "@/components/icons";
 
-// Funkcja do zakropkowania imienia i nazwiska
 function maskName(name?: string): string {
-  if (!name) return "Kierowca";
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) {
-    // Tylko imię
+    if (!name) return "Kierowca";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) {
+        const firstName = parts[0];
+        if (firstName.length <= 2) return firstName + "***";
+        return firstName[0] + firstName[1] + "***";
+    }
     const firstName = parts[0];
-    if (firstName.length <= 2) return firstName + "***";
-    return firstName[0] + firstName[1] + "***";
-  }
-  // Imię i nazwisko
-  const firstName = parts[0];
-  const lastName = parts[parts.length - 1];
-  const maskedFirst = firstName.length > 2 ? firstName[0] + firstName[1] + "***" : firstName + "***";
-  const maskedLast = lastName.length > 1 ? lastName[0] + "***" : "***";
-  return `${maskedFirst} ${maskedLast}`;
+    const lastName = parts[parts.length - 1];
+    const maskedFirst = firstName.length > 2 ? firstName[0] + firstName[1] + "***" : firstName + "***";
+    const maskedLast = lastName.length > 1 ? lastName[0] + "***" : "***";
+    return `${maskedFirst} ${maskedLast}`;
 }
 
 const vehicleTypeLabels: Record<string, string> = {
-  bus: "Autobus",
-  minibus: "Minibus",
-  van: "Van",
-  car: "Samochód",
+    bus: "Autobus",
+    minibus: "Minibus",
+    van: "Van",
+    car: "Samochód",
 };
 
+const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
+const card = "bg-white rounded-[8px] border border-[#D9DADC]";
+
 interface Props {
-  request: RequestData;
-  initialOffers: OfferData[];
+    request: RequestData;
+    initialOffers: OfferData[];
 }
 
-export default function RequestOffersPage({ request, initialOffers }: Props) {
-  const router = useRouter();
-  const [offers, setOffers] = useState<OfferData[]>(initialOffers);
-  const [acceptingOffer, setAcceptingOffer] = useState<string | null>(null);
-  const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
+export default function RequestOffersPage({request, initialOffers}: Props) {
+    const router = useRouter();
+    const [offers, setOffers] = useState<OfferData[]>(initialOffers);
+    const [acceptingOffer, setAcceptingOffer] = useState<string | null>(null);
+    const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
 
-  const openLightbox = (photos: string[], index: number) => {
-    setLightbox({ photos, index });
-  };
+    const openLightbox = (photos: string[], index: number) => setLightbox({photos, index});
+    const closeLightbox = () => setLightbox(null);
 
-  const closeLightbox = () => {
-    setLightbox(null);
-  };
-
-  const lightboxPrev = () => {
-    if (!lightbox) return;
-    setLightbox({
-      ...lightbox,
-      index: (lightbox.index - 1 + lightbox.photos.length) % lightbox.photos.length,
-    });
-  };
-
-  const lightboxNext = () => {
-    if (!lightbox) return;
-    setLightbox({
-      ...lightbox,
-      index: (lightbox.index + 1) % lightbox.photos.length,
-    });
-  };
-
-  const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
-  const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted" || o.status === "paid") : null;
-  const pendingOffers = offers.filter((o) => o.status === "new");
-
-  const fetchOffers = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/offers?requestId=${request.id}`);
-      if (res.ok) {
-        const data: OfferData[] = await res.json();
-        setOffers(data);
-      }
-    } catch {
-      // Ignore errors silently
-    }
-  }, [request.id]);
-
-  // Pusher - odśwież listę ofert gdy przyjdzie nowa (powiadomienie obsługuje PusherContext globalnie)
-  useEffect(() => {
-    if (isRequestAccepted) return;
-
-    const pusher = getPusherClient();
-    const channel = pusher.subscribe(`request-${request.id}`);
-
-    channel.bind("new-offer", (_data: NewOfferEvent) => {
-      // Odśwież listę ofert z serwera (żeby mieć pełne dane)
-      fetchOffers();
-    });
-
-    return () => {
-      channel.unbind_all();
-      pusher.unsubscribe(`request-${request.id}`);
+    const lightboxPrev = () => {
+        if (!lightbox) return;
+        setLightbox({...lightbox, index: (lightbox.index - 1 + lightbox.photos.length) % lightbox.photos.length});
     };
-  }, [request.id, isRequestAccepted, fetchOffers]);
 
-  const handleAcceptOffer = async (offerId: string) => {
-    setAcceptingOffer(offerId);
-    try {
-      const res = await fetch("/api/offers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "accept",
-          offerId,
-          requestId: request.id,
-        }),
-      });
+    const lightboxNext = () => {
+        if (!lightbox) return;
+        setLightbox({...lightbox, index: (lightbox.index + 1) % lightbox.photos.length});
+    };
 
-      if (res.ok) {
-        router.push(`/request/${request.id}/payment`);
-      }
-    } catch (error) {
-      console.error("Error accepting offer:", error);
-    } finally {
-      setAcceptingOffer(null);
-    }
-  };
+    const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
+    const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted" || o.status === "paid") : null;
+    const pendingOffers = offers.filter((o) => o.status === "new");
 
-  return (
-    <main className="py-8 px-4 max-w-[1250px] mx-auto">
-      <RequestSteps
-        requestId={request.id}
-        activeStep={2}
-        hasAcceptedOffer={isRequestAccepted}
-      />
+    const fetchOffers = useCallback(async () => {
+        try {
+            const res = await fetch(`/api/offers?requestId=${request.id}`);
+            if (res.ok) {
+                const data: OfferData[] = await res.json();
+                setOffers(data);
+            }
+        } catch {
+            // Ignore errors silently
+        }
+    }, [request.id]);
 
-      <h1 className="text-2xl font-semibold mb-6">Oferty kierowcow</h1>
+    useEffect(() => {
+        if (isRequestAccepted) return;
 
-      {/* Zaakceptowana oferta */}
-      {acceptedOffer && (
-        <div className="bg-green-50 rounded-lg p-6 mb-6">
-          <p className="font-semibold text-green-800 mb-4">Zaakceptowana oferta</p>
+        const pusher = getPusherClient();
+        const channel = pusher.subscribe(`request-${request.id}`);
 
-          {/* Pojazd */}
-          {acceptedOffer.vehicle && (
-            <div className="mb-4 p-4 bg-white rounded-lg">
-              <div className="flex gap-3">
-                {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
-                  <div className="flex gap-1.5">
-                    {acceptedOffer.vehicle.photos.map((photo, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => openLightbox(acceptedOffer.vehicle!.photos, idx)}
-                        className="w-12 h-12 rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
-                      >
-                        <img
-                          src={photo}
-                          alt={acceptedOffer.vehicle?.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{acceptedOffer.vehicle.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} • {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type}
-                  </p>
-                  <p className="text-sm text-gray-500">{acceptedOffer.vehicle.seats} miejsc</p>
-                  <div className="flex gap-2 mt-2">
-                    {acceptedOffer.vehicle.hasWifi && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">WiFi</span>}
-                    {acceptedOffer.vehicle.hasWC && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">WC</span>}
-                    {acceptedOffer.vehicle.hasTV && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">TV</span>}
-                    {acceptedOffer.vehicle.hasAirConditioning && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">Klimatyzacja</span>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+        channel.bind("new-offer", (_data: NewOfferEvent) => {
+            fetchOffers();
+        });
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-gray-500">Cena</span>
-              <p className="font-semibold text-lg">{acceptedOffer.price} PLN</p>
-            </div>
-            <div>
-              <span className="text-gray-500">Kierowca</span>
-              <p className="font-medium">{acceptedOffer.driverName || "Nieznany"}</p>
-            </div>
-            {acceptedOffer.driverPhone && (
-              <div>
-                <span className="text-gray-500">Telefon</span>
-                <p>{acceptedOffer.driverPhone}</p>
-              </div>
+        return () => {
+            channel.unbind_all();
+            pusher.unsubscribe(`request-${request.id}`);
+        };
+    }, [request.id, isRequestAccepted, fetchOffers]);
+
+    const handleAcceptOffer = async (offerId: string) => {
+        setAcceptingOffer(offerId);
+        try {
+            const res = await fetch("/api/offers", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({action: "accept", offerId, requestId: request.id}),
+            });
+            if (res.ok) {
+                router.push(`/request/${request.id}/payment`);
+            }
+        } catch (error) {
+            console.error("Error accepting offer:", error);
+        } finally {
+            setAcceptingOffer(null);
+        }
+    };
+
+    return (
+        <main className="pb-12 px-4 max-w-[1250px] mx-auto">
+            <RequestSteps
+                requestId={request.id}
+                activeStep={2}
+                hasAcceptedOffer={isRequestAccepted}
+            />
+
+            {acceptedOffer ? (
+                <>
+                    <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                        Oferta została zaakceptowana
+                    </h1>
+                    <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-12">
+                        Przejdź do płatności, aby potwierdzić rezerwację.
+                    </h2>
+                </>
+            ) : pendingOffers.length > 0 ? (
+                <>
+                    <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                        Oferty przewoźników
+                    </h1>
+                    <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-12">
+                        Przeglądaj oferty i wybierz najlepszą dla siebie.
+                    </h2>
+                </>
+            ) : (
+                <div className="mb-12" />
             )}
-            {acceptedOffer.message && (
-              <div className="col-span-2">
-                <span className="text-gray-500">Wiadomosc</span>
-                <p>{acceptedOffer.message}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Oczekiwanie na oferty */}
-      {!acceptedOffer && offers.length === 0 && (
-        <div className="bg-white rounded-lg p-12 text-center">
-          <div className="w-10 h-10 border-3 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-900 font-medium">Oczekiwanie na oferty...</p>
-          <p className="text-sm text-gray-500 mt-1">Powiadomienie pojawi sie automatycznie</p>
-        </div>
-      )}
+            {/* Zaakceptowana oferta */}
+            {acceptedOffer && (
+                <div className="bg-[#E6F6EC] rounded-[8px] p-8 border border-[#01A83D]">
+                    {/* Pojazd */}
+                    {acceptedOffer.vehicle && (
+                        <div className="flex gap-5 mb-6 pb-6 border-b border-[#01A83D]/20">
+                            {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
+                                <div className="flex gap-2 shrink-0">
+                                    {acceptedOffer.vehicle.photos.slice(0, 3).map((photo, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => openLightbox(acceptedOffer.vehicle!.photos, idx)}
+                                            className="w-[80px] h-[80px] rounded-[8px] overflow-hidden hover:opacity-80 transition-opacity"
+                                        >
+                                            <img src={photo} alt={acceptedOffer.vehicle?.name} className="w-full h-full object-cover"/>
+                                        </button>
+                                    ))}
+                                    {acceptedOffer.vehicle.photos.length > 3 && (
+                                        <button
+                                            onClick={() => openLightbox(acceptedOffer.vehicle!.photos, 3)}
+                                            className="w-[80px] h-[80px] rounded-[8px] bg-white flex items-center justify-center text-[#5B5E68] text-[14px] font-[500] hover:bg-[#F5F5F5] transition-colors"
+                                        >
+                                            +{acceptedOffer.vehicle.photos.length - 3}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <p className="text-[#010101] text-[18px] font-[600]">{acceptedOffer.vehicle.name}</p>
+                                <p className="text-[#5B5E68] text-[14px] mt-1">
+                                    {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} · {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type} · {acceptedOffer.vehicle.seats} miejsc
+                                </p>
+                                <div className="flex gap-2 mt-3 flex-wrap">
+                                    {acceptedOffer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
+                                    {acceptedOffer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
+                                    {acceptedOffer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
+                                    {acceptedOffer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-      {/* Lista ofert do wyboru */}
-      {!acceptedOffer && pendingOffers.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {pendingOffers.map((offer) => (
-            <div key={offer.id} className="bg-white rounded-lg p-5">
-              {/* Pojazd */}
-              {offer.vehicle && (
-                <div className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
-                  {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
-                    <div className="flex gap-1.5">
-                      {offer.vehicle.photos.map((photo, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => openLightbox(offer.vehicle!.photos, idx)}
-                          className="w-10 h-10 rounded-lg overflow-hidden hover:opacity-80 transition-opacity flex-shrink-0"
-                        >
-                          <img
-                            src={photo}
-                            alt={offer.vehicle?.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
+                    {/* Kierowca + cena */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#01A83D"/>
+                                    <path d="M12 14C7.58 14 4 16.01 4 18.5V20H20V18.5C20 16.01 16.42 14 12 14Z" fill="#01A83D"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-[#010101] text-[16px] font-[600]">{acceptedOffer.driverName || "Nieznany"}</p>
+                                {acceptedOffer.driverPhone && (
+                                    <p className="text-[#5B5E68] text-[14px] mt-0.5">{acceptedOffer.driverPhone}</p>
+                                )}
+                            </div>
+                        </div>
+                        <p className="text-[#010101] text-[28px] font-[600] leading-tight shrink-0">{acceptedOffer.price} PLN</p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{offer.vehicle.name}</p>
-                    <p className="text-sm text-gray-600">
-                      {offer.vehicle.brand} {offer.vehicle.model} • {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type}
+
+                    {/* Wiadomość kierowcy */}
+                    {acceptedOffer.message && (
+                        <div className="mt-4 bg-white/60 rounded-[6px] px-4 py-3">
+                            <p className="text-[#5B5E68] text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Oczekiwanie na oferty */}
+            {!acceptedOffer && offers.length === 0 && (
+                <div className={`${card} p-16 text-center`}>
+                    <div className="w-12 h-12 border-[3px] border-[#D9DADC] border-t-[#0B298F] rounded-full animate-spin mx-auto mb-6"/>
+                    <p className="text-[#010101] text-[20px] font-[500]">Oczekiwanie na oferty...</p>
+                    <p className="text-[#5B5E68] text-[14px] mt-2 max-w-[400px] mx-auto">
+                        Przewoźnicy przeglądają Twoje zapytanie. Powiadomienie pojawi się automatycznie.
                     </p>
-                    <p className="text-sm text-gray-500">{offer.vehicle.seats} miejsc</p>
-                    <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                      {offer.vehicle.hasWifi && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">WiFi</span>}
-                      {offer.vehicle.hasWC && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">WC</span>}
-                      {offer.vehicle.hasTV && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">TV</span>}
-                      {offer.vehicle.hasAirConditioning && <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">Klima</span>}
-                    </div>
-                  </div>
                 </div>
-              )}
+            )}
 
-              <div className="flex justify-between items-start">
+            {/* Lista ofert do wyboru */}
+            {!acceptedOffer && pendingOffers.length > 0 && (
                 <div>
-                  <p className="text-xl font-semibold text-gray-900">{offer.price} PLN</p>
-                  <p className="text-gray-600 mt-1">{maskName(offer.driverName)}</p>
-                  {offer.message && (
-                    <p className="text-sm text-gray-500 mt-2 italic">&quot;{offer.message}&quot;</p>
-                  )}
+                    <p className="text-[#5B5E68] text-[14px] mb-4">
+                        {pendingOffers.length} {pendingOffers.length === 1 ? "oferta" : pendingOffers.length <= 4 ? "oferty" : "ofert"}
+                    </p>
+                    <div className="flex flex-col gap-6">
+                        {pendingOffers.map((offer) => (
+                            <div key={offer.id} className={`${card} p-8`}>
+                                {/* Pojazd + opcje */}
+                                {offer.vehicle && (
+                                    <div className="flex gap-5 mb-6 pb-6 border-b border-[#D9DADC]">
+                                        {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
+                                            <div className="flex gap-2 shrink-0">
+                                                {offer.vehicle.photos.slice(0, 3).map((photo, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => openLightbox(offer.vehicle!.photos, idx)}
+                                                        className="w-[80px] h-[80px] rounded-[8px] overflow-hidden hover:opacity-80 transition-opacity"
+                                                    >
+                                                        <img src={photo} alt={offer.vehicle?.name} className="w-full h-full object-cover"/>
+                                                    </button>
+                                                ))}
+                                                {offer.vehicle.photos.length > 3 && (
+                                                    <button
+                                                        onClick={() => openLightbox(offer.vehicle!.photos, 3)}
+                                                        className="w-[80px] h-[80px] rounded-[8px] bg-[#F5F5F5] flex items-center justify-center text-[#5B5E68] text-[14px] font-[500] hover:bg-[#EBEBEB] transition-colors"
+                                                    >
+                                                        +{offer.vehicle.photos.length - 3}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[#010101] text-[18px] font-[600]">{offer.vehicle.name}</p>
+                                            <p className="text-[#5B5E68] text-[14px] mt-1">
+                                                {offer.vehicle.brand} {offer.vehicle.model} · {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type} · {offer.vehicle.seats} miejsc
+                                            </p>
+                                            <div className="flex gap-2 mt-3 flex-wrap">
+                                                {offer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
+                                                {offer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
+                                                {offer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
+                                                {offer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Kierowca + cena */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center shrink-0">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#9B9DA3"/>
+                                                <path d="M12 14C7.58 14 4 16.01 4 18.5V20H20V18.5C20 16.01 16.42 14 12 14Z" fill="#9B9DA3"/>
+                                            </svg>
+                                        </div>
+                                        <p className="text-[#010101] text-[16px] font-[600]">{maskName(offer.driverName)}</p>
+                                    </div>
+                                    <div className="flex items-center gap-6 shrink-0">
+                                        <p className="text-[#0B298F] text-[28px] font-[600] leading-tight">{offer.price} PLN</p>
+                                        <button
+                                            onClick={() => handleAcceptOffer(offer.id)}
+                                            disabled={acceptingOffer === offer.id}
+                                            className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
+                                        >
+                                            {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj ofertę"}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Wiadomość kierowcy */}
+                                {offer.message && (
+                                    <div className="mt-4 bg-[#E6F6EC] rounded-[6px] px-4 py-3">
+                                        <p className="text-[#5B5E68] text-[14px] italic">&quot;{offer.message}&quot;</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <button
-                  onClick={() => handleAcceptOffer(offer.id)}
-                  disabled={acceptingOffer === offer.id}
-                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
-                >
-                  {acceptingOffer === offer.id ? "Akceptowanie..." : "Akceptuj"}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            )}
 
-      {/* Lightbox */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]"
-          onClick={closeLightbox}
-        >
-          {/* Close button */}
-          <button
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
-          >
-            <CloseIcon className="w-8 h-8" />
-          </button>
+            {/* Lightbox */}
+            {lightbox && (
+                <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]" onClick={closeLightbox}>
+                    <button onClick={closeLightbox} className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors">
+                        <CloseIcon className="w-8 h-8"/>
+                    </button>
 
-          {/* Previous button */}
-          {lightbox.photos.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                lightboxPrev();
-              }}
-              className="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
-            >
-              <ChevronLeftIcon className="w-10 h-10" />
-            </button>
-          )}
+                    {lightbox.photos.length > 1 && (
+                        <button onClick={(e) => { e.stopPropagation(); lightboxPrev(); }} className="absolute left-4 p-2 text-white/70 hover:text-white transition-colors">
+                            <ChevronLeftIcon className="w-10 h-10"/>
+                        </button>
+                    )}
 
-          {/* Image */}
-          <img
-            src={lightbox.photos[lightbox.index]}
-            alt=""
-            className="max-w-[90vw] max-h-[90vh] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
+                    <img src={lightbox.photos[lightbox.index]} alt="" className="max-w-[90vw] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()}/>
 
-          {/* Next button */}
-          {lightbox.photos.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                lightboxNext();
-              }}
-              className="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
-            >
-              <ChevronRightIcon className="w-10 h-10" />
-            </button>
-          )}
+                    {lightbox.photos.length > 1 && (
+                        <button onClick={(e) => { e.stopPropagation(); lightboxNext(); }} className="absolute right-4 p-2 text-white/70 hover:text-white transition-colors">
+                            <ChevronRightIcon className="w-10 h-10"/>
+                        </button>
+                    )}
 
-          {/* Counter */}
-          {lightbox.photos.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
-              {lightbox.index + 1} / {lightbox.photos.length}
-            </div>
-          )}
-        </div>
-      )}
-    </main>
-  );
+                    {lightbox.photos.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+                            {lightbox.index + 1} / {lightbox.photos.length}
+                        </div>
+                    )}
+                </div>
+            )}
+        </main>
+    );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
-  const id = params?.id as string;
+export const getServerSideProps: GetServerSideProps<Props> = async ({params}) => {
+    const id = params?.id as string;
+    const request = await getRequestById(id);
 
-  const request = await getRequestById(id);
-
-  if (!request) {
-    return { notFound: true };
-  }
-
-  const offers = await getOffersByRequest(id);
-
-  // Upewnij się, że wszystkie wartości są serializowalne (brak undefined)
-  const initialOffers = offers.map((offer) => {
-    const baseOffer = {
-      id: offer.id,
-      requestId: offer.requestId,
-      driverId: offer.driverId,
-      price: offer.price,
-      status: offer.status,
-      message: offer.message || "",
-      driverName: offer.driverName || "",
-      driverEmail: offer.driverEmail || "",
-      driverPhone: offer.driverPhone || "",
-    };
-
-    if (offer.vehicle) {
-      return {
-        ...baseOffer,
-        vehicle: {
-          id: offer.vehicle.id,
-          name: offer.vehicle.name || "",
-          type: offer.vehicle.type || "",
-          brand: offer.vehicle.brand || "",
-          model: offer.vehicle.model || "",
-          year: offer.vehicle.year || 0,
-          seats: offer.vehicle.seats || 0,
-          photos: offer.vehicle.photos || [],
-          hasWifi: offer.vehicle.hasWifi ?? false,
-          hasWC: offer.vehicle.hasWC ?? false,
-          hasTV: offer.vehicle.hasTV ?? false,
-          hasAirConditioning: offer.vehicle.hasAirConditioning ?? false,
-        },
-      };
+    if (!request) {
+        return {notFound: true};
     }
 
-    return baseOffer;
-  });
+    const offers = await getOffersByRequest(id);
 
-  return {
-    props: {
-      request,
-      initialOffers,
-    },
-  };
+    const initialOffers = offers.map((offer) => {
+        const baseOffer = {
+            id: offer.id,
+            requestId: offer.requestId,
+            driverId: offer.driverId,
+            price: offer.price,
+            status: offer.status,
+            message: offer.message || "",
+            driverName: offer.driverName || "",
+            driverEmail: offer.driverEmail || "",
+            driverPhone: offer.driverPhone || "",
+        };
+
+        if (offer.vehicle) {
+            return {
+                ...baseOffer,
+                vehicle: {
+                    id: offer.vehicle.id,
+                    name: offer.vehicle.name || "",
+                    type: offer.vehicle.type || "",
+                    brand: offer.vehicle.brand || "",
+                    model: offer.vehicle.model || "",
+                    year: offer.vehicle.year || 0,
+                    seats: offer.vehicle.seats || 0,
+                    photos: offer.vehicle.photos || [],
+                    hasWifi: offer.vehicle.hasWifi ?? false,
+                    hasWC: offer.vehicle.hasWC ?? false,
+                    hasTV: offer.vehicle.hasTV ?? false,
+                    hasAirConditioning: offer.vehicle.hasAirConditioning ?? false,
+                },
+            };
+        }
+
+        return baseOffer;
+    });
+
+    return {
+        props: {
+            request,
+            initialOffers,
+        },
+    };
 };
