@@ -16,6 +16,7 @@ export function PusherProvider({ children }: { children: ReactNode }) {
   const { addLocalNotification, refreshNotifications } = useNotifications();
   const subscribedChannelsRef = useRef<Set<string>>(new Set());
   const boundEventsRef = useRef<Set<string>>(new Set());
+  const handlersRef = useRef<Map<string, (data: NewOfferEvent) => void>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
@@ -66,19 +67,28 @@ export function PusherProvider({ children }: { children: ReactNode }) {
           const channel = pusher.subscribe(channelName);
           subscribedChannelsRef.current.add(channelName);
 
-          // Bind tylko jesli jeszcze nie zrobione
-          channel.unbind("new-offer"); // Usun stary handler jesli istnieje
-          channel.bind("new-offer", (data: NewOfferEvent) => {
+          // Unbind tylko nasz handler (nie usuwamy handlerow z innych komponentow)
+          const oldHandler = handlersRef.current.get(channelName);
+          if (oldHandler) {
+            channel.unbind("new-offer", oldHandler);
+          }
+
+          const handler = (data: NewOfferEvent) => {
+            const routeLabel = data.routeOrigin && data.routeDestination
+              ? `${data.routeOrigin} → ${data.routeDestination}`
+              : "";
             addLocalNotificationRef.current({
               type: "new_offer",
-              title: "Nowa oferta!",
+              title: routeLabel || "Nowa oferta!",
               message: `${data.driverName || "Kierowca"} zlozyl oferte: ${data.price} PLN`,
               link: `/request/${data.requestId}/offers`,
             });
             setHasNewNotification(true);
             setTimeout(() => refreshNotificationsRef.current(), 500);
-          });
+          };
 
+          channel.bind("new-offer", handler);
+          handlersRef.current.set(channelName, handler);
           boundEventsRef.current.add(channelName);
 
           channel.bind("pusher:subscription_succeeded", () => {

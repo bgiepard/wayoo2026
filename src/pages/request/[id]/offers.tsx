@@ -72,19 +72,25 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         }
     }, [request.id]);
 
+    // Pusher real-time + polling jako fallback
     useEffect(() => {
         if (isRequestAccepted) return;
 
         const pusher = getPusherClient();
         const channel = pusher.subscribe(`request-${request.id}`);
 
-        channel.bind("new-offer", (_data: NewOfferEvent) => {
+        const handler = (_data: NewOfferEvent) => {
             fetchOffers();
-        });
+        };
+
+        channel.bind("new-offer", handler);
+
+        // Polling co 15s jako fallback gdyby Pusher nie dostarczyl eventu
+        const interval = setInterval(fetchOffers, 15000);
 
         return () => {
-            channel.unbind_all();
-            pusher.unsubscribe(`request-${request.id}`);
+            channel.unbind("new-offer", handler);
+            clearInterval(interval);
         };
     }, [request.id, isRequestAccepted, fetchOffers]);
 
@@ -296,6 +302,14 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 )}
                             </div>
                         ))}
+                    </div>
+
+                    {/* Loader - oczekiwanie na kolejne oferty */}
+                    <div className="mt-8 flex flex-col items-center gap-3 text-center">
+                        <div className="w-8 h-8 border-[2px] border-[#D9DADC] border-t-[#0B298F] rounded-full animate-spin"/>
+                        <p className="text-[#5B5E68] text-[14px]">
+                            Czekamy na kolejne oferty od przewoźników...
+                        </p>
                     </div>
                 </div>
             )}

@@ -23,9 +23,11 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       />
       <NotificationsProvider>
         <PusherProvider>
-          <div className={`${dmSans.variable} ${dmSans.className}`}>
+          <div className={`${dmSans.variable} ${dmSans.className} min-h-screen flex flex-col`}>
             <Header />
-            <Component {...pageProps} />
+            <div className="flex-1">
+              <Component {...pageProps} />
+            </div>
             <Footer />
           </div>
         </PusherProvider>

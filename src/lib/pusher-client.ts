@@ -20,4 +20,6 @@ export interface NewOfferEvent {
   driverName?: string;
   price: number;
   message: string;
+  routeOrigin?: string;
+  routeDestination?: string;
 }
