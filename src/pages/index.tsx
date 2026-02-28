@@ -1,6 +1,9 @@
 import SearchForm from "@/components/SearchForm";
 import Image from "next/image";
 import screensImg from "@/assets/screens.png";
+import screen1Img from "@/assets/screen1.png";
+import screen2Img from "@/assets/screen2.png";
+import bgImg from "@/assets/bg.png";
 import requestScreen1 from "@/assets/requestScreen1.svg";
 import requestScreen2 from "@/assets/requestScreen2.svg";
 import requestScreen3 from "@/assets/requestScreen3.svg";
@@ -12,8 +15,8 @@ export default function Home() {
     return (
         <main className="flex flex-col gap-8">
             {/* Sekcja 1: Formularz */}
-            <section className="flex flex-col justify-center bg-sky-900">
-                <div className="w-full max-w-[1150px] mx-auto pb-[120px] pt-[120px] px-4">
+            <section className="flex flex-col justify-center" style={{ backgroundImage: `url(${bgImg.src})`, backgroundSize: "cover", backgroundPosition: "top center" }}>
+                <div className="w-full max-w-[1150px] mx-auto pb-[64px] pt-[240px] px-4">
                     <h1 className="text-center font-[400] text-[42px] mb-12 text-white">Zarezerwuj <span
                         className="text-[#FFC428]">transport grupowy</span> w kilka minut.</h1>
                     <SearchForm/>
@@ -157,15 +160,85 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Prawa strona — obrazek */}
-                        <div className="flex justify-end">
+                        {/* Prawa strona — obrazki */}
+                        <div className="relative" style={{ width: 620, height: 400 }}>
                             <Image
-                                src={screensImg}
-                                alt="Wayoo — podgląd aplikacji"
-                                width={520}
-                                height={500}
-                                className="object-contain"
+                                src={screen2Img}
+                                alt="Wayoo — podgląd aplikacji 2"
+                                width={560}
+                                height={350}
+                                className="object-contain absolute bottom-35 left-0"
                             />
+                            <Image
+                                src={screen1Img}
+                                alt="Wayoo — podgląd aplikacji 1"
+                                width={560}
+                                height={350}
+                                className="object-contain absolute bottom-0 left-30"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/*Sekcja 4: Opinie użytkowników*/}
+            <section className="flex flex-col justify-center">
+                <div className="w-full max-w-[1150px] mx-auto px-4 pt-16 pb-24">
+                    <h2 className="text-[#0B298F] text-[33px] text-center mb-16">Poznaj opinie użytkowników Wayoo</h2>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Opinia 1 */}
+                        <div className="flex flex-col gap-4 border border-[#D9DADC] rounded-[12px] p-6">
+                            <div className="flex gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} width="20" height="20" viewBox="0 0 20 20" fill="#FFC428" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 1L12.39 6.26L18.18 7.11L14.09 11.1L15.12 16.87L10 14.12L4.88 16.87L5.91 11.1L1.82 7.11L7.61 6.26L10 1Z"/>
+                                    </svg>
+                                ))}
+                            </div>
+                            <p className="text-[#010101] text-[16px] leading-[150%] flex-1">
+                                Bardzo wygodna aplikacja. W kilka minut otrzymałam kilka ofert od przewoźników i mogłam wybrać najlepszą cenę. Cały proces – od zapytania po płatność – przebiegł bezproblemowo.
+                            </p>
+                            <div>
+                                <p className="text-[#010101] font-semibold text-[16px]">Anna</p>
+                                <p className="text-[#6B7280] text-[14px]">9 lutego 2026</p>
+                            </div>
+                        </div>
+
+                        {/* Opinia 2 */}
+                        <div className="flex flex-col gap-4 border border-[#D9DADC] rounded-[12px] p-6">
+                            <div className="flex gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} width="20" height="20" viewBox="0 0 20 20" fill="#FFC428" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 1L12.39 6.26L18.18 7.11L14.09 11.1L15.12 16.87L10 14.12L4.88 16.87L5.91 11.1L1.82 7.11L7.61 6.26L10 1Z"/>
+                                    </svg>
+                                ))}
+                            </div>
+                            <p className="text-[#010101] text-[16px] leading-[150%] flex-1">
+                                Świetne rozwiązanie dla transportu grupowego. Nie trzeba dzwonić po firmach – wszystko w jednym miejscu. Przewoźnik był punktualny, a oferta zgodna z ustaleniami.
+                            </p>
+                            <div>
+                                <p className="text-[#010101] font-semibold text-[16px]">Marcin</p>
+                                <p className="text-[#6B7280] text-[14px]">17 lutego 2026</p>
+                            </div>
+                        </div>
+
+                        {/* Opinia 3 */}
+                        <div className="flex flex-col gap-4 border border-[#D9DADC] rounded-[12px] p-6">
+                            <div className="flex gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} width="20" height="20" viewBox="0 0 20 20" fill="#FFC428" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 1L12.39 6.26L18.18 7.11L14.09 11.1L15.12 16.87L10 14.12L4.88 16.87L5.91 11.1L1.82 7.11L7.61 6.26L10 1Z"/>
+                                    </svg>
+                                ))}
+                            </div>
+                            <p className="text-[#010101] text-[16px] leading-[150%] flex-1">
+                                Aplikacja oszczędziła mi sporo czasu i stresu przy organizacji wyjazdu. Przejrzyste oferty, szybkie odpowiedzi i bezpieczna płatność. Zdecydowanie będę korzystać ponownie.
+                            </p>
+                            <div>
+                                <p className="text-[#010101] font-semibold text-[16px]">Katarzyna</p>
+                                <p className="text-[#6B7280] text-[14px]">19 lutego 2026</p>
+                            </div>
                         </div>
                     </div>
                 </div>

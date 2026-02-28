@@ -44,17 +44,23 @@ export default function Footer() {
 
           {/* Kolumna 3: Dane firmy */}
           <div>
-            <h3 className="text-[16px] font-semibold mb-4">Wayoo Sp. z o.o.</h3>
+            <h3 className="text-[16px] font-semibold mb-1">Wayoo Prosta Spółka Akcyjna</h3>
+            <p className="text-[13px] text-white/70 leading-[150%] mb-4">
+              KRS 0001156558 · NIP 8393253178<br/>
+              Kapitał zakładowy: 40 000 PLN<br/>
+              Sąd Rejonowy Gdańsk-Północ w Gdańsku,<br/>
+              VIII Wydział Gospodarczy KRS
+            </p>
             <div className="flex flex-col gap-4">
               <div className="flex items-start gap-3">
                 <MapPinIcon className="shrink-0 mt-0.5" />
                 <span className="text-[16px] leading-[150%]">
-                  ul. Przykładowa 123<br/>00-001 Warszawa
+                  ul. Sosnowa 6<br/>76-270 Wodnica
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <PhoneIcon className="shrink-0" />
-                <span className="text-[16px]">+48 123 456 789</span>
+                <span className="text-[16px]">510 554 018</span>
               </div>
               <div className="flex items-center gap-3">
                 <MailIcon className="shrink-0" />
@@ -67,7 +73,7 @@ export default function Footer() {
 
       {/* Dolny pasek */}
       <div className="bg-[#FFC428] p-2 text-center">
-        <span className="text-[#010101] text-[13px]">© 2026 Wayoo Sp. z o.o. Wszelkie prawa zastrzeżone.</span>
+        <span className="text-[#010101] text-[13px]">© 2026 Wayoo Prosta Spółka Akcyjna. Wszelkie prawa zastrzeżone.</span>
       </div>
     </footer>
   );
