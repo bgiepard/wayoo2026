@@ -84,6 +84,16 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
 
             <div className="flex flex-col gap-6">
 
+                <button
+                    onClick={() => router.push(`/request/${request.id}/offers`)}
+                    className="flex items-center gap-2 text-[#5B5E68] hover:text-[#010101] text-[14px] transition-colors self-start"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Powrót do ofert
+                </button>
+
                 {/* Sukces - banner po opłaceniu */}
                 {isPaid && (
                     <div className="bg-[#E6F6EC] rounded-[2px] px-4 py-2 flex items-center gap-3 border border-[#01A83D]">
@@ -112,7 +122,7 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
 
                     {/* Pojazd - skrócony */}
                     {acceptedOffer.vehicle && (
-                        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#D9DADC]">
+                        <div className="flex items-center gap-4 mb-6">
                             {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
                                 <div className="w-[60px] h-[60px] rounded-[8px] overflow-hidden shrink-0">
                                     <img src={acceptedOffer.vehicle.photos[0]} alt={acceptedOffer.vehicle.name} className="w-full h-full object-cover"/>
@@ -135,24 +145,16 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
 
                     {/* Wiadomość kierowcy */}
                     {acceptedOffer.message && (
-                        <div className="bg-[#E6F6EC] rounded-[6px] px-4 py-3 mb-6">
-                            <span className="text-[#5B5E68] text-[12px] block mb-1">Wiadomość od kierowcy</span>
+                        <div className="bg-[#F8F9FA] rounded-[6px] px-4 py-3 mb-6">
+                            <span className="text-[#5B5E68] text-[12px] block mb-1">Wiadomość dodatkowa</span>
                             <p className="text-[#5B5E68] text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
                         </div>
                     )}
 
-                    {/* Kwota */}
-                    <div className="flex items-center justify-between pb-6 mb-6 border-b border-[#D9DADC]">
-                        <div>
-                            <span className={label}>Do zapłaty</span>
-                            <p className="text-[#0B298F] text-[32px] font-[600] leading-tight">{acceptedOffer.price} PLN</p>
-                        </div>
-                    </div>
-
                     {/* Przed płatnością: info + zgody + przycisk */}
                     {!isPaid && (
                         <div>
-                            <div className="bg-[#F8F9FA] rounded-[8px] px-5 py-4 mb-6 flex items-start gap-3">
+                            <div className="bg-[#E7EAF4] rounded-[8px] px-5 py-4 mb-6 flex items-start gap-3">
                                 <svg className="shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 18 18" fill="none">
                                     <path d="M9 9V5.5M9 12H9.0075M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
@@ -161,35 +163,43 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-3 mb-6">
-                                <button type="button" onClick={() => setAcceptTerms(!acceptTerms)} className="flex items-start gap-3 group cursor-pointer text-left">
-                                    <div className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
-                                        acceptTerms ? "bg-[#0B298F] border-[#0B298F]" : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
-                                    }`}>
-                                        {acceptTerms && <DraftCheckIcon/>}
-                                    </div>
-                                    <span className="text-[#5B5E68] text-[14px] leading-[160%]">
-                                        Akceptuję regulamin serwisu oraz politykę prywatności.
-                                    </span>
-                                </button>
-                                <button type="button" onClick={() => setAcceptCancellation(!acceptCancellation)} className="flex items-start gap-3 group cursor-pointer text-left">
-                                    <div className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
-                                        acceptCancellation ? "bg-[#0B298F] border-[#0B298F]" : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
-                                    }`}>
-                                        {acceptCancellation && <DraftCheckIcon/>}
-                                    </div>
-                                    <span className="text-[#5B5E68] text-[14px] leading-[160%]">
-                                        Zapoznałem się z warunkami anulowania zamówienia.
-                                    </span>
-                                </button>
+                            <div className="flex items-start gap-6 pt-6 border-t border-[#D9DADC]">
+                                {/* Lewa: checkboxy */}
+                                <div className="w-1/2 flex flex-col gap-3">
+                                    <button type="button" onClick={() => setAcceptTerms(!acceptTerms)} className="flex items-start gap-3 group cursor-pointer text-left">
+                                        <div className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
+                                            acceptTerms ? "bg-[#0B298F] border-[#0B298F]" : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
+                                        }`}>
+                                            {acceptTerms && <DraftCheckIcon/>}
+                                        </div>
+                                        <span className="text-[#5B5E68] text-[14px] leading-[160%]">
+                                            Akceptuję regulamin serwisu oraz politykę prywatności.<span className="text-red-500 ml-0.5">*</span>
+                                        </span>
+                                    </button>
+                                    <button type="button" onClick={() => setAcceptCancellation(!acceptCancellation)} className="flex items-start gap-3 group cursor-pointer text-left">
+                                        <div className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
+                                            acceptCancellation ? "bg-[#0B298F] border-[#0B298F]" : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
+                                        }`}>
+                                            {acceptCancellation && <DraftCheckIcon/>}
+                                        </div>
+                                        <span className="text-[#5B5E68] text-[14px] leading-[160%]">
+                                            Zapoznałem się z warunkami anulowania zamówienia.<span className="text-red-500 ml-0.5">*</span>
+                                        </span>
+                                    </button>
+                                </div>
+
+                                {/* Prawa: cena + przycisk */}
+                                <div className="w-1/2 flex items-center justify-end gap-6">
+                                    <p className="text-[#0B298F] text-[32px] font-[600] leading-tight">{acceptedOffer.price} PLN</p>
+                                    <button
+                                        onClick={handleMarkAsPaid}
+                                        disabled={isPaying || !canPay}
+                                        className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
+                                    >
+                                        {isPaying ? "Przetwarzanie..." : "Zapłać"}
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                onClick={handleMarkAsPaid}
-                                disabled={isPaying || !canPay}
-                                className="w-full bg-[#0B298F] hover:bg-[#091F6B] text-white py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
-                            >
-                                {isPaying ? "Przetwarzanie..." : `Zapłać ${acceptedOffer.price} PLN`}
-                            </button>
                         </div>
                     )}
 

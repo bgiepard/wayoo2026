@@ -100,67 +100,120 @@ export default function NotificationDropdown() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-3 w-[380px] bg-white rounded-[8px] border border-[#D9DADC] shadow-lg z-50 overflow-hidden">
-                    {/* Naglowek */}
-                    <div className="flex justify-between items-center px-5 py-4 border-b border-[#D9DADC]">
-                        <span className="text-[#0B298F] text-[16px] font-[600]">Powiadomienia</span>
-                        {unreadCount > 0 && (
-                            <button
-                                onClick={markAllAsRead}
-                                className="text-[13px] text-[#0B298F] font-[500] hover:opacity-80 transition-opacity"
-                            >
-                                Oznacz wszystkie
-                            </button>
-                        )}
+                <>
+                    {/* Mobile: fullscreen */}
+                    <div className="fixed inset-0 bg-white z-50 flex flex-col md:hidden">
+                        {/* Nagłówek */}
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-[#D9DADC]">
+                            <span className="text-[#0B298F] text-[16px] font-[600]">Powiadomienia</span>
+                            <div className="flex items-center gap-4">
+                                {unreadCount > 0 && (
+                                    <button
+                                        onClick={markAllAsRead}
+                                        className="text-[13px] text-[#0B298F] font-[500] hover:opacity-80 transition-opacity"
+                                    >
+                                        Oznacz wszystkie
+                                    </button>
+                                )}
+                                <button onClick={handleToggle} className="text-gray-400 hover:text-gray-600 p-1">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Lista */}
+                        <div className="flex-1 overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <div className="px-5 py-12 text-center">
+                                    <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-3">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <p className="text-[#5B5E68] text-[14px]">Brak powiadomien</p>
+                                </div>
+                            ) : (
+                                notifications.slice(0, 15).map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-[#F0F1F3] last:border-b-0 ${
+                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-[#F8F9FA]"
+                                        }`}
+                                        onClick={() => handleNotificationClick(notification.id, notification.link)}
+                                    >
+                                        <NotificationIcon type={notification.type}/>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-[#010101] font-[600]" : "text-[#010101] font-[500]"}`}>
+                                                {notification.title}
+                                            </p>
+                                            <p className="text-[#5B5E68] text-[13px] mt-1 leading-snug">{notification.message}</p>
+                                            <p className="text-[#9B9DA3] text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
+                                        </div>
+                                        {!notification.read && (
+                                            <div className="w-[8px] h-[8px] rounded-full bg-[#FFC428] shrink-0 mt-1.5"/>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
 
-                    {/* Lista */}
-                    <div className="max-h-[400px] overflow-y-auto">
-                        {notifications.length === 0 ? (
-                            <div className="px-5 py-12 text-center">
-                                <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-3">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </div>
-                                <p className="text-[#5B5E68] text-[14px]">Brak powiadomien</p>
-                            </div>
-                        ) : (
-                            notifications.slice(0, 15).map((notification) => (
-                                <div
-                                    key={notification.id}
-                                    className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-[#F0F1F3] last:border-b-0 ${
-                                        !notification.read
-                                            ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]"
-                                            : "hover:bg-[#F8F9FA]"
-                                    }`}
-                                    onClick={() => handleNotificationClick(notification.id, notification.link)}
+                    {/* Desktop: dropdown */}
+                    <div className="hidden md:block absolute right-0 top-full mt-3 w-[380px] bg-white rounded-[8px] border border-[#D9DADC] shadow-lg z-50 overflow-hidden">
+                        {/* Nagłówek */}
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-[#D9DADC]">
+                            <span className="text-[#0B298F] text-[16px] font-[600]">Powiadomienia</span>
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={markAllAsRead}
+                                    className="text-[13px] text-[#0B298F] font-[500] hover:opacity-80 transition-opacity"
                                 >
-                                    <NotificationIcon type={notification.type}/>
-                                    <div className="flex-1 min-w-0">
-                                        {/* Trasa (title) */}
-                                        <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-[#010101] font-[600]" : "text-[#010101] font-[500]"}`}>
-                                            {notification.title}
-                                        </p>
-                                        {/* Wiadomosc */}
-                                        <p className="text-[#5B5E68] text-[13px] mt-1 leading-snug">
-                                            {notification.message}
-                                        </p>
-                                        {/* Czas */}
-                                        <p className="text-[#9B9DA3] text-[12px] mt-1.5">
-                                            {formatTime(notification.createdAt)}
-                                        </p>
+                                    Oznacz wszystkie
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Lista */}
+                        <div className="max-h-[400px] overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <div className="px-5 py-12 text-center">
+                                    <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-3">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
                                     </div>
-                                    {/* Kropka nieprzeczytanego */}
-                                    {!notification.read && (
-                                        <div className="w-[8px] h-[8px] rounded-full bg-[#FFC428] shrink-0 mt-1.5"/>
-                                    )}
+                                    <p className="text-[#5B5E68] text-[14px]">Brak powiadomien</p>
                                 </div>
-                            ))
-                        )}
+                            ) : (
+                                notifications.slice(0, 15).map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-[#F0F1F3] last:border-b-0 ${
+                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-[#F8F9FA]"
+                                        }`}
+                                        onClick={() => handleNotificationClick(notification.id, notification.link)}
+                                    >
+                                        <NotificationIcon type={notification.type}/>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-[#010101] font-[600]" : "text-[#010101] font-[500]"}`}>
+                                                {notification.title}
+                                            </p>
+                                            <p className="text-[#5B5E68] text-[13px] mt-1 leading-snug">{notification.message}</p>
+                                            <p className="text-[#9B9DA3] text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
+                                        </div>
+                                        {!notification.read && (
+                                            <div className="w-[8px] h-[8px] rounded-full bg-[#FFC428] shrink-0 mt-1.5"/>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

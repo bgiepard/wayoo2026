@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import type { Place } from "@/models";
 import { LocationMarkerIcon } from "./icons";
 
@@ -42,6 +43,7 @@ export default function PlaceAutocomplete({
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
@@ -81,7 +83,10 @@ export default function PlaceAutocomplete({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const insideDropdown = dropdownRef.current?.contains(target);
+      const insidePortal = portalRef.current?.contains(target);
+      if (!insideDropdown && !insidePortal) {
         setShowDropdown(false);
       }
     };
@@ -189,7 +194,58 @@ export default function PlaceAutocomplete({
     );
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const hasLeftContent = !!icon;
+
+  const updateDropdownPosition = useCallback(() => {
+    if (!inputRef.current) return;
+    const rect = inputRef.current.getBoundingClientRect();
+    setDropdownStyle({
+      position: "fixed",
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width,
+      zIndex: 9999,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (showDropdown) updateDropdownPosition();
+  }, [showDropdown, updateDropdownPosition]);
+
+  const dropdownContent = (suggestions.length > 0 || isLoading) && showDropdown ? (
+    <div ref={portalRef} style={dropdownStyle} className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[250px] overflow-y-auto">
+      {isLoading && suggestions.length === 0 ? (
+        <div className="px-4 py-3 text-center text-gray-500 text-sm">Wyszukiwanie...</div>
+      ) : (
+        suggestions.map((suggestion) => (
+          <button
+            key={suggestion.place_id}
+            type="button"
+            onClick={() => handleSelect(suggestion)}
+            className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
+          >
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 text-[#5B5E68] flex-shrink-0">
+                <LocationMarkerIcon className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-gray-900 truncate">
+                  {suggestion.structured_formatting.main_text}
+                </div>
+                {suggestion.structured_formatting.secondary_text && (
+                  <div className="text-sm text-gray-500 truncate">
+                    {suggestion.structured_formatting.secondary_text}
+                  </div>
+                )}
+              </div>
+            </div>
+          </button>
+        ))
+      )}
+    </div>
+  ) : null;
 
   return (
     <div className="relative flex-1 min-w-0" ref={dropdownRef}>
@@ -200,51 +256,19 @@ export default function PlaceAutocomplete({
           </div>
         )}
         <input
+          ref={inputRef}
           id={id}
           type="text"
           value={inputValue}
           onChange={handleInput}
-          onFocus={() => setShowDropdown(true)}
+          onFocus={() => { setShowDropdown(true); updateDropdownPosition(); }}
           placeholder={placeholder}
           disabled={disabled}
           className={inputClassName || `w-full ${hasLeftContent ? "pl-10" : "pl-4"} pr-4 py-3 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
         />
       </div>
 
-      {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[250px] overflow-y-auto">
-          {suggestions.map((suggestion) => (
-            <button
-              key={suggestion.place_id}
-              type="button"
-              onClick={() => handleSelect(suggestion)}
-              className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
-            >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-[#5B5E68] flex-shrink-0">
-                  <LocationMarkerIcon className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 truncate">
-                    {suggestion.structured_formatting.main_text}
-                  </div>
-                  {suggestion.structured_formatting.secondary_text && (
-                    <div className="text-sm text-gray-500 truncate">
-                      {suggestion.structured_formatting.secondary_text}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {showDropdown && isLoading && (
-        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 px-4 py-3 text-center text-gray-500 text-sm">
-          Wyszukiwanie...
-        </div>
-      )}
+      {typeof document !== "undefined" && dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   );
 }

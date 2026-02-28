@@ -6,7 +6,6 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  width?: string;
   onConfirm?: () => void;
   confirmDisabled?: boolean;
   confirmLabel?: string;
@@ -17,7 +16,6 @@ export default function Modal({
   onClose,
   title,
   children,
-  width = "w-[480px]",
   onConfirm,
   confirmDisabled = false,
   confirmLabel = "Potwierdź",
@@ -26,7 +24,7 @@ export default function Modal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-end md:items-center justify-center z-50">
-      <div className={`bg-white shadow-xl flex flex-col w-full h-full md:h-auto md:rounded-lg md:${width}`}>
+      <div className="bg-white shadow-xl flex flex-col w-full h-full md:h-auto md:rounded-lg md:w-full md:max-w-[600px]">
         <div className="flex justify-between items-center p-6 md:px-6 md:pt-6 md:pb-0 border-b md:border-none border-gray-100">
           <h2 className="text-lg font-[20px] text-[#0B298F]">{title}</h2>
           <button

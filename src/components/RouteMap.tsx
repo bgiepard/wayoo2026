@@ -26,6 +26,19 @@ const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
 ];
 
+function createMarkerIcon(label: string) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+    <path d="M16 0C7.163 0 0 7.163 0 16C0 26 16 42 16 42C16 42 32 26 32 16C32 7.163 24.837 0 16 0Z" fill="#FFC428"/>
+    <text x="16" y="21" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#000000">${label}</text>
+  </svg>`;
+  return {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+    scaledSize: new google.maps.Size(32, 42),
+    anchor: new google.maps.Point(16, 42),
+  };
+}
+
+
 export default function RouteMap({ route, height = "350px", lightTheme = false }: RouteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +46,7 @@ export default function RouteMap({ route, height = "350px", lightTheme = false }
   const [error, setError] = useState<string | null>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
 
   useEffect(() => {
     if (!route.origin.lat || !route.destination.lat) return;
@@ -54,9 +68,9 @@ export default function RouteMap({ route, height = "350px", lightTheme = false }
         });
 
         directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
-          suppressMarkers: false,
+          suppressMarkers: true,
           polylineOptions: {
-            strokeColor: "#2563eb",
+            strokeColor: "#0B298F",
             strokeWeight: 5,
           },
         });
@@ -92,9 +106,41 @@ export default function RouteMap({ route, height = "350px", lightTheme = false }
         if (status === google.maps.DirectionsStatus.OK && result) {
           directionsRendererRef.current?.setDirections(result);
 
+          // Usuń poprzednie markery
+          markersRef.current.forEach((m) => m.setMap(null));
+          markersRef.current = [];
+
+          const legs = result.routes[0]?.legs || [];
+
+          // Markery A, B, C, D... dla każdego punktu
+          const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          let letterIndex = 0;
+
+          // Punkt startowy
+          markersRef.current.push(new google.maps.Marker({
+            position: legs[0].start_location,
+            map: mapInstanceRef.current,
+            icon: createMarkerIcon(letters[letterIndex++]),
+          }));
+
+          // Punkty pośrednie
+          legs.slice(0, -1).forEach((leg) => {
+            markersRef.current.push(new google.maps.Marker({
+              position: leg.end_location,
+              map: mapInstanceRef.current,
+              icon: createMarkerIcon(letters[letterIndex++]),
+            }));
+          });
+
+          // Punkt końcowy
+          markersRef.current.push(new google.maps.Marker({
+            position: legs[legs.length - 1].end_location,
+            map: mapInstanceRef.current,
+            icon: createMarkerIcon(letters[letterIndex++]),
+          }));
+
           // Calculate total distance
           let totalDistance = 0;
-          const legs = result.routes[0]?.legs || [];
           legs.forEach((leg) => {
             totalDistance += leg.distance?.value || 0;
           });
