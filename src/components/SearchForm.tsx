@@ -144,7 +144,8 @@ export default function SearchForm() {
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <form onSubmit={handleSubmit} className="flex w-full bg-white p-3 rounded-[8px]">
+      {/* Desktop form */}
+      <form onSubmit={handleSubmit} className="hidden lg:flex w-full bg-white p-3 rounded-[8px]">
         <button
           type="button"
           onClick={() => setActiveModal("route")}
@@ -203,10 +204,79 @@ export default function SearchForm() {
         </button>
       </form>
 
+      {/* Mobile form */}
+      <form onSubmit={handleSubmit} className="lg:hidden flex flex-col bg-white rounded-[12px] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setActiveModal("route")}
+          className={`flex items-center gap-4 px-5 py-4 text-left ${errors.route ? "bg-red-50" : ""}`}
+        >
+          <RouteIcon className="shrink-0 text-gray-500" />
+          <div className="min-w-0">
+            <span className="block text-[15px] font-semibold text-[#010101]">Trasa</span>
+            {hasRoute ? (
+              <span className="text-[14px] text-[#010101] truncate block">
+                {data.route.origin.address.split(",")[0]}
+                {waypointsCount > 0 && ` → ${waypointsCount} przyst.`}
+                {" → "}
+                {data.route.destination.address.split(",")[0]}
+              </span>
+            ) : (
+              <span className="text-[14px] text-[#9CA3AF]">Wybierz punkty trasy</span>
+            )}
+          </div>
+        </button>
+
+        <div className="h-[1px] bg-[#D9DADC] mx-5" />
+
+        <button
+          type="button"
+          onClick={() => setActiveModal("datetime")}
+          className={`flex items-center gap-4 px-5 py-4 text-left ${errors.datetime ? "bg-red-50" : ""}`}
+        >
+          <DatesIcon className="shrink-0 text-gray-500" />
+          <div className="min-w-0">
+            <span className="block text-[15px] font-semibold text-[#010101]">Termin</span>
+            {data.date && data.time ? (
+              <span className="text-[14px] text-[#010101]">{data.date} {data.time}</span>
+            ) : (
+              <span className="text-[14px] text-[#9CA3AF]">Wybierz termin wyjazdu</span>
+            )}
+          </div>
+        </button>
+
+        <div className="h-[1px] bg-[#D9DADC] mx-5" />
+
+        <button
+          type="button"
+          onClick={() => setActiveModal("passengers")}
+          className="flex items-center gap-4 px-5 py-4 text-left"
+        >
+          <PassengersIcon className="shrink-0 text-gray-500" />
+          <div className="min-w-0">
+            <span className="block text-[15px] font-semibold text-[#010101]">Pasażerowie</span>
+            {data.adults + data.children > 0 ? (
+              <span className="text-[14px] text-[#010101]">{data.adults + data.children} os.</span>
+            ) : (
+              <span className="text-[14px] text-[#9CA3AF]">Wybierz liczbę pasażerów</span>
+            )}
+          </div>
+        </button>
+
+        <div className="px-5 pb-5 pt-2">
+          <button
+            type="submit"
+            className="w-full py-4 bg-[#0B298F] text-white text-[16px] font-semibold rounded-[8px]"
+          >
+            Dalej
+          </button>
+        </div>
+      </form>
+
       <button
         type="button"
         onClick={handleTestRoute}
-        className="self-start text-xs text-gray-400 hover:text-gray-600 underline transition-colors"
+        className="self-start text-xs text-gray-400 hover:text-gray-600 underline transition-colors px-4"
       >
         Testowa trasa
       </button>

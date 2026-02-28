@@ -66,3 +66,7 @@ input:focus, button:focus {
   animation: bell-shake 0.6s ease-in-out infinite;
   transform-origin: top center;
 }
+
+.bg-hero {
+  background-image: var(--bg-hero-url);
+}

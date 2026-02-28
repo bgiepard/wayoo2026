@@ -1,6 +1,5 @@
 import SearchForm from "@/components/SearchForm";
 import Image from "next/image";
-import screensImg from "@/assets/screens.png";
 import screen1Img from "@/assets/screen1.png";
 import screen2Img from "@/assets/screen2.png";
 import bgImg from "@/assets/bg.png";
@@ -10,18 +9,23 @@ import requestScreen3 from "@/assets/requestScreen3.svg";
 import arrowsTop from "@/assets/arrowsTop.svg";
 import arrowsBottom from "@/assets/arrowsBottom.svg";
 import { WhyIcon1, WhyIcon2, WhyIcon3, WhyIcon4 } from "@/components/icons";
+import React from "react";
+
+const heroStyle = { '--bg-hero-url': `url(${bgImg.src})` } as React.CSSProperties;
 
 export default function Home() {
     return (
         <main className="flex flex-col gap-8">
             {/* Sekcja 1: Formularz */}
-            <section className="flex flex-col justify-center" style={{ backgroundImage: `url(${bgImg.src})`, backgroundSize: "cover", backgroundPosition: "top center" }}>
-                <div className="w-full max-w-[1150px] mx-auto pb-[64px] pt-[240px] px-4">
-                    <h1 className="text-center font-[400] text-[42px] mb-12 text-white">Zarezerwuj <span
-                        className="text-[#FFC428]">transport grupowy</span> w kilka minut.</h1>
-                    <SearchForm/>
+            <section className="bg-hero bg-cover [background-position:-50px_center] md:bg-top flex flex-col justify-center" style={heroStyle}>
+                <div className="w-full max-w-[1150px] mx-auto pb-[64px] pt-[120px] md:pt-[240px] px-4">
+                    <h1 className="text-center font-[400] text-[42px] mb-12 text-white hidden md:block">Zarezerwuj <span className="text-[#FFC428]">transport grupowy</span> w kilka minut.</h1>
+                    <h1 className="text-center font-[400] text-[26px] mb-12 text-white md:hidden">Zarezerwuj <br/><span className="text-[#FFC428]">transport grupowy</span><br/> w kilka minut.</h1>
+                   <div className="hidden md:block"><SearchForm/></div>
                 </div>
             </section>
+
+            <div className="md:hidden pb-8 bg-[#081D66] -mt-8"><SearchForm/></div>
 
             {/*Sekcja 2: Jak działa Wayoo?*/}
             <section className="flex flex-col justify-center">
@@ -49,7 +53,7 @@ export default function Home() {
 
                     {/* Wiersz 2: Teksty (3 kolumny) */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
-                        <div className="flex flex-col items-center text-center pr-30">
+                        <div className="flex flex-col items-center text-center lg:pr-30">
                             {/* Obrazek tylko na mobile */}
                             <div className="lg:hidden mb-4">
                                 <Image src={requestScreen1} alt="Składasz zapytanie" width={150} height={99} />
@@ -74,7 +78,7 @@ export default function Home() {
                             </p>
                         </div>
 
-                        <div className="flex flex-col items-center text-center pl-30">
+                        <div className="flex flex-col items-center text-center lg:pl-30">
                             <div className="lg:hidden mb-4">
                                 <Image src={requestScreen3} alt="Wybierasz najlepszą opcję" width={150} height={84} />
                             </div>
@@ -161,7 +165,8 @@ export default function Home() {
                         </div>
 
                         {/* Prawa strona — obrazki */}
-                        <div className="relative" style={{ width: 620, height: 400 }}>
+                        {/* Desktop */}
+                        <div className="relative hidden lg:block" style={{ width: 620, height: 400 }}>
                             <Image
                                 src={screen2Img}
                                 alt="Wayoo — podgląd aplikacji 2"
@@ -176,6 +181,28 @@ export default function Home() {
                                 height={350}
                                 className="object-contain absolute bottom-0 left-30"
                             />
+                        </div>
+
+                        {/* Mobile */}
+                        <div className="relative lg:hidden w-full" style={{ height: 260 }}>
+                            <div className="absolute left-0 bottom-0 w-[80%]">
+                                <Image
+                                    src={screen2Img}
+                                    alt="Wayoo — podgląd aplikacji 2"
+                                    width={560}
+                                    height={350}
+                                    className="object-contain w-full h-auto"
+                                />
+                            </div>
+                            <div className="absolute right-0 top-0 w-[80%]">
+                                <Image
+                                    src={screen1Img}
+                                    alt="Wayoo — podgląd aplikacji 1"
+                                    width={560}
+                                    height={350}
+                                    className="object-contain w-full h-auto"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
