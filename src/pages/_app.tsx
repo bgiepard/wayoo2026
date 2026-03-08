@@ -6,6 +6,7 @@ import { NotificationsProvider } from "@/context/NotificationsContext";
 import { PusherProvider } from "@/context/PusherContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import StatsigWrapper from "@/components/StatsigWrapper";
 import { DM_Sans } from "next/font/google";
 
 const dmSans = DM_Sans({
@@ -17,21 +18,23 @@ const dmSans = DM_Sans({
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&language=pl`}
-        strategy="beforeInteractive"
-      />
-      <NotificationsProvider>
-        <PusherProvider>
-          <div className={`${dmSans.variable} ${dmSans.className} min-h-screen flex flex-col`}>
-            <Header />
-            <div className="flex-1">
-              <Component {...pageProps} />
+      <StatsigWrapper>
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&language=pl`}
+          strategy="beforeInteractive"
+        />
+        <NotificationsProvider>
+          <PusherProvider>
+            <div className={`${dmSans.variable} ${dmSans.className} min-h-screen flex flex-col`}>
+              <Header />
+              <div className="flex-1">
+                <Component {...pageProps} />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        </PusherProvider>
-      </NotificationsProvider>
+          </PusherProvider>
+        </NotificationsProvider>
+      </StatsigWrapper>
     </SessionProvider>
   );
 }
