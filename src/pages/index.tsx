@@ -17,7 +17,7 @@ export default function Home() {
     return (
         <main className="flex flex-col gap-8">
             {/* Sekcja 1: Formularz */}
-            <section className="bg-hero bg-cover [background-position:-50px_center] md:bg-top flex flex-col justify-center" style={heroStyle}>
+            <section className="bg-hero bg-cover [background-position:-250px_center] md:bg-top flex flex-col justify-center" style={heroStyle}>
                 <div className="w-full max-w-[1150px] mx-auto pb-[64px] pt-[120px] md:pt-[240px] px-4">
                     <h1 className="text-center font-[400] text-[42px] mb-12 text-white hidden md:block">Zarezerwuj <span className="text-[#FFC428]">transport grupowy</span> w kilka minut.</h1>
                     <h1 className="text-center font-[400] text-[26px] mb-12 text-white md:hidden">Zarezerwuj <br/><span className="text-[#FFC428]">transport grupowy</span><br/> w kilka minut.</h1>
@@ -52,7 +52,7 @@ export default function Home() {
                     </div>
 
                     {/* Wiersz 2: Teksty (3 kolumny) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-6">
                         <div className="flex flex-col items-center text-center lg:pr-30">
                             {/* Obrazek tylko na mobile */}
                             <div className="lg:hidden mb-4">
