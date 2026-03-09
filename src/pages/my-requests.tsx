@@ -28,7 +28,6 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; do
     draft: {label: "Wersja robocza", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#9B9DA3]", border: "border-[#D9DADC]"},
     published_waiting: {label: "Oczekuje na oferty", bg: "bg-[#FFF8E1]", text: "text-[#B8860B]", dot: "bg-[#B8860B]", border: "border-[#E6D08A]"},
     published_offers: {label: "", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
-    accepted: {label: "Oczekuje na platnosc", bg: "bg-[#FFF3E0]", text: "text-[#E65100]", dot: "bg-[#E65100]", border: "border-[#F5C28B]"},
     paid: {label: "Oplacone", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
     completed: {label: "Zakonczone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
     cancelled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
@@ -75,7 +74,7 @@ const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounde
 export default function MyRequestsPage({requests}: Props) {
     const [activeTab, setActiveTab] = useState<Tab>("active");
 
-    const activeStatuses: RequestStatus[] = ["draft", "published", "accepted", "paid"];
+    const activeStatuses: RequestStatus[] = ["draft", "published", "paid"];
     const completedStatuses: RequestStatus[] = ["completed", "cancelled"];
 
     const activeRequests = requests.filter((r) => activeStatuses.includes(r.status));

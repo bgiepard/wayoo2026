@@ -10,12 +10,6 @@ export const pusher = new Pusher({
 });
 
 // Typy eventow
-export interface OfferAcceptedEvent {
-  offerId: string;
-  requestId: string;
-  message: string;
-}
-
 export interface OfferPaidEvent {
   offerId: string;
   requestId: string;
@@ -23,10 +17,6 @@ export interface OfferPaidEvent {
 }
 
 // Funkcje pomocnicze do wysylania eventow do kierowcy
-export async function notifyDriverOfferAccepted(driverId: string, data: OfferAcceptedEvent) {
-  await pusher.trigger(`driver-${driverId}`, "offer-accepted", data);
-}
-
 export async function notifyDriverOfferPaid(driverId: string, data: OfferPaidEvent) {
   await pusher.trigger(`driver-${driverId}`, "offer-paid", data);
 }

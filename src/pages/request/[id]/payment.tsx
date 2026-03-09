@@ -26,13 +26,14 @@ interface Props {
 
 export default function RequestPaymentPage({request: initialRequest, acceptedOffer}: Props) {
     const router = useRouter();
+    const { offerId } = router.query;
     const [request, setRequest] = useState(initialRequest);
     const [isPaying, setIsPaying] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [acceptCancellation, setAcceptCancellation] = useState(false);
 
     const canPay = acceptTerms && acceptCancellation;
-    const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
+    const isRequestAccepted = ["published", "paid", "completed"].includes(request.status);
     const isPaid = request.status === "paid" || request.status === "completed";
     const route: Route = JSON.parse(request.route || "{}");
 
@@ -42,7 +43,7 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
             const res = await fetch(`/api/requests/${request.id}/status`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({status: "paid"}),
+                body: JSON.stringify({status: "paid", offerId: offerId as string}),
             });
             if (res.ok) {
                 setRequest({...request, status: "paid"});
@@ -163,9 +164,21 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
                                 </p>
                             </div>
 
-                            <div className="flex items-start gap-6 pt-6 border-t border-[#D9DADC]">
-                                {/* Lewa: checkboxy */}
-                                <div className="w-1/2 flex flex-col gap-3">
+                            <div className="flex flex-col md:flex-row items-start gap-6 pt-6 border-t border-[#D9DADC]">
+                                {/* Cena + przycisk (na mobile na górze) */}
+                                <div className="w-full md:w-1/2 order-1 md:order-2 flex items-center justify-between md:justify-end gap-6">
+                                    <p className="text-[#0B298F] text-[32px] font-[600] leading-tight">{acceptedOffer.price} PLN</p>
+                                    <button
+                                        onClick={handleMarkAsPaid}
+                                        disabled={isPaying || !canPay}
+                                        className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
+                                    >
+                                        {isPaying ? "Przetwarzanie..." : "Zapłać"}
+                                    </button>
+                                </div>
+
+                                {/* Regulaminy (na mobile na dole) */}
+                                <div className="w-full md:w-1/2 order-2 md:order-1 flex flex-col gap-3">
                                     <button type="button" onClick={() => setAcceptTerms(!acceptTerms)} className="flex items-start gap-3 group cursor-pointer text-left">
                                         <div className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
                                             acceptTerms ? "bg-[#0B298F] border-[#0B298F]" : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
@@ -185,18 +198,6 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
                                         <span className="text-[#5B5E68] text-[14px] leading-[160%]">
                                             Zapoznałem się z warunkami anulowania zamówienia.<span className="text-red-500 ml-0.5">*</span>
                                         </span>
-                                    </button>
-                                </div>
-
-                                {/* Prawa: cena + przycisk */}
-                                <div className="w-1/2 flex items-center justify-end gap-6">
-                                    <p className="text-[#0B298F] text-[32px] font-[600] leading-tight">{acceptedOffer.price} PLN</p>
-                                    <button
-                                        onClick={handleMarkAsPaid}
-                                        disabled={isPaying || !canPay}
-                                        className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
-                                    >
-                                        {isPaying ? "Przetwarzanie..." : "Zapłać"}
                                     </button>
                                 </div>
                             </div>
@@ -240,15 +241,16 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
     );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({params}) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({params, query}) => {
     const id = params?.id as string;
+    const offerId = query.offerId as string | undefined;
     const request = await getRequestById(id);
 
     if (!request) {
         return {notFound: true};
     }
 
-    const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
+    const isRequestAccepted = ["published", "paid", "completed"].includes(request.status);
 
     if (!isRequestAccepted) {
         return {
@@ -260,7 +262,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({params}) =>
     }
 
     const offers = await getOffersByRequest(id);
-    const foundOffer = offers.find((o) => o.status === "accepted" || o.status === "paid");
+    const foundOffer = offerId
+        ? offers.find((o) => o.id === offerId)
+        : offers.find((o) => o.status === "paid");
 
     const acceptedOffer = foundOffer ? {
         id: foundOffer.id,

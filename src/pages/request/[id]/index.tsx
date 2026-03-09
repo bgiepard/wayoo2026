@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   // Przekierowanie w zaleznosci od statusu
   let destination = `/request/${id}/offers`;
 
-  if (["accepted", "paid", "completed"].includes(status)) {
+  if (["paid", "completed"].includes(status)) {
     destination = `/request/${id}/payment`;
   }
 

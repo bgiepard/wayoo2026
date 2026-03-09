@@ -40,7 +40,6 @@ interface Props {
 export default function RequestOffersPage({request, initialOffers}: Props) {
     const router = useRouter();
     const [offers, setOffers] = useState<OfferData[]>(initialOffers);
-    const [acceptingOffer, setAcceptingOffer] = useState<string | null>(null);
     const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
 
     const openLightbox = (photos: string[], index: number) => setLightbox({photos, index});
@@ -56,8 +55,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         setLightbox({...lightbox, index: (lightbox.index + 1) % lightbox.photos.length});
     };
 
-    const isRequestAccepted = ["accepted", "paid", "completed"].includes(request.status);
-    const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted" || o.status === "paid") : null;
+    const isRequestAccepted = ["paid", "completed"].includes(request.status);
+    const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "paid") : null;
     const pendingOffers = offers.filter((o) => o.status === "new");
 
     const fetchOffers = useCallback(async () => {
@@ -94,24 +93,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         };
     }, [request.id, isRequestAccepted, fetchOffers]);
 
-    const handleAcceptOffer = async (offerId: string) => {
-        setAcceptingOffer(offerId);
-        try {
-            const res = await fetch("/api/offers", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({action: "accept", offerId, requestId: request.id}),
-            });
-            if (res.ok) {
-                router.push(`/request/${request.id}/payment`);
-            }
-        } catch (error) {
-            console.error("Error accepting offer:", error);
-        } finally {
-            setAcceptingOffer(null);
-        }
-    };
-
     const route = (() => { try { return JSON.parse(request.route); } catch { return null; } })();
 
     return (
@@ -125,10 +106,10 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             {acceptedOffer ? (
                 <>
                     <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
-                        Oferta została zaakceptowana
+                        Przejazd opłacony
                     </h1>
                     <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-6">
-                        Przejdź do płatności, aby potwierdzić rezerwację.
+                        Dziękujemy za opłacenie przejazdu.
                     </h2>
                 </>
             ) : pendingOffers.length > 0 ? (
@@ -363,11 +344,10 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                     <div className="flex items-center gap-4 shrink-0">
                                         <p className="text-[#0B298F] text-[24px] font-[600] leading-tight">{offer.price} zł</p>
                                         <button
-                                            onClick={() => handleAcceptOffer(offer.id)}
-                                            disabled={acceptingOffer === offer.id}
-                                            className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-6 py-3 rounded-xl font-[500] text-[14px] transition-colors disabled:opacity-50"
+                                            onClick={() => router.push(`/request/${request.id}/payment?offerId=${offer.id}`)}
+                                            className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-6 py-3 rounded-xl font-[500] text-[14px] transition-colors"
                                         >
-                                            {acceptingOffer === offer.id ? "Przekierowywanie..." : "Przejdź do oferty"}
+                                            Wybierz i zapłać
                                         </button>
                                     </div>
                                 </div>

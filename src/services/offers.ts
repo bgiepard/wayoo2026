@@ -1,4 +1,4 @@
-import { offersTable, requestsTable, vehiclesTable } from "@/lib/airtable";
+import { offersTable, vehiclesTable } from "@/lib/airtable";
 import { getDriverById } from "./drivers";
 import type { OfferData, OfferStatus, VehicleInfo } from "@/models";
 
@@ -100,14 +100,11 @@ export async function getOffersCountByRequestIds(
   return counts;
 }
 
-export async function acceptOffer(offerId: string, requestId: string): Promise<void> {
-  // Zaakceptuj ofertę
-  await offersTable.update(offerId, { status: "accepted" });
+export async function markOfferAsPaid(requestId: string, offerId: string): Promise<void> {
+  // Ustaw status wybranej oferty na "paid"
+  await offersTable.update(offerId, { status: "paid" });
 
-  // Zmień status zapytania
-  await requestsTable.update(requestId, { status: "accepted" });
-
-  // Odrzuć pozostałe oferty na to samo zlecenie
+  // Odrzuć pozostałe oferty (status "new") na to samo zlecenie
   const allOffers = await offersTable.select().all();
 
   for (const record of allOffers) {
@@ -116,26 +113,10 @@ export async function acceptOffer(offerId: string, requestId: string): Promise<v
     const requestLinks = record.get("Request") as string[] | undefined;
     const requestIdField = record.get("requestId") as string | undefined;
     const belongsToRequest = requestLinks?.includes(requestId) || requestIdField === requestId;
-
-    if (belongsToRequest) {
-      await offersTable.update(record.id, { status: "rejected" });
-    }
-  }
-}
-
-export async function markOfferAsPaid(requestId: string): Promise<void> {
-  // Znajdź zaakceptowaną ofertę dla tego zlecenia i zmień jej status na "paid"
-  const allOffers = await offersTable.select().all();
-
-  for (const record of allOffers) {
-    const requestLinks = record.get("Request") as string[] | undefined;
-    const requestIdField = record.get("requestId") as string | undefined;
-    const belongsToRequest = requestLinks?.includes(requestId) || requestIdField === requestId;
     const status = record.get("status") as OfferStatus;
 
-    if (belongsToRequest && status === "accepted") {
-      await offersTable.update(record.id, { status: "paid" });
-      break;
+    if (belongsToRequest && status === "new") {
+      await offersTable.update(record.id, { status: "rejected" });
     }
   }
 }

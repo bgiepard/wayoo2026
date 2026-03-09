@@ -47,7 +47,7 @@ export function CardHeader({title, editLabel, onEdit}: {title: string; editLabel
             {onEdit && editLabel && (
                 <button onClick={onEdit} className="flex items-center gap-2 text-[#0B298F] text-[14px] font-[500] hover:opacity-80 transition-opacity">
                     <DraftEditIcon/>
-                    {editLabel}
+                    <span className="hidden md:inline">{editLabel}</span>
                 </button>
             )}
         </div>
@@ -118,8 +118,11 @@ export default function RequestDetailsLayout({
                 </h2>
             )}
 
-            <div className="flex gap-8">
-                <div className="w-[680px] shrink-0 flex flex-col gap-6">
+            <div className="flex flex-col md:flex-row gap-8">
+                <div className="hidden md:block order-1 md:order-2 md:flex-1 md:sticky md:top-8 md:self-start">
+                    <RouteMap route={route} height="600px" lightTheme/>
+                </div>
+                <div className="order-2 md:order-1 w-full md:w-[680px] shrink-0 flex flex-col gap-6">
                     {/* Punkty na trasie */}
                     <section className={detailsStyles.card}>
                         <CardHeader title="Punkty na trasie" editLabel="Edytuj punkty na trasie" onEdit={onEditRoute}/>
@@ -152,9 +155,6 @@ export default function RequestDetailsLayout({
                     </section>
 
                     {extraContent}
-                </div>
-                <div className="flex-1 sticky top-8 self-start">
-                    <RouteMap route={route} height="600px" lightTheme/>
                 </div>
             </div>
         </main>

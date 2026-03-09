@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 interface Props {
   requestId?: string;
@@ -24,30 +23,24 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer =
         const content = (
           <div className="w-full flex-col">
             <div className="flex items-center justify-center gap-[10px]">
-              <div className={`w-6 h-6 rounded-[8px] flex shrink-0 items-center justify-center text-[16px] transition-colors ${
-                isActive ? "bg-[#0B298F] text-white" : accessible ? "bg-gray-100 text-gray-700" : "bg-gray-50 text-gray-400"
+              <div className={`w-6 h-6 rounded-[8px] flex shrink-0 items-center justify-center text-[16px] font-[600] transition-colors ${
+                isActive ? "bg-[#0B298F] text-white" : accessible ? "bg-[#F0F0F1] md:bg-gray-100 text-[#8E8F96] md:text-gray-700" : "bg-[#F0F0F1] md:bg-gray-50 text-[#8E8F96] md:text-gray-400"
               }`}>
                 {step.id}
               </div>
-              <span className={`font-[13px] block w-full ${
-                isActive ? "text-[#0B298F]" : accessible ? "text-gray-600" : "text-gray-400"
+              <span className={`font-[13px] w-full ${
+                isActive ? "text-[#0B298F] block" : accessible ? "text-gray-600 hidden md:block" : "text-gray-400 hidden md:block"
               }`}>
                 {step.label}
               </span>
             </div>
-            <div className={`w-full h-1 rounded mt-3 ${isActive ? "bg-[#0B298F]" : "bg-gray-200"}`} />
+            <div className={`h-1 rounded mt-3 ${isActive ? "w-full bg-[#0B298F]" : "w-6 md:w-full bg-[#F0F0F1] md:bg-gray-200"}`} />
           </div>
         );
 
         return (
-          <div key={step.id} className="flex items-center w-full">
-            {accessible ? (
-              <Link href={`/request/${requestId}/${step.path}`} className="flex flex-col items-center w-full hover:opacity-80 transition-opacity">
-                {content}
-              </Link>
-            ) : (
-              <div className="flex flex-col items-center w-full">{content}</div>
-            )}
+          <div key={step.id} className={`flex items-center ${isActive ? "flex-1" : "w-auto shrink-0"} md:flex-1 md:w-full`}>
+            <div className="flex flex-col items-center w-full">{content}</div>
           </div>
         );
       })}

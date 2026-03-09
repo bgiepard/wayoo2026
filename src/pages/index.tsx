@@ -30,8 +30,8 @@ export default function Home() {
 
             {/*Sekcja 2: Jak działa Wayoo?*/}
             <section className="flex flex-col justify-center">
-                <div className="w-full max-w-[1150px] mx-auto px-4 pt-16 pb-24">
-                    <h2 className="text-[#0B298F] text-[33px] text-center mb-16">Jak działa Wayoo?</h2>
+                <div className="w-full max-w-[1150px] mx-auto px-4 md:pt-16 md:pb-24">
+                    <h2 className="text-[#0B298F] text-[20px] md:text-[33px] text-center md:mb-16">Jak działa Wayoo?</h2>
 
                     {/* Wiersz 1: Obrazki + strzałki (5 kolumn) */}
                     <div className="hidden lg:flex items-center justify-between">
@@ -96,8 +96,8 @@ export default function Home() {
 
             {/*Sekcja 3: Dlaczego warto wypróbować Wayoo?*/}
             <section className="bg-[#E7EAF4]">
-                <div className="w-full max-w-[1150px] mx-auto px-4 pt-[64px] pb-[96px]">
-                    <h2 className="text-[#0B298F] text-[33px] text-center mb-[64px]">
+                <div className="w-full max-w-[1150px] mx-auto px-4 pt-8 md:pt-[64px] pb-[48px] md:pb-[96px]">
+                    <h2 className="text-[#0B298F] text-[20px] md:text-[33px] text-center mb-6 md:mb-[64px]">
                         Dlaczego warto wypróbować Wayoo?
                     </h2>
 
@@ -105,7 +105,7 @@ export default function Home() {
                         {/* Lewa strona — lista zalet */}
                         <div className="flex flex-col gap-8 lg:max-w-[55%]">
                             {/* 1. Prosty proces zamówienia */}
-                            <div className="flex gap-[24px]">
+                            <div className="flex flex-col md:flex-row gap-[24px]">
                                 <div className="flex-shrink-0 p-[12px] bg-white rounded-[8px] border border-[#D9DADC] flex items-center justify-center self-start">
                                     <WhyIcon1 />
                                 </div>
@@ -120,7 +120,7 @@ export default function Home() {
                             </div>
 
                             {/* 2. Bezpieczeństwo i weryfikacja */}
-                            <div className="flex gap-[24px]">
+                            <div className="flex flex-col md:flex-row gap-[24px]">
                                 <div className="flex-shrink-0 p-[12px] bg-white rounded-[8px] border border-[#D9DADC] flex items-center justify-center self-start">
                                     <WhyIcon2 />
                                 </div>
@@ -135,7 +135,7 @@ export default function Home() {
                             </div>
 
                             {/* 3. Oszczędność czasu */}
-                            <div className="flex gap-[24px]">
+                            <div className="flex flex-col md:flex-row gap-[24px]">
                                 <div className="flex-shrink-0 p-[12px] bg-white rounded-[8px] border border-[#D9DADC] flex items-center justify-center self-start">
                                     <WhyIcon3 />
                                 </div>
@@ -150,7 +150,7 @@ export default function Home() {
                             </div>
 
                             {/* 4. Odpowiedzialny model współpracy */}
-                            <div className="flex gap-[24px]">
+                            <div className="flex flex-col md:flex-row gap-[24px]">
                                 <div className="flex-shrink-0 p-[12px] bg-white rounded-[8px] border border-[#D9DADC] flex items-center justify-center self-start">
                                     <WhyIcon4 />
                                 </div>
@@ -184,35 +184,14 @@ export default function Home() {
                             />
                         </div>
 
-                        {/* Mobile */}
-                        <div className="relative lg:hidden w-full" style={{ height: 260 }}>
-                            <div className="absolute left-0 bottom-0 w-[80%]">
-                                <Image
-                                    src={screen2Img}
-                                    alt="Wayoo — podgląd aplikacji 2"
-                                    width={560}
-                                    height={350}
-                                    className="object-contain w-full h-auto"
-                                />
-                            </div>
-                            <div className="absolute right-0 top-0 w-[80%]">
-                                <Image
-                                    src={screen1Img}
-                                    alt="Wayoo — podgląd aplikacji 1"
-                                    width={560}
-                                    height={350}
-                                    className="object-contain w-full h-auto"
-                                />
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>
 
             {/*Sekcja 4: Opinie użytkowników*/}
             <section className="flex flex-col justify-center">
-                <div className="w-full max-w-[1150px] mx-auto px-4 pt-16 pb-24">
-                    <h2 className="text-[#0B298F] text-[33px] text-center mb-16">Poznaj opinie użytkowników Wayoo</h2>
+                <div className="w-full max-w-[1150px] mx-auto px-4 md:pt-16 mb-[48px] md:pb-24">
+                    <h2 className="text-[#0B298F] text-[20px] md:text-[33px] text-center mb-6 md:mb-16">Poznaj opinie użytkowników Wayoo</h2>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Opinia 1 */}

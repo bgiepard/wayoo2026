@@ -13,13 +13,13 @@ export default async function handler(
   }
 
   const { id } = req.query;
-  const { status } = req.body;
+  const { status, offerId } = req.body;
 
   if (!id || typeof id !== "string") {
     return res.status(400).json({ error: "Missing request ID" });
   }
 
-  const validStatuses: RequestStatus[] = ["draft", "published", "accepted", "paid", "completed", "cancelled"];
+  const validStatuses: RequestStatus[] = ["draft", "published", "paid", "completed", "cancelled"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: "Invalid status" });
   }
@@ -29,18 +29,20 @@ export default async function handler(
 
     // Jeśli status zmienia się na "paid", zaktualizuj też status oferty i wyślij powiadomienie
     if (status === "paid") {
-      await markOfferAsPaid(id);
+      await markOfferAsPaid(id, offerId);
 
       // Wyślij powiadomienie do kierowcy o opłaceniu
       try {
         const allOffers = await offersTable.select().all();
-        const acceptedOffer = allOffers.find((record) => {
-          const requestLinks = record.get("Request") as string[] | undefined;
-          const requestIdField = record.get("requestId") as string | undefined;
-          const belongsToRequest = requestLinks?.includes(id) || requestIdField === id;
-          const offerStatus = record.get("status") as string;
-          return belongsToRequest && (offerStatus === "accepted" || offerStatus === "paid");
-        });
+        const acceptedOffer = offerId
+          ? allOffers.find((record) => record.id === offerId)
+          : allOffers.find((record) => {
+              const requestLinks = record.get("Request") as string[] | undefined;
+              const requestIdField = record.get("requestId") as string | undefined;
+              const belongsToRequest = requestLinks?.includes(id) || requestIdField === id;
+              const offerStatus = record.get("status") as string;
+              return belongsToRequest && offerStatus === "paid";
+            });
 
         if (acceptedOffer) {
           const driverLinks = acceptedOffer.get("Driver") as string[] | undefined;
