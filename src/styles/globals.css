@@ -69,4 +69,12 @@ input:focus, button:focus {
 
 .bg-hero {
   background-image: var(--bg-hero-url);
+  background-size: cover;
+  background-position: center center;
+}
+
+@media (min-width: 768px) {
+  .bg-hero {
+    background-position: center -350px;
+  }
 }

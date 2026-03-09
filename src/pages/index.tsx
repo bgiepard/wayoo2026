@@ -2,7 +2,7 @@ import SearchForm from "@/components/SearchForm";
 import Image from "next/image";
 import screen1Img from "@/assets/screen1.png";
 import screen2Img from "@/assets/screen2.png";
-import bgImg from "@/assets/bg.png";
+import bgImg from "@/assets/bg.jpg";
 import requestScreen1 from "@/assets/requestScreen1.svg";
 import requestScreen2 from "@/assets/requestScreen2.svg";
 import requestScreen3 from "@/assets/requestScreen3.svg";
@@ -17,8 +17,9 @@ export default function Home() {
     return (
         <main className="flex flex-col gap-8">
             {/* Sekcja 1: Formularz */}
-            <section className="bg-hero bg-cover [background-position:-250px_center] md:bg-top flex flex-col justify-center" style={heroStyle}>
-                <div className="w-full max-w-[1150px] mx-auto pb-[64px] pt-[120px] md:pt-[240px] px-4">
+            <section className="relative bg-hero flex flex-col justify-center" style={heroStyle}>
+                <div className="absolute inset-0 bg-black/50" />
+                <div className="relative z-10 w-full max-w-[1150px] mx-auto pb-[64px] pt-[120px] md:pt-[300px] px-4">
                     <h1 className="text-center font-[400] text-[42px] mb-12 text-white hidden md:block">Zarezerwuj <span className="text-[#FFC428]">transport grupowy</span> w kilka minut.</h1>
                     <h1 className="text-center font-[400] text-[26px] mb-12 text-white md:hidden">Zarezerwuj <br/><span className="text-[#FFC428]">transport grupowy</span><br/> w kilka minut.</h1>
                    <div className="hidden md:block"><SearchForm/></div>
