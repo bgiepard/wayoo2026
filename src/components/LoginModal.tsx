@@ -132,6 +132,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
             <div className="flex gap-3">
               <input
                 type="text"
+                data-cy="input-first-name"
                 placeholder="Imie"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
@@ -140,6 +141,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
               />
               <input
                 type="text"
+                data-cy="input-last-name"
                 placeholder="Nazwisko"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
@@ -158,6 +160,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
         )}
         <input
           type="email"
+          data-cy="input-email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -166,6 +169,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
         />
         <input
           type="password"
+          data-cy="input-password"
           placeholder="Haslo"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -174,6 +178,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
         />
         <button
           type="submit"
+          data-cy="btn-auth-submit"
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium"
         >
           {isRegister ? "Zarejestruj" : "Zaloguj"}
@@ -181,7 +186,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
       </form>
 
       <div className="mt-4 text-center">
-        <button onClick={switchMode} className="text-sm text-gray-500 hover:text-gray-700">
+        <button onClick={switchMode} data-cy="btn-switch-auth-mode" className="text-sm text-gray-500 hover:text-gray-700">
           {isRegister
             ? "Masz juz konto? Zaloguj sie"
             : "Nie masz konta? Zarejestruj sie"}

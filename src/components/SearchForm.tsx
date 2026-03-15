@@ -148,6 +148,7 @@ export default function SearchForm() {
       <form onSubmit={handleSubmit} className="hidden lg:flex w-full bg-white p-3 rounded-[8px]">
         <button
           type="button"
+          data-cy="btn-route"
           onClick={() => setActiveModal("route")}
           className={`${buttonBase} flex-2 flex items-center gap-3 ${errors.route ? buttonError : ""}`}
         >
@@ -171,6 +172,7 @@ export default function SearchForm() {
 
         <button
           type="button"
+          data-cy="btn-datetime"
           onClick={() => setActiveModal("datetime")}
           className={`${buttonBase} flex-1 flex items-center gap-3 ${errors.datetime ? buttonError : ""}`}
         >
@@ -197,6 +199,7 @@ export default function SearchForm() {
 
         <button
           type="submit"
+          data-cy="btn-search-submit"
           className="px-6 py-3 text-white text-[14px] font-medium rounded-lg transition-colors leading-[140%]"
           style={{ backgroundColor: "#0B298F" }}
         >
@@ -275,6 +278,7 @@ export default function SearchForm() {
 
       <button
         type="button"
+        data-cy="btn-test-route"
         onClick={handleTestRoute}
         className="self-start text-xs text-gray-400 hover:text-gray-600 underline transition-colors px-4"
       >

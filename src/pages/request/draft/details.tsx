@@ -189,6 +189,7 @@ export default function DraftDetailsPage() {
                         </button>
                     ) : (
                         <button
+                            data-cy="btn-publish"
                             onClick={handlePublish}
                             disabled={isPublishing}
                             className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"

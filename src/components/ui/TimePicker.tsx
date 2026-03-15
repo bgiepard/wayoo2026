@@ -127,11 +127,11 @@ export default function TimePicker({
     <div className={`flex items-center justify-center gap-1 ${className}`}>
       {/* Godziny */}
       <div className="flex flex-col items-center">
-        <button type="button" onClick={() => stepHour(1)} className={chevronBtn}>
+        <button data-cy="timepicker-hour-up" type="button" onClick={() => stepHour(1)} className={chevronBtn}>
           {chevronUp}
         </button>
         {renderDigit("hour", hour)}
-        <button type="button" onClick={() => stepHour(-1)} className={chevronBtn}>
+        <button data-cy="timepicker-hour-down" type="button" onClick={() => stepHour(-1)} className={chevronBtn}>
           {chevronDown}
         </button>
       </div>
@@ -141,11 +141,11 @@ export default function TimePicker({
 
       {/* Minuty */}
       <div className="flex flex-col items-center">
-        <button type="button" onClick={() => stepMinute(1)} className={chevronBtn}>
+        <button data-cy="timepicker-minute-up" type="button" onClick={() => stepMinute(1)} className={chevronBtn}>
           {chevronUp}
         </button>
         {renderDigit("minute", minute)}
-        <button type="button" onClick={() => stepMinute(-1)} className={chevronBtn}>
+        <button data-cy="timepicker-minute-down" type="button" onClick={() => stepMinute(-1)} className={chevronBtn}>
           {chevronDown}
         </button>
       </div>

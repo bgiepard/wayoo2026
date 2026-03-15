@@ -71,6 +71,7 @@ input:focus, button:focus {
   background-image: var(--bg-hero-url);
   background-size: cover;
   background-position: center center;
+  background-repeat: no-repeat;
 }
 
 @media (min-width: 768px) {

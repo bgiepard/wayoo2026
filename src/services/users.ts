@@ -19,9 +19,10 @@ function mapRecordToUser(record: AirtableRecord<FieldSet>): User {
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
+  const safeEmail = email.replace(/'/g, "\\'");
   const records = await usersTable
     .select({
-      filterByFormula: `{email} = '${email}'`,
+      filterByFormula: `{email} = '${safeEmail}'`,
       maxRecords: 1,
     })
     .firstPage();

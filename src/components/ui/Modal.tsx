@@ -40,6 +40,7 @@ export default function Modal({
         {onConfirm && (
           <div className="flex justify-end p-6 pt-0 md:pt-0 border-t md:border-none border-gray-100">
             <button
+              data-cy="btn-modal-confirm"
               onClick={onConfirm}
               disabled={confirmDisabled}
               className="w-full md:w-auto px-6 py-3 text-white text-[14px] font-medium rounded-lg transition-colors leading-[140%]"

@@ -152,6 +152,7 @@ export default function DatePicker({
 
         <button
           type="button"
+          data-cy="btn-next-month"
           onClick={goToNextMonth}
           className="w-9 h-9 flex items-center justify-center rounded-full
                      hover:bg-gray-100 active:bg-gray-200
@@ -181,6 +182,7 @@ export default function DatePicker({
             {day !== null ? (
               <button
                 type="button"
+                data-cy={`datepicker-day-${day}`}
                 onClick={() => handleDayClick(day)}
                 disabled={isDisabled(day)}
                 className={`

@@ -46,12 +46,12 @@ Przepływ danych: **Pages → Services → Lib (Airtable/Pusher) → Baza danych
 ## Kluczowe modele danych
 
 ### Request (Zlecenie przejazdu)
-Statusy: `draft` → `published` → `accepted` → `paid` → `completed` | `cancelled`
+Statusy: `draft` → `published` → `paid` → `completed` | `cancelled`
 
 Pola: userId, route (JSON z origin/destination/waypoints), date, time, adults, children, options
 
 ### Offer (Oferta kierowcy)
-Statusy: `new` → `accepted` → `paid` | `rejected` | `canceled`
+Statusy: `new` → `paid` | `rejected` | `canceled`
 
 Pola: requestId, driverId, vehicleId, price, message, status
 

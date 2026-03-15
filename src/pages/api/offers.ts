@@ -36,8 +36,9 @@ export default async function handler(
       }
 
       const userEmail = user.email || "";
-      const hasAccess = request.userId === userId || request.userEmail === userEmail;
-      if (!hasAccess) {
+      const matchesId = userId !== "" && request.userId === userId;
+      const matchesEmail = userEmail !== "" && request.userEmail === userEmail;
+      if (!matchesId && !matchesEmail) {
         return res.status(403).json({ error: "Access denied" });
       }
 

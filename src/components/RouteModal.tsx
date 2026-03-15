@@ -121,6 +121,7 @@ export default function RouteModal({
         {canAddWaypoint && (
           <button
             type="button"
+            data-cy="btn-add-waypoint"
             onClick={handleAddWaypoint}
             className="flex items-center gap-2 px-4 py-3 mb-6 text-[#0B298F] font-[600] hover:bg-gray-50 rounded-lg transition-colors"
           >

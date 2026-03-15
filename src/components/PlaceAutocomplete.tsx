@@ -215,7 +215,7 @@ export default function PlaceAutocomplete({
   }, [showDropdown, updateDropdownPosition]);
 
   const dropdownContent = (suggestions.length > 0 || isLoading) && showDropdown ? (
-    <div ref={portalRef} style={dropdownStyle} className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[250px] overflow-y-auto">
+    <div ref={portalRef} data-cy="place-suggestions" style={dropdownStyle} className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[250px] overflow-y-auto">
       {isLoading && suggestions.length === 0 ? (
         <div className="px-4 py-3 text-center text-gray-500 text-sm">Wyszukiwanie...</div>
       ) : (

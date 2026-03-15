@@ -1,8 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { updateRequestStatus, markOfferAsPaid } from "@/services";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]";
+import { updateRequestStatus, markOfferAsPaid, getRequestById } from "@/services";
 import type { RequestStatus } from "@/models";
 import { offersTable, notificationsTable } from "@/lib/airtable";
 import { notifyDriverOfferPaid } from "@/lib/pusher";
+
+interface SessionUser {
+  id?: string;
+  email?: string | null;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,6 +18,13 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
+
+  const session = await getServerSession(req, res, authOptions);
+  if (!session || !session.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const user = session.user as SessionUser;
 
   const { id } = req.query;
   const { status, offerId } = req.body;
@@ -22,6 +36,18 @@ export default async function handler(
   const validStatuses: RequestStatus[] = ["draft", "published", "paid", "completed", "cancelled"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: "Invalid status" });
+  }
+
+  const request = await getRequestById(id);
+  if (!request) {
+    return res.status(404).json({ error: "Request not found" });
+  }
+
+  const userId = user.id || "";
+  const userEmail = user.email || "";
+  const hasAccess = request.userId === userId || request.userEmail === userEmail;
+  if (!hasAccess) {
+    return res.status(403).json({ error: "Access denied" });
   }
 
   try {

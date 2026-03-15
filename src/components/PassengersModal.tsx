@@ -23,9 +23,11 @@ const AGE_OPTIONS = Array.from({ length: 12 }, (_, i) => {
 function AgeDropdown({
   value,
   onChange,
+  dataCy,
 }: {
   value: number;
   onChange: (age: number) => void;
+  dataCy?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,6 +46,7 @@ function AgeDropdown({
     <div className="relative" ref={ref}>
       <button
         type="button"
+        data-cy={dataCy}
         onClick={() => setOpen(!open)}
         className={`${inputBase} flex items-center text-left ${open ? "border-blue-500 ring-1 ring-blue-500" : ""}`}
       >
@@ -86,12 +89,14 @@ function Counter({
   min,
   max,
   onChange,
+  dataCy,
 }: {
   label: string;
   value: number;
   min: number;
   max?: number;
   onChange: (value: number) => void;
+  dataCy?: string;
 }) {
   const canDecrement = value > min;
   const canIncrement = max === undefined || value < max;
@@ -102,6 +107,7 @@ function Counter({
       <div className="flex items-center gap-[10px]">
         <button
           type="button"
+          data-cy={dataCy ? `${dataCy}-decrement` : undefined}
           disabled={!canDecrement}
           onClick={() => onChange(Math.max(min, value - 1))}
           className={`${counterBox} transition-colors ${
@@ -117,6 +123,7 @@ function Counter({
         </span>
         <button
           type="button"
+          data-cy={dataCy ? `${dataCy}-increment` : undefined}
           disabled={!canIncrement}
           onClick={() => onChange(value + 1)}
           className={`${counterBox} transition-colors ${
@@ -198,14 +205,15 @@ export default function PassengersModal({
       confirmLabel={confirmLabel}
     >
       <div className="flex flex-col">
-        <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} />
+        <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} dataCy="adults" />
         <div className="h-[24px]" />
-        <Counter label="Dzieci" value={localChildren} min={0} onChange={handleChildrenChange} />
+        <Counter label="Dzieci" value={localChildren} min={0} onChange={handleChildrenChange} dataCy="children" />
 
         {localChildren > 0 && (
           <label className="flex items-center gap-3 mt-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
             <input
               type="checkbox"
+              data-cy="checkbox-child-seats"
               checked={localNeedsSeats}
               onChange={(e) => setLocalNeedsSeats(e.target.checked)}
               className="w-4 h-4 accent-blue-600"
@@ -222,6 +230,7 @@ export default function PassengersModal({
                 <AgeDropdown
                   value={age}
                   onChange={(val) => handleAgeChange(index, val)}
+                  dataCy={`age-dropdown-${index}`}
                 />
               </div>
             ))}
