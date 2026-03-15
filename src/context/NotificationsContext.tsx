@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 
 export interface Notification {
   id: string;
-  type: "new_offer" | "offer_accepted" | "info";
+  type: "new_offer" | "info";
   title: string;
   message: string;
   link?: string;

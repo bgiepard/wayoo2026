@@ -169,7 +169,7 @@ export interface SearchData {
 // --------------------------------------------
 // NOTIFICATION - Powiadomienia (Tabela Notifications)
 // --------------------------------------------
-export type NotificationType = 'new_offer' | 'offer_accepted' | 'info';
+export type NotificationType = 'new_offer' | 'info';
 
 export interface NotificationData {
   id: string;

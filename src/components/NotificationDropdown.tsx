@@ -25,15 +25,6 @@ function NotificationIcon({type}: { type: string }) {
             </div>
         );
     }
-    if (type === "offer_accepted") {
-        return (
-            <div className="w-[36px] h-[36px] rounded-full bg-[#E6F6EC] flex items-center justify-center shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 6L9 17L4 12" stroke="#01A83D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            </div>
-        );
-    }
     return (
         <div className="w-[36px] h-[36px] rounded-full bg-[#F0F1F3] flex items-center justify-center shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
