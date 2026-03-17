@@ -8,6 +8,7 @@ import PassengersModal from "@/components/PassengersModal";
 import RequestDetailsLayout, {detailsStyles} from "@/components/RequestDetailsLayout";
 import {DraftCheckBadgeIcon, DraftCheckIcon} from "@/components/icons";
 import type {SearchData, Route} from "@/models";
+import {calculateRouteDistance} from "@/models";
 
 const optionsList = [
     {key: "wifi", label: "Wifi"},
@@ -34,6 +35,11 @@ export default function DraftDetailsPage() {
         const stored = localStorage.getItem("draft_request");
         if (stored) {
             const data: SearchData = JSON.parse(stored);
+            // Oblicz dystans raz przy wejściu na stronę i zapisz w route
+            if (!data.route.distanceKm) {
+                data.route.distanceKm = calculateRouteDistance(data.route);
+                localStorage.setItem("draft_request", JSON.stringify(data));
+            }
             setRequestData(data);
             setOptions({
                 wifi: data.options.wifi,

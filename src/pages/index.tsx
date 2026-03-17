@@ -2,7 +2,7 @@ import SearchForm from "@/components/SearchForm";
 import Image from "next/image";
 import screen1Img from "@/assets/screen1.png";
 import screen2Img from "@/assets/screen2.png";
-import bgImg from "@/assets/bg.jpg";
+import bgImg from "@/assets/bg.png";
 import requestScreen1 from "@/assets/requestScreen1.svg";
 import requestScreen2 from "@/assets/requestScreen2.svg";
 import requestScreen3 from "@/assets/requestScreen3.svg";
