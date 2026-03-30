@@ -7,6 +7,8 @@ import {authOptions} from "./api/auth/[...nextauth]";
 import {getRequestsByUserEmail, getOffersCountByRequestIds} from "@/services";
 import type {RequestData, RequestStatus, Route} from "@/models";
 import {formatDatePL} from "@/lib/formatDate";
+import { formatDistanceToNow, isPast } from "date-fns";
+import { pl } from "date-fns/locale";
 import {
     DraftOriginIcon,
     DraftDestinationIcon,
@@ -69,6 +71,15 @@ const getTimeAgo = (dateString: string): string => {
         return `${diffDays} ${diffDays === 1 ? "dzien" : "dni"} temu`;
     }
 };
+
+function formatOfferExpiry(expiresAt: string | null): { label: string; expired: boolean; urgent: boolean } {
+    if (!expiresAt) return { label: "", expired: false, urgent: false };
+    const date = new Date(expiresAt);
+    if (isPast(date)) return { label: "Wygasło", expired: true, urgent: false };
+    const hoursLeft = (date.getTime() - Date.now()) / 3600000;
+    const label = "Jeszcze " + formatDistanceToNow(date, { locale: pl });
+    return { label, expired: false, urgent: hoursLeft < 24 };
+}
 
 const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
 
@@ -240,6 +251,13 @@ export default function MyRequestsPage({requests}: Props) {
                                         {activeOptions.map(([key, label]) => (
                                             <span key={key} className={featureBadge}>{label}</span>
                                         ))}
+                                        {request.status === "published" && (() => {
+                                            const { label, expired, urgent } = formatOfferExpiry(request.offerExpiresAt);
+                                            if (!label) return null;
+                                            if (expired) return <span className="text-[12px] font-[500] bg-[#FDEAEA] text-[#D32F2F] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                            if (urgent) return <span className="text-[12px] font-[500] bg-[#FFF8E1] text-[#B8860B] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                            return <span className="text-[12px] font-[500] bg-[#F0F1F3] text-[#5B5E68] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                        })()}
                                     </div>
                                     <span className="text-[#9B9DA3] text-[13px] shrink-0 ml-4">
                                         {getTimeAgo(request.createdAt)}

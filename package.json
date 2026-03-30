@@ -18,6 +18,7 @@
     "@statsig/web-analytics": "^3.32.0",
     "airtable": "^0.12.2",
     "bcryptjs": "^3.0.3",
+    "date-fns": "^4.1.0",
     "next": "16.1.5",
     "next-auth": "^4.24.13",
     "pusher": "^5.3.2",
