@@ -1,7 +1,8 @@
 import {GetServerSideProps} from "next";
 import {getServerSession} from "next-auth";
 import Link from "next/link";
-import {useState} from "react";
+import {useState, useEffect} from "react";
+import {useRouter} from "next/router";
 import {authOptions} from "./api/auth/[...nextauth]";
 import {getRequestsByUserEmail, getOffersCountByRequestIds} from "@/services";
 import type {RequestData, RequestStatus, Route} from "@/models";
@@ -30,7 +31,7 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; do
     published_offers: {label: "", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
     paid: {label: "Oplacone", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
     completed: {label: "Zakonczone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
-    cancelled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
+    canceled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
 };
 
 function getStatusInfo(status: RequestStatus, offersCount: number) {
@@ -72,10 +73,17 @@ const getTimeAgo = (dateString: string): string => {
 const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
 
 export default function MyRequestsPage({requests}: Props) {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("active");
 
+    useEffect(() => {
+        if (router.query.tab === "completed") {
+            setActiveTab("completed");
+        }
+    }, [router.query.tab]);
+
     const activeStatuses: RequestStatus[] = ["draft", "published", "paid"];
-    const completedStatuses: RequestStatus[] = ["completed", "cancelled"];
+    const completedStatuses: RequestStatus[] = ["completed", "canceled"];
 
     const activeRequests = requests.filter((r) => activeStatuses.includes(r.status));
     const completedRequests = requests.filter((r) => completedStatuses.includes(r.status));

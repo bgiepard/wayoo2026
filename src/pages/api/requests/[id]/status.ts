@@ -33,7 +33,7 @@ export default async function handler(
     return res.status(400).json({ error: "Missing request ID" });
   }
 
-  const validStatuses: RequestStatus[] = ["draft", "published", "paid", "completed", "cancelled"];
+  const validStatuses: RequestStatus[] = ["draft", "published", "paid", "completed", "canceled"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: "Invalid status" });
   }
@@ -102,8 +102,9 @@ export default async function handler(
     }
 
     return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error("Error updating request status:", error);
-    return res.status(500).json({ error: "Failed to update status" });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : JSON.stringify(error);
+    console.error("Error updating request status:", msg);
+    return res.status(500).json({ error: "Failed to update status", detail: msg });
   }
 }

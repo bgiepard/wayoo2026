@@ -41,6 +41,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
     const router = useRouter();
     const [offers, setOffers] = useState<OfferData[]>(initialOffers);
     const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
+    const [cancelError, setCancelError] = useState("");
 
     const openLightbox = (photos: string[], index: number) => setLightbox({photos, index});
     const closeLightbox = () => setLightbox(null);
@@ -94,6 +97,28 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
     }, [request.id, isRequestAccepted, fetchOffers]);
 
     const route = (() => { try { return JSON.parse(request.route); } catch { return null; } })();
+
+    const handleCancelRequest = async () => {
+        setIsCancelling(true);
+        setCancelError("");
+        try {
+            const res = await fetch(`/api/requests/${request.id}/status`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({status: "canceled"}),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setCancelError(data.detail || data.error || "Nie udało się anulować zapytania.");
+                setIsCancelling(false);
+                return;
+            }
+            router.push("/my-requests?tab=completed");
+        } catch {
+            setCancelError("Błąd sieci. Spróbuj ponownie.");
+            setIsCancelling(false);
+        }
+    };
 
     return (
         <main className="pb-12 px-4 max-w-[1250px] mx-auto">
@@ -362,6 +387,42 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                             Czekamy na kolejne oferty od przewoźników...
                         </p>
                     </div>
+                </div>
+            )}
+
+            {/* Anuluj zapytanie */}
+            {request.status === "published" && (
+                <div className="mt-16 flex justify-center">
+                    {showCancelConfirm ? (
+                        <div className="flex flex-col items-center gap-2">
+                            {cancelError && (
+                                <p className="text-[12px] text-red-600">{cancelError}</p>
+                            )}
+                            <div className="flex items-center gap-3 text-[14px]">
+                            <span className="text-[#5B5E68]">Na pewno anulować zapytanie?</span>
+                            <button
+                                onClick={handleCancelRequest}
+                                disabled={isCancelling}
+                                className="text-red-600 hover:text-red-800 font-[500] transition-colors disabled:opacity-50"
+                            >
+                                {isCancelling ? "Anulowanie..." : "Tak, anuluj"}
+                            </button>
+                            <button
+                                onClick={() => setShowCancelConfirm(false)}
+                                className="text-[#9B9DA3] hover:text-[#5B5E68] transition-colors"
+                            >
+                                Nie
+                            </button>
+                        </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setShowCancelConfirm(true)}
+                            className="text-[#9B9DA3] hover:text-red-500 text-[13px] transition-colors"
+                        >
+                            Anuluj zapytanie
+                        </button>
+                    )}
                 </div>
             )}
 

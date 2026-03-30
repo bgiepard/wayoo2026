@@ -29,7 +29,13 @@ export default function DraftDetailsPage() {
     const [isPublishing, setIsPublishing] = useState(false);
     const [options, setOptions] = useState<OptionsState>({});
     const [specialNotes, setSpecialNotes] = useState("");
-    const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | null>(null);
+    const [offerExpiresDate, setOfferExpiresDate] = useState(() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 2);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    });
+    const [offerExpiresTime, setOfferExpiresTime] = useState("23:59");
+    const [activeModal, setActiveModal] = useState<"route" | "datetime" | "passengers" | "offerExpiry" | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem("draft_request");
@@ -96,7 +102,7 @@ export default function DraftDetailsPage() {
             const res = await fetch("/api/requests", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(updatedData),
+                body: JSON.stringify({ ...updatedData, offerExpiresAt: `${offerExpiresDate}T${offerExpiresTime}:00.000Z` }),
             });
             const result = await res.json();
             if (res.ok) {
@@ -162,6 +168,27 @@ export default function DraftDetailsPage() {
                                 <span className="text-[#010101] text-[16px]">{label}</span>
                             </button>
                         ))}
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="text-[#5B5E68] text-[14px] font-[500] block mb-2">
+                            Ważność zapytania
+                        </label>
+                        <p className="text-[#9B9DA3] text-[13px] mb-3">Do kiedy kierowcy mogą składać oferty?</p>
+                        <button
+                            type="button"
+                            onClick={() => setActiveModal("offerExpiry")}
+                            className="flex items-center gap-3 w-full bg-[#FCFDFD] border border-[#D9DADC] rounded-[6px] px-4 py-3 text-[14px] text-[#010101] hover:border-[#9B9DA3] transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-[#9B9DA3] shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                            <span className={offerExpiresDate ? "text-[#010101]" : "text-[#9B9DA3]"}>
+                                {offerExpiresDate
+                                    ? `${offerExpiresDate} · ${offerExpiresTime}`
+                                    : "Wybierz datę i godzinę"}
+                            </span>
+                        </button>
                     </div>
 
                     <div>
@@ -236,6 +263,18 @@ export default function DraftDetailsPage() {
                 needsChildSeats={requestData.needsChildSeats}
                 childrenAges={requestData.childrenAges}
                 onSave={handlePassengersSave}
+                confirmLabel="Zapisz"
+            />
+
+            <DateTimeModal
+                isOpen={activeModal === "offerExpiry"}
+                onClose={() => setActiveModal(null)}
+                date={offerExpiresDate}
+                time={offerExpiresTime}
+                onSave={(date, time) => {
+                    setOfferExpiresDate(date);
+                    setOfferExpiresTime(time);
+                }}
                 confirmLabel="Zapisz"
             />
         </>

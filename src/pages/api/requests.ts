@@ -27,7 +27,7 @@ export default async function handler(
   const userId = user.id || "";
   const userEmail = user.email || "";
 
-  const { route, date, time, adults, children, options } = req.body;
+  const { route, date, time, adults, children, options, offerExpiresAt } = req.body;
 
   if (!route || !route.origin || !route.destination || !date || !time) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -41,6 +41,7 @@ export default async function handler(
       adults: adults || 1,
       children: children || 0,
       options: options || {},
+      offerExpiresAt: offerExpiresAt || undefined,
     });
 
     return res.status(201).json({ id: request.id });

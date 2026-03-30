@@ -111,7 +111,7 @@ export type RequestStatus =
   | 'published'  // Opublikowane, czeka na oferty
   | 'paid'       // Zapłacone
   | 'completed'  // Zakończone
-  | 'cancelled'; // Anulowane
+  | 'canceled'; // Anulowane
 
 export interface RequestData {
   id: string;
@@ -125,6 +125,7 @@ export interface RequestData {
   options: string; // JSON string
   status: RequestStatus;
   createdAt: string; // ISO string - data złożenia zlecenia
+  offerExpiresAt: string | null; // ISO string - data wygaśnięcia zapytania
 }
 
 export interface CreateRequestData {
@@ -134,6 +135,7 @@ export interface CreateRequestData {
   adults: number;
   children: number;
   options: Record<string, boolean>;
+  offerExpiresAt?: string; // ISO string - data wygaśnięcia zapytania
 }
 
 // --------------------------------------------
