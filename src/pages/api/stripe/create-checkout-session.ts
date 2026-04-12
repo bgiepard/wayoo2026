@@ -1,14 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-import Stripe from "stripe";
 import { getRequestById, getOffersByRequest } from "@/services";
 import { requestsTable } from "@/lib/airtable";
 import type { Route } from "@/models";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
 
 interface SessionUser {
   id?: string;
@@ -32,6 +27,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Brak requestId lub offerId" });
   }
 
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    console.error("[Stripe] Brak STRIPE_SECRET_KEY w zmiennych środowiskowych");
+    return res.status(500).json({ error: "Brak konfiguracji płatności" });
+  }
+
   // Pobierz zlecenie i zweryfikuj właściciela
   const request = await getRequestById(requestId);
   if (!request) {
@@ -45,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(403).json({ error: "Brak dostępu" });
   }
 
-  // Pobierz ofertę i zweryfikuj, że należy do tego zlecenia
+  // Pobierz ofertę
   const offers = await getOffersByRequest(requestId);
   const offer = offers.find((o) => o.id === offerId);
   if (!offer) {
@@ -59,44 +60,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const trasaOpis = `${origin} → ${destination}, ${request.date} ${request.time}`;
 
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const unitAmount = Math.round(offer.price * 100);
+
+  // Buduj URL-encoded body dla Stripe REST API (bez SDK)
+  const params = new URLSearchParams();
+  params.append("mode", "payment");
+  params.append("payment_method_types[0]", "card");
+  params.append("line_items[0][price_data][currency]", "pln");
+  params.append("line_items[0][price_data][unit_amount]", String(unitAmount));
+  params.append("line_items[0][price_data][product_data][name]", "Przejazd Wayoo");
+  params.append("line_items[0][price_data][product_data][description]", trasaOpis);
+  params.append("line_items[0][quantity]", "1");
+  params.append("metadata[requestId]", requestId);
+  params.append("metadata[offerId]", offerId);
+  params.append("success_url", `${baseUrl}/request/${requestId}/payment?session_id={CHECKOUT_SESSION_ID}&offerId=${offerId}`);
+  params.append("cancel_url", `${baseUrl}/request/${requestId}/payment?offerId=${offerId}&canceled=1`);
 
   try {
-    const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "pln",
-            unit_amount: Math.round(offer.price * 100), // Stripe wymaga groszy
-            product_data: {
-              name: `Przejazd Wayoo`,
-              description: trasaOpis,
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        requestId,
-        offerId,
+    const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      success_url: `${baseUrl}/request/${requestId}/payment?session_id={CHECKOUT_SESSION_ID}&offerId=${offerId}`,
-      cancel_url: `${baseUrl}/request/${requestId}/payment?offerId=${offerId}&canceled=1`,
+      body: params.toString(),
     });
 
-    // Zapisz stripeSessionId w Airtable (tabela Requests)
+    const data = await stripeRes.json() as any;
+
+    if (!stripeRes.ok) {
+      console.error("[Stripe] Błąd API:", data?.error);
+      return res.status(500).json({ error: "Nie udało się zainicjować płatności" });
+    }
+
+    // Zapisz stripeSessionId w Airtable
     await requestsTable.update(requestId, {
-      stripeSessionId: checkoutSession.id,
+      stripeSessionId: data.id,
     });
 
-    return res.status(200).json({ url: checkoutSession.url });
+    return res.status(200).json({ url: data.url });
   } catch (error: any) {
-    console.error("[Stripe] Błąd tworzenia sesji:", {
+    console.error("[Stripe] Błąd fetch:", {
       message: error?.message,
-      type: error?.type,
-      code: error?.code,
-      statusCode: error?.statusCode,
+      cause: error?.cause,
       raw: String(error),
     });
     return res.status(500).json({ error: "Nie udało się zainicjować płatności" });
