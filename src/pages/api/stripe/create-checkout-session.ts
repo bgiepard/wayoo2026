@@ -67,6 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   params.append("mode", "payment");
   params.append("payment_method_types[0]", "card");
   params.append("payment_method_types[1]", "p24");
+  params.append("payment_method_types[2]", "blik");
   params.append("line_items[0][price_data][currency]", "pln");
   params.append("line_items[0][price_data][unit_amount]", String(unitAmount));
   params.append("line_items[0][price_data][product_data][name]", "Przejazd Wayoo");
