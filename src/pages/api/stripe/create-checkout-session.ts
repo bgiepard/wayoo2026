@@ -91,9 +91,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     return res.status(200).json({ url: checkoutSession.url });
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("[Stripe] Błąd tworzenia sesji:", msg);
+  } catch (error: any) {
+    console.error("[Stripe] Błąd tworzenia sesji:", {
+      message: error?.message,
+      type: error?.type,
+      code: error?.code,
+      statusCode: error?.statusCode,
+      raw: String(error),
+    });
     return res.status(500).json({ error: "Nie udało się zainicjować płatności" });
   }
 }
