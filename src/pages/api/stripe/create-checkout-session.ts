@@ -7,7 +7,7 @@ import { requestsTable } from "@/lib/airtable";
 import type { Route } from "@/models";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2022-11-15" as any,
+  apiVersion: "2022-11-15",
 });
 
 interface SessionUser {
