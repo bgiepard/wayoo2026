@@ -1,6 +1,6 @@
 import {GetServerSideProps} from "next";
 import {useRouter} from "next/router";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {getRequestById, getOffersByRequest} from "@/services";
 import type {RequestData, OfferData, Route} from "@/models";
 import RequestSteps from "@/components/RequestSteps";
@@ -26,11 +26,46 @@ interface Props {
 
 export default function RequestPaymentPage({request: initialRequest, acceptedOffer}: Props) {
     const router = useRouter();
-    const { offerId } = router.query;
+    const { offerId, session_id, canceled } = router.query;
     const [request, setRequest] = useState(initialRequest);
     const [isPaying, setIsPaying] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [acceptCancellation, setAcceptCancellation] = useState(false);
+    const [processingPayment, setProcessingPayment] = useState(false);
+
+    // Po powrocie ze Stripe z session_id — webhook mógł jeszcze nie zaktualizować Airtable,
+    // więc pollujemy status przez chwilę
+    useEffect(() => {
+        if (!session_id || request.status === "paid" || request.status === "completed") return;
+
+        setProcessingPayment(true);
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        const interval = setInterval(async () => {
+            attempts++;
+            try {
+                const res = await fetch(`/api/requests/${request.id}/status-check`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === "paid" || data.status === "completed") {
+                        setRequest((prev) => ({...prev, status: data.status}));
+                        setProcessingPayment(false);
+                        clearInterval(interval);
+                    }
+                }
+            } catch {
+                // ignoruj błędy sieciowe podczas pollingu
+            }
+
+            if (attempts >= maxAttempts) {
+                setProcessingPayment(false);
+                clearInterval(interval);
+            }
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, [session_id]);
 
     const canPay = acceptTerms && acceptCancellation;
     const isRequestAccepted = ["published", "paid", "completed"].includes(request.status);
@@ -40,16 +75,19 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
     const handleMarkAsPaid = async () => {
         setIsPaying(true);
         try {
-            const res = await fetch(`/api/requests/${request.id}/status`, {
+            const res = await fetch("/api/stripe/create-checkout-session", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({status: "paid", offerId: offerId as string}),
+                body: JSON.stringify({requestId: request.id, offerId: offerId as string}),
             });
-            if (res.ok) {
-                setRequest({...request, status: "paid"});
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                console.error("Brak URL płatności:", data);
             }
         } catch (error) {
-            console.error("Error marking as paid:", error);
+            console.error("Błąd inicjowania płatności:", error);
         } finally {
             setIsPaying(false);
         }
@@ -94,6 +132,31 @@ export default function RequestPaymentPage({request: initialRequest, acceptedOff
                     </svg>
                     Powrót do ofert
                 </button>
+
+                {/* Banner - przetwarzanie płatności (po powrocie ze Stripe, przed webhookiem) */}
+                {processingPayment && (
+                    <div className="bg-[#EEF2FF] rounded-[2px] px-4 py-2 flex items-center gap-3 border border-[#0B298F]">
+                        <svg className="animate-spin shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#0B298F" strokeWidth="2" strokeDasharray="32" strokeDashoffset="12"/>
+                        </svg>
+                        <span className="text-[#0B298F] text-[14px]">
+                            Przetwarzamy Twoją płatność… To może chwilę potrwać.
+                        </span>
+                    </div>
+                )}
+
+                {/* Banner - płatność anulowana */}
+                {canceled && !isPaid && (
+                    <div className="bg-[#FFF3F3] rounded-[2px] px-4 py-2 flex items-center gap-3 border border-[#E53935]">
+                        <svg className="shrink-0" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 18.3333C14.6024 18.3333 18.3334 14.6024 18.3334 10C18.3334 5.39763 14.6024 1.66667 10 1.66667C5.39765 1.66667 1.66669 5.39763 1.66669 10C1.66669 14.6024 5.39765 18.3333 10 18.3333Z" stroke="#E53935" strokeWidth="1.5"/>
+                            <path d="M12.5 7.5L7.5 12.5M7.5 7.5L12.5 12.5" stroke="#E53935" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <span className="text-[#E53935] text-[14px]">
+                            Płatność została anulowana. Możesz spróbować ponownie.
+                        </span>
+                    </div>
+                )}
 
                 {/* Sukces - banner po opłaceniu */}
                 {isPaid && (
