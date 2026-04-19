@@ -106,5 +106,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
+  // Sesja Stripe wygasła (użytkownik nie dokończył płatności w wyznaczonym czasie)
+  if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const { requestId, offerId } = session.metadata || {};
+
+    console.log("[Stripe webhook] Sesja wygasła:", {
+      sessionId: session.id,
+      requestId,
+      offerId,
+    });
+  }
+
   return res.status(200).json({ received: true });
 }
