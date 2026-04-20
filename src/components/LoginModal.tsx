@@ -73,7 +73,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
       resetForm();
       onClose();
     } catch {
-      setError("Blad podczas rejestracji");
+      setError("Błąd podczas rejestracji");
     }
   };
 

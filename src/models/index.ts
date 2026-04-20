@@ -13,6 +13,7 @@ export interface User {
   id: string;
   email: string;
   emailVerified: boolean;
+  emailVerifyTokenExpiresAt?: string | null;
   firstName: string;
   lastName: string;
   phone?: string;

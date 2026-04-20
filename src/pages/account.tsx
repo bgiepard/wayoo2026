@@ -21,6 +21,20 @@ const providerLabels: Record<string, string> = {
 
 export default function AccountPage({user}: Props) {
     const [activeTab, setActiveTab] = useState<Tab>("account");
+
+    // Email verification
+    const [sendingVerification, setSendingVerification] = useState(false);
+    const [verificationSent, setVerificationSent] = useState(false);
+    const [verificationError, setVerificationError] = useState("");
+
+    // Phone verification
+    const [phoneVerified, setPhoneVerified] = useState(user.phoneVerified);
+    const [sendingCode, setSendingCode] = useState(false);
+    const [codeSent, setCodeSent] = useState(false);
+    const [smsCode, setSmsCode] = useState("");
+    const [verifyingCode, setVerifyingCode] = useState(false);
+    const [smsError, setSmsError] = useState("");
+
     const [notifications, setNotifications] = useState({
         email: false,
         push: false,
@@ -33,6 +47,75 @@ export default function AccountPage({user}: Props) {
 
     const handleLogout = () => {
         signOut({callbackUrl: "/"});
+    };
+
+    const handleSendPhoneCode = async () => {
+        setSendingCode(true);
+        setSmsError("");
+        try {
+            const res = await fetch("/api/auth/send-phone-code", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({phone: user.phone}),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setCodeSent(true);
+            } else {
+                setSmsError(data.error || "Nie udało się wysłać kodu.");
+            }
+        } catch {
+            setSmsError("Błąd sieci. Spróbuj ponownie.");
+        } finally {
+            setSendingCode(false);
+        }
+    };
+
+    const handleVerifyPhoneCode = async () => {
+        if (smsCode.length < 4) return;
+        setVerifyingCode(true);
+        setSmsError("");
+        try {
+            const res = await fetch("/api/auth/verify-phone-code", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({phone: user.phone, code: smsCode}),
+            });
+            const data = await res.json();
+            if (res.ok && data.verified) {
+                setPhoneVerified(true);
+                setCodeSent(false);
+                setSmsCode("");
+            } else {
+                setSmsError(data.error || "Nieprawidłowy kod.");
+            }
+        } catch {
+            setSmsError("Błąd sieci. Spróbuj ponownie.");
+        } finally {
+            setVerifyingCode(false);
+        }
+    };
+
+    const handleSendVerification = async () => {
+        setSendingVerification(true);
+        setVerificationError("");
+        try {
+            const res = await fetch("/api/auth/resend-verification", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email: user.email}),
+            });
+            if (res.ok) {
+                setVerificationSent(true);
+            } else {
+                const data = await res.json();
+                setVerificationError(data.error || "Nie udało się wysłać emaila.");
+            }
+        } catch {
+            setVerificationError("Błąd sieci. Spróbuj ponownie.");
+        } finally {
+            setSendingVerification(false);
+        }
     };
 
     const initials = [user.firstName?.[0], user.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "?";
@@ -154,9 +237,22 @@ export default function AccountPage({user}: Props) {
                                             )}
                                         </div>
                                         {!user.emailVerified && (
-                                            <button className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity">
-                                                Wyslij link weryfikacyjny
-                                            </button>
+                                            verificationSent ? (
+                                                <p className="text-[#01A83D] text-[13px] mt-2">Email weryfikacyjny wysłany. Sprawdź skrzynkę.</p>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={handleSendVerification}
+                                                        disabled={sendingVerification}
+                                                        className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                                                    >
+                                                        {sendingVerification ? "Wysyłanie..." : "Wyślij link weryfikacyjny"}
+                                                    </button>
+                                                    {verificationError && (
+                                                        <p className="text-[#D32F2F] text-[13px] mt-1">{verificationError}</p>
+                                                    )}
+                                                </>
+                                            )
                                         )}
                                     </div>
 
@@ -167,7 +263,7 @@ export default function AccountPage({user}: Props) {
                                             <>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-[#010101] text-[16px] font-[600]">{user.phone}</span>
-                                                    {user.phoneVerified ? (
+                                                    {phoneVerified ? (
                                                         <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-[#E6F6EC] text-[#01A83D] font-[500] border border-[#A3DFB8]">
                                                             Zweryfikowany
                                                         </span>
@@ -177,19 +273,49 @@ export default function AccountPage({user}: Props) {
                                                         </span>
                                                     )}
                                                 </div>
-                                                {!user.phoneVerified && (
-                                                    <button className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity">
-                                                        Wyslij kod SMS
+                                                {!phoneVerified && !codeSent && (
+                                                    <button
+                                                        onClick={handleSendPhoneCode}
+                                                        disabled={sendingCode}
+                                                        className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                                                    >
+                                                        {sendingCode ? "Wysyłanie..." : "Wyślij kod SMS"}
                                                     </button>
+                                                )}
+                                                {!phoneVerified && codeSent && (
+                                                    <div className="mt-3 flex flex-col gap-2">
+                                                        <p className="text-[#5B5E68] text-[13px]">Wpisz 6-cyfrowy kod z SMS:</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="text"
+                                                                inputMode="numeric"
+                                                                maxLength={6}
+                                                                value={smsCode}
+                                                                onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, ""))}
+                                                                placeholder="000000"
+                                                                className="w-[120px] border border-[#D9DADC] rounded-[8px] px-3 py-2 text-[16px] font-[600] tracking-widest text-center focus:outline-none focus:border-[#0B298F]"
+                                                            />
+                                                            <button
+                                                                onClick={handleVerifyPhoneCode}
+                                                                disabled={verifyingCode || smsCode.length < 4}
+                                                                className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-4 py-2 rounded-[8px] text-[13px] font-[500] transition-colors disabled:opacity-50"
+                                                            >
+                                                                {verifyingCode ? "Sprawdzanie..." : "Zweryfikuj"}
+                                                            </button>
+                                                            <button
+                                                                onClick={handleSendPhoneCode}
+                                                                disabled={sendingCode}
+                                                                className="text-[#9B9DA3] text-[13px] hover:text-[#5B5E68] transition-colors disabled:opacity-50"
+                                                            >
+                                                                Wyślij ponownie
+                                                            </button>
+                                                        </div>
+                                                        {smsError && <p className="text-[#D32F2F] text-[13px]">{smsError}</p>}
+                                                    </div>
                                                 )}
                                             </>
                                         ) : (
-                                            <>
-                                                <span className="text-[#9B9DA3] text-[16px]">Nie podano</span>
-                                                <button className="block text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity">
-                                                    Dodaj numer telefonu
-                                                </button>
-                                            </>
+                                            <span className="text-[#9B9DA3] text-[16px]">Nie podano</span>
                                         )}
                                     </div>
 

@@ -9,6 +9,7 @@ function mapRecordToUser(record: AirtableRecord<FieldSet>): User {
     id: record.id,
     email: record.get("email") as string,
     emailVerified: (record.get("emailVerified") as boolean) || false,
+    emailVerifyTokenExpiresAt: (record.get("emailVerifyTokenExpiresAt") as string) || null,
     firstName: (record.get("firstName") as string) || "",
     lastName: (record.get("lastName") as string) || "",
     phone: record.get("phone") as string | undefined,
@@ -64,6 +65,38 @@ export async function verifyPassword(
   hashedPassword: string
 ): Promise<boolean> {
   return bcrypt.compare(plainPassword, hashedPassword);
+}
+
+export async function setEmailVerifyToken(userId: string, token: string): Promise<void> {
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  await usersTable.update(userId, {
+    emailVerifyToken: token,
+    emailVerifyTokenExpiresAt: expiresAt,
+  });
+}
+
+export async function findUserByVerifyToken(token: string): Promise<User | null> {
+  const records = await usersTable
+    .select({
+      filterByFormula: `{emailVerifyToken} = '${token}'`,
+      maxRecords: 1,
+    })
+    .firstPage();
+
+  if (records.length === 0) return null;
+  return mapRecordToUser(records[0]);
+}
+
+export async function markEmailAsVerified(userId: string): Promise<void> {
+  await usersTable.update(userId, {
+    emailVerified: true,
+    emailVerifyToken: "",
+    emailVerifyTokenExpiresAt: "",
+  });
+}
+
+export async function markPhoneAsVerified(userId: string): Promise<void> {
+  await usersTable.update(userId, { phoneVerified: true });
 }
 
 export async function findOrCreateUserByOAuth(data: {
