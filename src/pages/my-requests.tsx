@@ -31,8 +31,8 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; do
     draft: {label: "Wersja robocza", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#9B9DA3]", border: "border-[#D9DADC]"},
     published_waiting: {label: "Oczekuje na oferty", bg: "bg-[#FFF8E1]", text: "text-[#B8860B]", dot: "bg-[#B8860B]", border: "border-[#E6D08A]"},
     published_offers: {label: "", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
-    paid: {label: "Oplacone", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
-    completed: {label: "Zakonczone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
+    paid: {label: "Opłacone", bg: "bg-[#01A83D]", text: "text-white", dot: "bg-white", border: "border-[#01A83D]"},
+    completed: {label: "Zakończone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
     canceled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
 };
 
@@ -66,9 +66,9 @@ const getTimeAgo = (dateString: string): string => {
     if (diffMinutes < 60) {
         return `${diffMinutes} min temu`;
     } else if (diffHours < 24) {
-        return `${diffHours} ${diffHours === 1 ? "godzine" : diffHours < 5 ? "godziny" : "godzin"} temu`;
+        return `${diffHours} ${diffHours === 1 ? "godzinę" : diffHours < 5 ? "godziny" : "godzin"} temu`;
     } else {
-        return `${diffDays} ${diffDays === 1 ? "dzien" : "dni"} temu`;
+        return `${diffDays} ${diffDays === 1 ? "dzień" : "dni"} temu`;
     }
 };
 
@@ -109,7 +109,7 @@ export default function MyRequestsPage({requests}: Props) {
                     Moje zapytania
                 </h1>
                 <h2 className="text-center text-[#5B5E68] text-[16px] font-[400]">
-                    Przegladaj swoje zlecenia transportowe i sprawdzaj oferty przewoznikow.
+                    Przeglądaj swoje zlecenia transportowe i sprawdzaj oferty przewoźników.
                 </h2>
             </div>
 
@@ -136,7 +136,7 @@ export default function MyRequestsPage({requests}: Props) {
                             : "text-[#9B9DA3] hover:text-[#5B5E68]"
                     }`}
                 >
-                    Zakonczone ({completedRequests.length})
+                    Zakończone ({completedRequests.length})
                     {activeTab === "completed" && (
                         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0B298F]"/>
                     )}
@@ -152,19 +152,19 @@ export default function MyRequestsPage({requests}: Props) {
                         </svg>
                     </div>
                     <p className="text-[#010101] text-[18px] font-[500] mb-2">
-                        {activeTab === "active" ? "Brak aktywnych zapytan" : "Brak zakonczonych zapytan"}
+                        {activeTab === "active" ? "Brak aktywnych zapytań" : "Brak zakończonych zapytań"}
                     </p>
                     <p className="text-[#5B5E68] text-[14px] max-w-[360px] mx-auto">
                         {activeTab === "active"
-                            ? "Zloz nowe zapytanie transportowe, a oferty pojawia sie tutaj."
-                            : "Twoje zakonczone i anulowane zlecenia pojawia sie tutaj."}
+                            ? "Złóż nowe zapytanie transportowe, a oferty pojawią się tutaj."
+                            : "Twoje zakończone i anulowane zlecenia pojawią się tutaj."}
                     </p>
                     {activeTab === "active" && (
                         <Link
                             href="/"
                             className="inline-block mt-6 bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors"
                         >
-                            Zloz zapytanie
+                            Złóż zapytanie
                         </Link>
                     )}
                 </div>
