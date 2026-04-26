@@ -110,7 +110,7 @@ export const emptyRoute: Route = {
 export type RequestStatus =
   | 'draft'      // Wersja robocza
   | 'published'  // Opublikowane, czeka na oferty
-  | 'paid'       // Zapłacone
+  | 'accepted'   // Oferta wybrana przez pasażera
   | 'completed'  // Zakończone
   | 'canceled'; // Anulowane
 
@@ -144,7 +144,7 @@ export interface CreateRequestData {
 // --------------------------------------------
 export type OfferStatus =
   | 'new'       // Nowa oferta, oczekuje na decyzję
-  | 'paid'      // Opłacona
+  | 'accepted'  // Wybrana przez pasażera
   | 'canceled'  // Anulowana przez kierowcę
   | 'rejected'; // Odrzucona (gdy inna oferta została zaakceptowana)
 

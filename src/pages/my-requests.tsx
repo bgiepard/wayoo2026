@@ -93,7 +93,7 @@ export default function MyRequestsPage({requests}: Props) {
         }
     }, [router.query.tab]);
 
-    const activeStatuses: RequestStatus[] = ["draft", "published", "paid"];
+    const activeStatuses: RequestStatus[] = ["draft", "published", "accepted"];
     const completedStatuses: RequestStatus[] = ["completed", "canceled"];
 
     const activeRequests = requests.filter((r) => activeStatuses.includes(r.status));

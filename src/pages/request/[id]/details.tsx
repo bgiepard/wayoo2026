@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function RequestDetailsPage({request}: Props) {
-    const isRequestAccepted = ["paid", "completed"].includes(request.status);
+    const isRequestAccepted = ["accepted", "completed"].includes(request.status);
     const options: Record<string, boolean> = JSON.parse(request.options || "{}");
     const route: Route = JSON.parse(request.route || "{}");
 

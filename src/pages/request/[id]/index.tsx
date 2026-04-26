@@ -18,12 +18,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   const status = String(request.status || "").toLowerCase();
 
-  // Przekierowanie w zaleznosci od statusu
-  let destination = `/request/${id}/offers`;
-
-  if (["paid", "completed"].includes(status)) {
-    destination = `/request/${id}/payment`;
-  }
+  // Zawsze przekieruj na stronę ofert (accepted/completed też tam trafiają)
+  const destination = `/request/${id}/offers`;
 
   return {
     redirect: {

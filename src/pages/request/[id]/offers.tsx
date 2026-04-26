@@ -7,21 +7,6 @@ import RequestSteps from "@/components/RequestSteps";
 import {getPusherClient, type NewOfferEvent} from "@/lib/pusher-client";
 import {ChevronLeftIcon, ChevronRightIcon, CloseIcon} from "@/components/icons";
 
-function maskName(name?: string): string {
-    if (!name) return "Kierowca";
-    const parts = name.trim().split(" ");
-    if (parts.length === 1) {
-        const firstName = parts[0];
-        if (firstName.length <= 2) return firstName + "***";
-        return firstName[0] + firstName[1] + "***";
-    }
-    const firstName = parts[0];
-    const lastName = parts[parts.length - 1];
-    const maskedFirst = firstName.length > 2 ? firstName[0] + firstName[1] + "***" : firstName + "***";
-    const maskedLast = lastName.length > 1 ? lastName[0] + "***" : "***";
-    return `${maskedFirst} ${maskedLast}`;
-}
-
 const vehicleTypeLabels: Record<string, string> = {
     bus: "Autobus",
     minibus: "Minibus",
@@ -30,7 +15,12 @@ const vehicleTypeLabels: Record<string, string> = {
 };
 
 const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
-const card = "bg-white rounded-[8px] border border-[#D9DADC]";
+
+interface DriverContact {
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+}
 
 interface Props {
     request: RequestData;
@@ -44,6 +34,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
     const [cancelError, setCancelError] = useState("");
+    const [acceptingOfferId, setAcceptingOfferId] = useState<string | null>(null);
+    const [acceptError, setAcceptError] = useState("");
+    const [driverContact, setDriverContact] = useState<DriverContact | null>(null);
 
     const openLightbox = (photos: string[], index: number) => setLightbox({photos, index});
     const closeLightbox = () => setLightbox(null);
@@ -58,8 +51,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         setLightbox({...lightbox, index: (lightbox.index + 1) % lightbox.photos.length});
     };
 
-    const isRequestAccepted = ["paid", "completed"].includes(request.status);
-    const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "paid") : null;
+    const isRequestAccepted = ["accepted", "completed"].includes(request.status);
+    const acceptedOffer = isRequestAccepted ? offers.find((o) => o.status === "accepted") : null;
     const pendingOffers = offers.filter((o) => o.status === "new");
 
     const fetchOffers = useCallback(async () => {
@@ -74,7 +67,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         }
     }, [request.id]);
 
-    // Pusher real-time + polling jako fallback
     useEffect(() => {
         if (isRequestAccepted) return;
 
@@ -87,7 +79,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
 
         channel.bind("new-offer", handler);
 
-        // Polling co 15s jako fallback gdyby Pusher nie dostarczyl eventu
         const interval = setInterval(fetchOffers, 15000);
 
         return () => {
@@ -120,6 +111,30 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
         }
     };
 
+    const handleAcceptOffer = async (offerId: string) => {
+        setAcceptingOfferId(offerId);
+        setAcceptError("");
+        try {
+            const res = await fetch(`/api/requests/${request.id}/accept-offer`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({offerId}),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setAcceptError(data.error || "Nie udało się wybrać oferty.");
+                setAcceptingOfferId(null);
+                return;
+            }
+            setDriverContact(data.driver);
+            await fetchOffers();
+        } catch {
+            setAcceptError("Błąd sieci. Spróbuj ponownie.");
+        } finally {
+            setAcceptingOfferId(null);
+        }
+    };
+
     return (
         <main className="pb-12 px-4 max-w-[1250px] mx-auto">
             <RequestSteps
@@ -128,13 +143,13 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                 hasAcceptedOffer={isRequestAccepted}
             />
 
-            {acceptedOffer ? (
+            {isRequestAccepted ? (
                 <>
                     <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
-                        Przejazd opłacony
+                        Oferta wybrana
                     </h1>
                     <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-6">
-                        Dziękujemy za opłacenie przejazdu.
+                        Skontaktuj się bezpośrednio z kierowcą.
                     </h2>
                 </>
             ) : pendingOffers.length > 0 ? (
@@ -152,7 +167,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
 
             {/* Szczegóły trasy */}
             <div className="bg-[#E7EAF4] rounded-[8px] border border-[#D9DADC] p-6 my-16 grid grid-cols-1 sm:grid-cols-4 gap-6">
-                {/* Trasa */}
                 {route && (
                     <div className="flex items-start gap-3 sm:col-span-2">
                         <div className="shrink-0 mt-0.5">
@@ -175,7 +189,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     </div>
                 )}
 
-                {/* Data i godzina */}
                 <div className="flex items-start gap-3">
                     <div className="shrink-0 mt-0.5">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -189,7 +202,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     </div>
                 </div>
 
-                {/* Pasażerowie */}
                 <div className="flex items-start gap-3">
                     <div className="shrink-0 mt-0.5">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -214,7 +226,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             {/* Zaakceptowana oferta */}
             {acceptedOffer && (
                 <div className="bg-[#E6F6EC] rounded-[8px] p-8 border border-[#01A83D]">
-                    {/* Pojazd */}
                     {acceptedOffer.vehicle && (
                         <div className="flex gap-5 mb-6 pb-6 border-b border-[#01A83D]/20">
                             {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
@@ -253,8 +264,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         </div>
                     )}
 
-                    {/* Kierowca + cena */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
                             <div className="w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center shrink-0">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -264,15 +274,40 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                             </div>
                             <div>
                                 <p className="text-[#010101] text-[16px] font-[600]">{acceptedOffer.driverName || "Nieznany"}</p>
-                                {acceptedOffer.driverPhone && (
-                                    <p className="text-[#5B5E68] text-[14px] mt-0.5">{acceptedOffer.driverPhone}</p>
-                                )}
                             </div>
                         </div>
                         <p className="text-[#010101] text-[28px] font-[600] leading-tight shrink-0">{acceptedOffer.price} PLN</p>
                     </div>
 
-                    {/* Wiadomość kierowcy */}
+                    {/* Dane kontaktowe kierowcy */}
+                    {driverContact && (
+                        <div className="bg-white rounded-[8px] p-4 border border-[#01A83D]/30 mt-2">
+                            <p className="text-[12px] text-[#5B5E68] font-[500] uppercase tracking-wide mb-3">Dane kontaktowe kierowcy</p>
+                            <div className="flex flex-col gap-2">
+                                {driverContact.name && (
+                                    <p className="text-[15px] font-[600] text-[#010101]">{driverContact.name}</p>
+                                )}
+                                {driverContact.phone && (
+                                    <a href={`tel:${driverContact.phone}`} className="flex items-center gap-2 text-[#0B298F] text-[15px] font-[500] hover:underline">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 10.82 19.79 19.79 0 01.77 2.18 2 2 0 012.75 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.28-1.28a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                        {driverContact.phone}
+                                    </a>
+                                )}
+                                {driverContact.email && (
+                                    <a href={`mailto:${driverContact.email}`} className="flex items-center gap-2 text-[#0B298F] text-[15px] font-[500] hover:underline">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <polyline points="22,6 12,13 2,6" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                        {driverContact.email}
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {acceptedOffer.message && (
                         <div className="mt-4 bg-white/60 rounded-[6px] px-4 py-3">
                             <p className="text-[#5B5E68] text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
@@ -293,15 +328,17 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             )}
 
             {/* Lista ofert do wyboru */}
-            {!acceptedOffer && pendingOffers.length > 0 && (
+            {!isRequestAccepted && pendingOffers.length > 0 && (
                 <div>
+                    {acceptError && (
+                        <p className="text-red-600 text-[13px] text-center mb-4">{acceptError}</p>
+                    )}
                     <div className="flex flex-col gap-6">
                         {pendingOffers.map((offer) => (
                             <div key={offer.id} className="rounded-[8px] border border-[#D9DADC] overflow-hidden">
                                 {/* Górna sekcja: pojazd + zdjęcia */}
                                 {offer.vehicle && (
                                     <div className="bg-white p-6 flex gap-6 items-start">
-                                        {/* Lewa: szczegóły pojazdu + wiadomość */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
@@ -328,7 +365,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                             </div>
                                         </div>
 
-                                        {/* Prawa: zdjęcia w rzędzie */}
                                         {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
                                             <div className="flex gap-2 shrink-0">
                                                 {offer.vehicle.photos.slice(0, 3).map((photo, idx) => (
@@ -350,7 +386,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                     </div>
                                 )}
 
-                                {/* Dolna sekcja: kierowca + cena */}
+                                {/* Dolna sekcja: kierowca + cena + przycisk */}
                                 <div className="bg-[#F5F5F5] px-6 py-4 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="w-[40px] h-[40px] rounded-full bg-[#D9DADC] flex items-center justify-center shrink-0">
@@ -360,19 +396,19 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                             </svg>
                                         </div>
                                         <div>
-                                            <p className="text-[14px] font-[600] text-[#010101]">{maskName(offer.driverName)}</p>
                                             {offer.message && (
-                                                <p className="text-[13px] text-[#5B5E68]">Wiadomość dodatkowa: <span className="italic">&quot;{offer.message}&quot;</span></p>
+                                                <p className="text-[13px] text-[#5B5E68]">Wiadomość: <span className="italic">&quot;{offer.message}&quot;</span></p>
                                             )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 shrink-0">
                                         <p className="text-[#0B298F] text-[24px] font-[600] leading-tight">{offer.price} zł</p>
                                         <button
-                                            onClick={() => router.push(`/request/${request.id}/payment?offerId=${offer.id}`)}
-                                            className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-6 py-3 rounded-xl font-[500] text-[14px] transition-colors"
+                                            onClick={() => handleAcceptOffer(offer.id)}
+                                            disabled={acceptingOfferId !== null}
+                                            className="bg-[#0B298F] hover:bg-[#091F6B] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-[600] text-[14px] transition-colors"
                                         >
-                                            Wybierz i zapłać
+                                            {acceptingOfferId === offer.id ? "Wybieranie..." : "WYBIERAM OFERTĘ"}
                                         </button>
                                     </div>
                                 </div>
@@ -380,7 +416,6 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         ))}
                     </div>
 
-                    {/* Loader - oczekiwanie na kolejne oferty */}
                     <div className="my-16 flex flex-col items-center gap-3 text-center">
                         <div className="w-8 h-8 border-[2px] border-[#D9DADC] border-t-[#0B298F] rounded-full animate-spin"/>
                         <p className="text-[#5B5E68] text-[14px]">
@@ -399,21 +434,21 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 <p className="text-[12px] text-red-600">{cancelError}</p>
                             )}
                             <div className="flex items-center gap-3 text-[14px]">
-                            <span className="text-[#5B5E68]">Na pewno anulować zapytanie?</span>
-                            <button
-                                onClick={handleCancelRequest}
-                                disabled={isCancelling}
-                                className="text-red-600 hover:text-red-800 font-[500] transition-colors disabled:opacity-50"
-                            >
-                                {isCancelling ? "Anulowanie..." : "Tak, anuluj"}
-                            </button>
-                            <button
-                                onClick={() => setShowCancelConfirm(false)}
-                                className="text-[#9B9DA3] hover:text-[#5B5E68] transition-colors"
-                            >
-                                Nie
-                            </button>
-                        </div>
+                                <span className="text-[#5B5E68]">Na pewno anulować zapytanie?</span>
+                                <button
+                                    onClick={handleCancelRequest}
+                                    disabled={isCancelling}
+                                    className="text-red-600 hover:text-red-800 font-[500] transition-colors disabled:opacity-50"
+                                >
+                                    {isCancelling ? "Anulowanie..." : "Tak, anuluj"}
+                                </button>
+                                <button
+                                    onClick={() => setShowCancelConfirm(false)}
+                                    className="text-[#9B9DA3] hover:text-[#5B5E68] transition-colors"
+                                >
+                                    Nie
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <button
@@ -469,6 +504,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({params}) =>
     const offers = await getOffersByRequest(id);
 
     const initialOffers = offers.map((offer) => {
+        const isAccepted = offer.status === "accepted";
+
         const baseOffer = {
             id: offer.id,
             requestId: offer.requestId,
@@ -476,9 +513,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({params}) =>
             price: offer.price,
             status: offer.status,
             message: offer.message || "",
-            driverName: offer.driverName || "",
-            driverEmail: offer.driverEmail || "",
-            driverPhone: offer.driverPhone || "",
+            // Dane kontaktowe widoczne tylko dla zaakceptowanej oferty (przy powrocie na stronę)
+            driverName: isAccepted ? (offer.driverName || "") : "",
+            driverEmail: "",
+            driverPhone: "",
         };
 
         if (offer.vehicle) {

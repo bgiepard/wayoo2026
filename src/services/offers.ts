@@ -100,11 +100,9 @@ export async function getOffersCountByRequestIds(
   return counts;
 }
 
-export async function markOfferAsPaid(requestId: string, offerId: string): Promise<void> {
-  // Ustaw status wybranej oferty na "paid"
-  await offersTable.update(offerId, { status: "paid" });
+export async function acceptOffer(requestId: string, offerId: string): Promise<void> {
+  await offersTable.update(offerId, { status: "accepted" });
 
-  // Odrzuć pozostałe oferty (status "new") na to samo zlecenie
   const allOffers = await offersTable.select().all();
 
   for (const record of allOffers) {
