@@ -18,8 +18,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   const status = String(request.status || "").toLowerCase();
 
-  // Zawsze przekieruj na stronę ofert (accepted/completed też tam trafiają)
-  const destination = `/request/${id}/offers`;
+  // Dla zaakceptowanych i ukończonych — szczegóły transportu; pozostałe — oferty
+  const destination = ["accepted", "completed"].includes(status)
+    ? `/request/${id}/transport`
+    : `/request/${id}/offers`;
 
   return {
     redirect: {

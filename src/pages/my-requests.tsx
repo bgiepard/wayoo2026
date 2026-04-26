@@ -31,7 +31,7 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; do
     draft: {label: "Wersja robocza", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#9B9DA3]", border: "border-[#D9DADC]"},
     published_waiting: {label: "Oczekuje na oferty", bg: "bg-[#FFF8E1]", text: "text-[#B8860B]", dot: "bg-[#B8860B]", border: "border-[#E6D08A]"},
     published_offers: {label: "", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
-    paid: {label: "Opłacone", bg: "bg-[#01A83D]", text: "text-white", dot: "bg-white", border: "border-[#01A83D]"},
+    accepted: {label: "Kierowca wybrany", bg: "bg-[#EEF2FF]", text: "text-[#0B298F]", dot: "bg-[#0B298F]", border: "border-[#C7D2FE]"},
     completed: {label: "Zakończone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
     canceled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
 };

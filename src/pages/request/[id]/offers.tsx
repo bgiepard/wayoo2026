@@ -126,8 +126,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                 setAcceptingOfferId(null);
                 return;
             }
-            setDriverContact(data.driver);
-            await fetchOffers();
+            await router.push(`/request/${request.id}/transport`);
         } catch {
             setAcceptError("Błąd sieci. Spróbuj ponownie.");
         } finally {
@@ -396,6 +395,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                             </svg>
                                         </div>
                                         <div>
+                                            {offer.driverName && (
+                                                <p className="text-[14px] font-[600] text-[#010101]">{offer.driverName}</p>
+                                            )}
                                             {offer.message && (
                                                 <p className="text-[13px] text-[#5B5E68]">Wiadomość: <span className="italic">&quot;{offer.message}&quot;</span></p>
                                             )}
@@ -501,6 +503,15 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({params}) =>
         return {notFound: true};
     }
 
+    if (["accepted", "completed"].includes(request.status)) {
+        return {
+            redirect: {
+                destination: `/request/${id}/transport`,
+                permanent: false,
+            },
+        };
+    }
+
     const offers = await getOffersByRequest(id);
 
     const initialOffers = offers.map((offer) => {
@@ -513,8 +524,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({params}) =>
             price: offer.price,
             status: offer.status,
             message: offer.message || "",
-            // Dane kontaktowe widoczne tylko dla zaakceptowanej oferty (przy powrocie na stronę)
-            driverName: isAccepted ? (offer.driverName || "") : "",
+            driverName: offer.driverName || "",
             driverEmail: "",
             driverPhone: "",
         };
