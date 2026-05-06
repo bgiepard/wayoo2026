@@ -143,9 +143,9 @@ export default function TransportDetailsPage({ request, offer }: Props) {
                                             className={`relative overflow-hidden hover:opacity-90 transition-opacity border-r border-white last:border-0 ${idx === 0 ? "flex-[2]" : "flex-1"}`}
                                         >
                                             <img src={photo} alt="" className="w-full h-full object-cover" />
-                                            {idx === 3 && offer.vehicle.photos.length > 4 && (
+                                            {idx === 3 && (offer.vehicle?.photos.length ?? 0) > 4 && (
                                                 <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-white text-[18px] font-[700]">
-                                                    +{offer.vehicle.photos.length - 4}
+                                                    +{(offer.vehicle?.photos.length ?? 0) - 4}
                                                 </div>
                                             )}
                                         </button>
