@@ -1,20 +1,12 @@
 import {type ReactNode} from "react";
 import type {Route} from "@/models";
-import {
-    DraftOriginIcon,
-    DraftWaypointIcon,
-    DraftDestinationIcon,
-    DraftCalendarIcon,
-    DraftClockIcon,
-    DraftUsersIcon,
-    DraftChildSeatIcon,
-    DraftEditIcon,
-} from "@/components/icons";
+import {DraftEditIcon} from "@/components/icons";
 import {formatDatePL} from "@/lib/formatDate";
 import RequestSteps from "@/components/RequestSteps";
 import RouteMap from "@/components/RouteMap";
+import {Calendar, Clock, Group, Crib} from "iconoir-react";
 
-// === Shared styles ===
+// === Shared styles (kept for external use) ===
 
 export const detailsStyles = {
     card: "bg-white rounded-[8px] p-8 border border-[#D9DADC]",
@@ -25,8 +17,6 @@ export const detailsStyles = {
     rowLabel: "text-[#5B5E68] text-[14px] block mb-0.5",
     rowValue: "text-[#010101] text-[16px] font-[600]",
 };
-
-// === Shared sub-components ===
 
 export function DataRow({icon, label, value}: {icon: ReactNode; label: string; value: ReactNode}) {
     return (
@@ -84,6 +74,10 @@ interface RequestDetailsLayoutProps {
     children?: ReactNode;
 }
 
+const iconCircle = "w-[40px] h-[40px] rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0";
+const rowLabel = "text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-0.5";
+const rowValue = "text-[#010101] text-[15px] font-[600]";
+
 export default function RequestDetailsLayout({
     route,
     date,
@@ -123,34 +117,101 @@ export default function RequestDetailsLayout({
                     <RouteMap route={route} height="600px" lightTheme/>
                 </div>
                 <div className="order-2 md:order-1 w-full md:w-[680px] shrink-0 flex flex-col gap-6">
+
                     {/* Punkty na trasie */}
                     <section className={detailsStyles.card}>
                         <CardHeader title="Punkty na trasie" editLabel="Edytuj punkty na trasie" onEdit={onEditRoute}/>
-                        <div className={detailsStyles.rowList}>
-                            <DataRow icon={<DraftOriginIcon/>} label="Miejsce wyjazdu" value={route.origin.address}/>
+                        <div className="flex flex-col">
+                            <div className="flex items-start gap-4">
+                                <div className="flex flex-col items-center self-stretch">
+                                    <div className="w-3 h-3 rounded-full bg-[#0B298F] shrink-0 mt-1"/>
+                                    <div className="w-px flex-1 bg-[#D0D7F0] mt-1"/>
+                                </div>
+                                <div className="pb-5 flex-1">
+                                    <p className={rowLabel}>Miejsce wyjazdu</p>
+                                    <p className={rowValue}>{route.origin.address}</p>
+                                </div>
+                            </div>
                             {(route.waypoints || []).map((wp, i) => (
-                                <DataRow key={i} icon={<DraftWaypointIcon/>} label={`Przystanek #${i + 1}`} value={wp.address}/>
+                                <div key={i} className="flex items-start gap-4">
+                                    <div className="flex flex-col items-center self-stretch">
+                                        <div className="w-3 h-3 rounded-full border-2 border-[#0B298F] bg-white shrink-0 mt-1"/>
+                                        <div className="w-px flex-1 bg-[#D0D7F0] mt-1"/>
+                                    </div>
+                                    <div className="pb-5 flex-1">
+                                        <p className={rowLabel}>Przystanek #{i + 1}</p>
+                                        <p className={rowValue}>{wp.address}</p>
+                                    </div>
+                                </div>
                             ))}
-                            <DataRow icon={<DraftDestinationIcon/>} label="Lokalizacja końcowa" value={route.destination.address}/>
+                            <div className="flex items-start gap-4">
+                                <div className="w-3 h-3 rounded-full bg-[#0B298F] shrink-0 mt-1"/>
+                                <div className="flex-1">
+                                    <p className={rowLabel}>Lokalizacja końcowa</p>
+                                    <p className={rowValue}>{route.destination.address}</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
                     {/* Termin wyjazdu */}
                     <section className={detailsStyles.card}>
                         <CardHeader title="Termin wyjazdu" editLabel="Edytuj termin wyjazdu" onEdit={onEditDateTime}/>
-                        <div className={detailsStyles.rowList}>
-                            <DataRow icon={<DraftCalendarIcon/>} label="Termin wyjazdu" value={formatDatePL(date)}/>
-                            <DataRow icon={<DraftClockIcon/>} label="Godzina wyjazdu" value={time}/>
+                        <div className="flex flex-col -mx-8">
+                            <div className="flex items-center gap-4 px-8 py-4 border-b border-[#F0F1F3]">
+                                <div className={iconCircle}>
+                                    <Calendar width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className={rowLabel}>Data wyjazdu</p>
+                                    <p className={rowValue}>{formatDatePL(date)}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4 px-8 py-4">
+                                <div className={iconCircle}>
+                                    <Clock width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className={rowLabel}>Godzina wyjazdu</p>
+                                    <p className={rowValue}>{time}</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
                     {/* Pasażerowie */}
                     <section className={detailsStyles.card}>
                         <CardHeader title="Pasażerowie" editLabel="Edytuj liczbę pasażerów" onEdit={onEditPassengers}/>
-                        <div className={detailsStyles.rowList}>
-                            <DataRow icon={<DraftUsersIcon/>} label="Dorośli" value={`${adults} dorosłych`}/>
-                            <DataRow icon={<DraftUsersIcon/>} label="Dzieci" value={`${childrenCount} dzieci`}/>
-                            <DataRow icon={<DraftChildSeatIcon/>} label="Liczba fotelików" value={formatChildSeats(childSeats)}/>
+                        <div className="flex flex-col -mx-8">
+                            <div className="flex items-center gap-4 px-8 py-4 border-b border-[#F0F1F3]">
+                                <div className={iconCircle}>
+                                    <Group width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className={rowLabel}>Dorośli</p>
+                                    <p className={rowValue}>{adults} dorosłych</p>
+                                </div>
+                            </div>
+                            <div className={`flex items-center gap-4 px-8 py-4 ${childSeats > 0 ? "border-b border-[#F0F1F3]" : ""}`}>
+                                <div className={iconCircle}>
+                                    <Group width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className={rowLabel}>Dzieci</p>
+                                    <p className={rowValue}>{childrenCount} dzieci</p>
+                                </div>
+                            </div>
+                            {childSeats > 0 && (
+                                <div className="flex items-center gap-4 px-8 py-4">
+                                    <div className={iconCircle}>
+                                        <Crib width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                                    </div>
+                                    <div>
+                                        <p className={rowLabel}>Foteliki dziecięce</p>
+                                        <p className={rowValue}>{formatChildSeats(childSeats)}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </section>
 

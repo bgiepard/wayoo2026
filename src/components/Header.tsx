@@ -4,51 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import LoginModal from "./LoginModal";
 import NotificationDropdown from "./NotificationDropdown";
-import { ChevronDownIcon } from "./icons";
 import logo from "@/assets/logo.png";
 import userIcon from "@/assets/user_icon.svg";
 
-const navMenus = [
-  {
-    label: "Podróżuj z Wayoo",
-    items: [
-      { href: "/transfers", label: "Transfery lotniskowe" },
-      { href: "/city-rides", label: "Przejazdy miejskie" },
-      { href: "/long-distance", label: "Trasy dalekobieżne" },
-    ],
-  },
-  {
-    label: "Dla hoteli i obiektów",
-    items: [
-      { href: "/for-hotels", label: "Oferta dla hoteli" },
-      { href: "/for-resorts", label: "Oferta dla resortów" },
-      { href: "/partnership", label: "Zostań partnerem" },
-    ],
-  },
-  {
-    label: "Partnerzy transportowi",
-    items: [
-      { href: "/become-driver", label: "Zostań kierowcą" },
-      { href: "/fleet-partners", label: "Partnerzy flotowi" },
-      { href: "/driver-app", label: "Aplikacja kierowcy" },
-    ],
-  },
-  {
-    label: "O nas",
-    items: [
-      { href: "/about", label: "O firmie" },
-      { href: "/careers", label: "Kariera" },
-      { href: "/press", label: "Dla mediów" },
-    ],
-  },
-  {
-    label: "Pomoc i kontakt",
-    items: [
-      { href: "/faq", label: "FAQ" },
-      { href: "/contact", label: "Kontakt" },
-      { href: "/support", label: "Wsparcie" },
-    ],
-  },
+const navLinks = [
+  { label: "Podróżuj z Wayoo", href: "/transfers" },
+  { label: "Dla hoteli i obiektów", href: "/for-hotels" },
+  { label: "Partnerzy transportowi", href: "/become-driver" },
+  { label: "O nas", href: "/about" },
+  { label: "Pomoc i kontakt", href: "/faq" },
 ];
 
 export default function Header() {
@@ -56,11 +20,6 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-
-  const toggleSubmenu = (label: string) => {
-    setOpenSubmenu(prev => prev === label ? null : label);
-  };
 
   return (
     <header>
@@ -154,20 +113,10 @@ export default function Header() {
       {/* Desktop nav bar */}
       <div className="hidden lg:block bg-[#081D66]">
         <nav className="max-w-[1150px] mx-auto flex justify-center items-center gap-8 py-2 text-sm text-white">
-          {navMenus.map((menu) => (
-            <div key={menu.label} className="relative group">
-              <button className="flex items-center gap-2 hover:text-gray-300 py-2 px-4 text-[14px] font-[600]">
-                {menu.label}
-                <ChevronDownIcon className="w-4 h-4" />
-              </button>
-              <div className="absolute left-0 top-full hidden group-hover:block bg-white text-gray-800 rounded shadow-lg min-w-[200px] z-50">
-                {menu.items.map((item) => (
-                  <Link key={item.href} href={item.href} className="block px-4 py-2 hover:bg-gray-100">
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="hover:text-gray-300 py-2 px-4 text-[14px] font-[600]">
+              {link.label}
+            </Link>
           ))}
         </nav>
       </div>
@@ -202,32 +151,15 @@ export default function Header() {
 
         {/* Drawer nav */}
         <nav className="flex-1 overflow-y-auto py-4">
-          {navMenus.map((menu) => (
-            <div key={menu.label}>
-              <button
-                className="w-full flex items-center justify-between px-5 py-3 text-white text-[15px] font-[600] hover:bg-white/10"
-                onClick={() => toggleSubmenu(menu.label)}
-              >
-                {menu.label}
-                <ChevronDownIcon
-                  className={`w-4 h-4 transition-transform duration-200 ${openSubmenu === menu.label ? "rotate-180" : ""}`}
-                />
-              </button>
-              {openSubmenu === menu.label && (
-                <div className="bg-[#081D66]">
-                  {menu.items.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block px-8 py-3 text-white/80 text-[14px] hover:text-white hover:bg-white/10"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="block px-5 py-3 text-white text-[15px] font-[600] hover:bg-white/10"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
           ))}
         </nav>
 

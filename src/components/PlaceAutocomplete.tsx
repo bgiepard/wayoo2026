@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import type { Place } from "@/models";
-import { LocationMarkerIcon } from "./icons";
+import { MapPin } from "iconoir-react";
 
 interface PlaceAutocompleteProps {
   value: Place;
@@ -203,7 +203,7 @@ export default function PlaceAutocomplete({
     const rect = inputRef.current.getBoundingClientRect();
     setDropdownStyle({
       position: "fixed",
-      top: rect.bottom + 4,
+      top: rect.bottom + 8,
       left: rect.left,
       width: rect.width,
       zIndex: 9999,
@@ -215,34 +215,42 @@ export default function PlaceAutocomplete({
   }, [showDropdown, updateDropdownPosition]);
 
   const dropdownContent = (suggestions.length > 0 || isLoading) && showDropdown ? (
-    <div ref={portalRef} data-cy="place-suggestions" style={dropdownStyle} className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[250px] overflow-y-auto">
+    <div
+      ref={portalRef}
+      data-cy="place-suggestions"
+      style={{ ...dropdownStyle, boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)" }}
+      className="bg-white rounded-[14px] border border-[#E8E9EC] overflow-hidden max-h-[300px] overflow-y-auto"
+    >
       {isLoading && suggestions.length === 0 ? (
-        <div className="px-4 py-3 text-center text-gray-500 text-sm">Wyszukiwanie...</div>
+        <div className="px-4 py-4 flex items-center gap-3">
+          <div className="w-4 h-4 rounded-full border-2 border-[#D0D7F0] border-t-[#0B298F] animate-spin shrink-0" />
+          <span className="text-[13px] text-[#9B9DA3]">Szukam lokalizacji…</span>
+        </div>
       ) : (
-        suggestions.map((suggestion) => (
-          <button
-            key={suggestion.place_id}
-            type="button"
-            onClick={() => handleSelect(suggestion)}
-            className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
-          >
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 text-[#5B5E68] flex-shrink-0">
-                <LocationMarkerIcon className="w-4 h-4" />
+        <div className="py-1.5">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion.place_id}
+              type="button"
+              onClick={() => handleSelect(suggestion)}
+              className="w-full text-left px-3 py-2.5 hover:bg-[#F5F7FF] transition-colors group flex items-center gap-3 mx-0"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#F4F5F7] group-hover:bg-[#EEF2FF] flex items-center justify-center shrink-0 transition-colors">
+                <MapPin width={14} height={14} color="#9B9DA3" strokeWidth={1.8} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-gray-900 truncate">
+                <p className="text-[13px] font-[500] text-[#010101] truncate leading-snug">
                   {suggestion.structured_formatting.main_text}
-                </div>
+                </p>
                 {suggestion.structured_formatting.secondary_text && (
-                  <div className="text-sm text-gray-500 truncate">
+                  <p className="text-[12px] text-[#9B9DA3] truncate leading-snug mt-[1px]">
                     {suggestion.structured_formatting.secondary_text}
-                  </div>
+                  </p>
                 )}
               </div>
-            </div>
-          </button>
-        ))
+            </button>
+          ))}
+        </div>
       )}
     </div>
   ) : null;

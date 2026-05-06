@@ -34,7 +34,7 @@ export default function Modal({
             <CloseIcon />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto md:overflow-visible p-6">
           {children}
         </div>
         {onConfirm && (

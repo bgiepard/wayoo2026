@@ -142,8 +142,8 @@ export default function DatePicker({
           type="button"
           onClick={goToToday}
           disabled={isCurrentMonthView}
-          className="text-sm font-semibold text-gray-800
-                     hover:text-blue-600 disabled:hover:text-gray-800
+          className="text-sm font-semibold text-[#010101]
+                     hover:text-[#0B298F] disabled:hover:text-[#010101]
                      transition-colors cursor-pointer disabled:cursor-default"
           title={isCurrentMonthView ? undefined : "Wróć do bieżącego miesiąca"}
         >
@@ -187,21 +187,24 @@ export default function DatePicker({
                 disabled={isDisabled(day)}
                 className={`
                   w-10 h-10 rounded-full text-sm font-medium
-                  transition-all duration-150 relative
+                  transition-all duration-150 relative flex items-center justify-center
                   ${
                     isSelected(day)
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/25 scale-105"
+                      ? "bg-[#0B298F] text-white shadow-md shadow-[#0B298F]/20 scale-105"
                       : isToday(day)
-                        ? "bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-200"
+                        ? "text-[#0B298F] font-semibold hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
                         : isDisabled(day)
-                          ? "text-gray-300 cursor-not-allowed"
+                          ? "text-[#D9DADC] cursor-not-allowed"
                           : isWeekend(day)
-                            ? "text-gray-500 hover:bg-gray-100 active:bg-gray-200"
-                            : "text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                            ? "text-[#5B5E68] hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
+                            : "text-[#010101] hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
                   }
                 `}
               >
                 {day}
+                {isToday(day) && !isSelected(day) && (
+                  <span className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full bg-[#0B298F]" />
+                )}
               </button>
             ) : (
               <div className="w-10 h-10" />

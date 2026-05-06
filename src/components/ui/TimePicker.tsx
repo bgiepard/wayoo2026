@@ -78,7 +78,7 @@ export default function TimePicker({
   };
 
   const chevronBtn =
-    "w-8 h-6 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors active:scale-90";
+    "w-8 h-8 flex items-center justify-center text-[#9B9DA3] hover:text-[#0B298F] hover:bg-[#EEF2FF] rounded-full transition-colors active:scale-90";
 
   const chevronUp = (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,8 +104,8 @@ export default function TimePicker({
           onChange={(e) => setEditValue(e.target.value.replace(/\D/g, ""))}
           onBlur={commitEdit}
           onKeyDown={handleKeyDown}
-          className="w-12 text-center text-2xl font-semibold text-blue-600 tabular-nums
-                     bg-blue-50 rounded-lg outline-none leading-tight py-0.5"
+          className="w-16 text-center text-[36px] font-[600] text-[#0B298F] tabular-nums
+                     bg-[#EEF2FF] rounded-[8px] outline-none leading-tight py-1"
         />
       );
     }

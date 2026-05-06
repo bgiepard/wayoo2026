@@ -5,18 +5,19 @@ import LoginModal from "@/components/LoginModal";
 import RouteModal from "@/components/RouteModal";
 import DateTimeModal from "@/components/DateTimeModal";
 import PassengersModal from "@/components/PassengersModal";
-import RequestDetailsLayout, {detailsStyles} from "@/components/RequestDetailsLayout";
-import {DraftCheckBadgeIcon, DraftCheckIcon} from "@/components/icons";
+import RequestDetailsLayout, {detailsStyles, CardHeader} from "@/components/RequestDetailsLayout";
+import {DraftCheckBadgeIcon} from "@/components/icons";
 import type {SearchData, Route} from "@/models";
 import {calculateRouteDistance} from "@/models";
+import {Wifi, Bathroom, Tv, AirConditioner, EvPlug, Bag, Calendar} from "iconoir-react";
 
 const optionsList = [
-    {key: "wifi", label: "Wifi"},
-    {key: "wc", label: "WC"},
-    {key: "tv", label: "Telewizor"},
-    {key: "airConditioning", label: "Klimatyzacja"},
-    {key: "powerOutlet", label: "Gniazdko elektryczne"},
-    {key: "extraLuggage", label: "Więcej miejsca na bagaż"},
+    {key: "wifi", label: "WiFi", icon: Wifi},
+    {key: "wc", label: "WC", icon: Bathroom},
+    {key: "tv", label: "Telewizor", icon: Tv},
+    {key: "airConditioning", label: "Klimatyzacja", icon: AirConditioner},
+    {key: "powerOutlet", label: "Gniazdko elektryczne", icon: EvPlug},
+    {key: "extraLuggage", label: "Więcej miejsca na bagaż", icon: Bag},
 ];
 
 type OptionsState = Record<string, boolean>;
@@ -145,64 +146,66 @@ export default function DraftDetailsPage() {
             >
                 {/* Dodatkowe wymagania */}
                 <section className={detailsStyles.card}>
-                    <h3 className={`${detailsStyles.cardTitle} mb-2`}>Dodatkowe wymagania</h3>
-                    <p className="text-[#5B5E68] text-[16px] mb-6">Wybierz dodatkowe potrzeby dotyczące podróży</p>
+                    <CardHeader title="Dodatkowe wymagania" />
 
-                    <div className="flex flex-col gap-4 mb-8">
-                        {optionsList.map(({key, label}) => (
+                    {/* Opcje — full-bleed toggle rows */}
+                    <div className="flex flex-col -mx-8">
+                        {optionsList.map(({key, label, icon: Icon}, idx) => (
                             <button
                                 key={key}
                                 type="button"
                                 onClick={() => toggleOption(key)}
-                                className="flex items-center gap-3 group cursor-pointer"
+                                className="flex items-center gap-4 px-8 py-4 group hover:bg-[#F8F9FF] transition-colors text-left"
                             >
-                                <div
-                                    className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 ${
-                                        options[key]
-                                            ? "bg-[#0B298F] border-[#0B298F]"
-                                            : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
-                                    }`}
-                                >
-                                    {options[key] && <DraftCheckIcon/>}
+                                <div className={`w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 transition-colors ${options[key] ? "bg-[#EEF2FF]" : "bg-[#F0F1F3]"}`}>
+                                    <Icon width={18} height={18} color={options[key] ? "#0B298F" : "#8E8F96"} strokeWidth={1.8}/>
                                 </div>
-                                <span className="text-[#010101] text-[16px]">{label}</span>
+                                <span className={`flex-1 text-[15px] font-[500] transition-colors ${options[key] ? "text-[#010101]" : "text-[#5B5E68]"}`}>
+                                    {label}
+                                </span>
+                                <div className={`relative w-[44px] h-[24px] rounded-full transition-colors shrink-0 ${options[key] ? "bg-[#0B298F]" : "bg-[#D9DADC]"}`}>
+                                    <div className={`absolute top-[3px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform ${options[key] ? "translate-x-[23px]" : "translate-x-[3px]"}`}/>
+                                </div>
                             </button>
                         ))}
                     </div>
 
-                    <div className="mb-6">
-                        <label className="text-[#5B5E68] text-[14px] font-[500] block mb-2">
-                            Ważność zapytania
-                        </label>
-                        <p className="text-[#9B9DA3] text-[13px] mb-3">Do kiedy kierowcy mogą składać oferty?</p>
-                        <button
-                            type="button"
-                            onClick={() => setActiveModal("offerExpiry")}
-                            className="flex items-center gap-3 w-full bg-[#FCFDFD] border border-[#D9DADC] rounded-[6px] px-4 py-3 text-[14px] text-[#010101] hover:border-[#9B9DA3] transition-colors"
-                        >
-                            <svg className="w-4 h-4 text-[#9B9DA3] shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                            </svg>
-                            <span className={offerExpiresDate ? "text-[#010101]" : "text-[#9B9DA3]"}>
-                                {offerExpiresDate
-                                    ? `${offerExpiresDate} · ${offerExpiresTime}`
-                                    : "Wybierz datę i godzinę"}
-                            </span>
-                        </button>
-                    </div>
-
-                    <div>
-                        <label className="text-[#5B5E68] text-[14px] font-[500] block mb-2">
-                            Uwagi specjalne – instrukcje
-                        </label>
+                    {/* Uwagi specjalne */}
+                    <div className="mt-4 pt-2">
+                        <p className="text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-1">Uwagi specjalne</p>
+                        <p className="text-[#9B9DA3] text-[13px] mb-3">Dodatkowe instrukcje lub pytania dla kierowcy</p>
                         <textarea
                             value={specialNotes}
                             onChange={(e) => setSpecialNotes(e.target.value)}
                             placeholder="Wpisz inne wymagania, instrukcje lub pytania dotyczące podróży..."
-                            className="w-full bg-[#FCFDFD] border border-[#D9DADC] rounded-[6px] px-4 py-2 text-[14px] text-[#010101] placeholder:text-[#9B9DA3] resize-none focus:border-[#0B298F] focus:ring-0 transition-colors"
-                            rows={2}
+                            className="w-full bg-[#FCFDFD] border border-[#D9DADC] rounded-[8px] px-4 py-3 text-[14px] text-[#010101] placeholder:text-[#9B9DA3] resize-none focus:border-[#0B298F] focus:outline-none transition-colors"
+                            rows={3}
                         />
                     </div>
+                </section>
+
+                {/* Ważność zapytania */}
+                <section className={detailsStyles.card}>
+                    <CardHeader title="Ważność zapytania" />
+                    <p className="text-[#5B5E68] text-[14px] -mt-4 mb-6">
+                        Ustaw deadline — po tym czasie kierowcy nie będą mogli składać ofert.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setActiveModal("offerExpiry")}
+                        className="flex items-center gap-4 -mx-8 px-8 py-4 w-[calc(100%+64px)] group hover:bg-[#F8F9FF] transition-colors rounded-b-[8px] border-t border-[#F0F1F3]"
+                    >
+                        <div className="w-[40px] h-[40px] rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                            <Calendar width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-0.5">Termin ważności</p>
+                            <p className={`text-[15px] font-[600] ${offerExpiresDate ? "text-[#010101]" : "text-[#9B9DA3]"}`}>
+                                {offerExpiresDate ? `${offerExpiresDate} · ${offerExpiresTime}` : "Wybierz datę i godzinę"}
+                            </p>
+                        </div>
+                        <span className="text-[#0B298F] text-[13px] font-[500] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">Zmień →</span>
+                    </button>
                 </section>
 
                 {/* Zielony banner */}

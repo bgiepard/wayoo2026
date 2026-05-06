@@ -219,9 +219,9 @@ export default function RouteMap({ route, height = "350px", lightTheme = false }
 
       {/* Distance */}
       {distance && !isLoading && (
-        <div className="mt-3 flex items-center justify-center gap-2 text-gray-700">
-          <MapIcon className="w-5 h-5 text-blue-600" />
-          <span className="font-medium">Dystans: {distance}</span>
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <MapIcon className="w-4 h-4 text-[#0B298F]" />
+          <span className="text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]">Dystans: {distance}</span>
         </div>
       )}
     </div>
