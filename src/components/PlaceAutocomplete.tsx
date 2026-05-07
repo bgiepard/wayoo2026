@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+﻿import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import type { Place } from "@/models";
 import { MapPin } from "iconoir-react";
@@ -224,7 +224,7 @@ export default function PlaceAutocomplete({
       {isLoading && suggestions.length === 0 ? (
         <div className="px-4 py-4 flex items-center gap-3">
           <div className="w-4 h-4 rounded-full border-2 border-[#D0D7F0] border-t-[#0B298F] animate-spin shrink-0" />
-          <span className="text-[13px] text-[#9B9DA3]">Szukam lokalizacji…</span>
+          <span className="text-[13px] text-tertiary">Szukam lokalizacji…</span>
         </div>
       ) : (
         <div className="py-1.5">
@@ -235,15 +235,15 @@ export default function PlaceAutocomplete({
               onClick={() => handleSelect(suggestion)}
               className="w-full text-left px-3 py-2.5 hover:bg-[#F5F7FF] transition-colors group flex items-center gap-3 mx-0"
             >
-              <div className="w-8 h-8 rounded-full bg-[#F4F5F7] group-hover:bg-[#EEF2FF] flex items-center justify-center shrink-0 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-[#F4F5F7] group-hover:bg-accent-soft flex items-center justify-center shrink-0 transition-colors">
                 <MapPin width={14} height={14} color="#9B9DA3" strokeWidth={1.8} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-[500] text-[#010101] truncate leading-snug">
+                <p className="text-[13px] font-[500] text-ink truncate leading-snug">
                   {suggestion.structured_formatting.main_text}
                 </p>
                 {suggestion.structured_formatting.secondary_text && (
-                  <p className="text-[12px] text-[#9B9DA3] truncate leading-snug mt-[1px]">
+                  <p className="text-[12px] text-tertiary truncate leading-snug mt-[1px]">
                     {suggestion.structured_formatting.secondary_text}
                   </p>
                 )}
@@ -259,7 +259,7 @@ export default function PlaceAutocomplete({
     <div className="relative flex-1 min-w-0" ref={dropdownRef}>
       <div className="relative">
         {hasLeftContent && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center text-[#5B5E68]">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center text-secondary">
             {icon}
           </div>
         )}

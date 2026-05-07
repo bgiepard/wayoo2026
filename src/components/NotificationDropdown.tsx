@@ -1,4 +1,4 @@
-import {useRef, useEffect, useState} from "react";
+﻿import {useRef, useEffect, useState} from "react";
 import {useNotifications} from "@/context/NotificationsContext";
 import {usePusher} from "@/context/PusherContext";
 import {BellIcon} from "./icons";
@@ -18,7 +18,7 @@ function formatTime(date: Date) {
 function NotificationIcon({type}: { type: string }) {
     if (type === "new_offer") {
         return (
-            <div className="w-[36px] h-[36px] rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0">
+            <div className="w-[36px] h-[36px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L14.09 8.26L21 9.27L16.18 13.97L17.18 21L12 17.77L6.82 21L7.82 13.97L3 9.27L9.91 8.26L12 2Z" stroke="#0B298F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -26,7 +26,7 @@ function NotificationIcon({type}: { type: string }) {
         );
     }
     return (
-        <div className="w-[36px] h-[36px] rounded-full bg-[#F0F1F3] flex items-center justify-center shrink-0">
+        <div className="w-[36px] h-[36px] rounded-full bg-surface flex items-center justify-center shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#5B5E68" strokeWidth="1.5"/>
                 <path d="M12 8V12M12 16H12.01" stroke="#5B5E68" strokeWidth="1.5" strokeLinecap="round"/>
@@ -84,7 +84,7 @@ export default function NotificationDropdown() {
             >
                 <BellIcon/>
                 {unreadCount > 0 && (
-                    <span className={`absolute -top-0.5 -right-0.5 bg-[#FFC428] text-[#010101] text-[10px] font-[700] w-[18px] h-[18px] rounded-full flex items-center justify-center ${isAnimating ? "animate-pulse" : ""}`}>
+                    <span className={`absolute -top-0.5 -right-0.5 bg-yellow text-ink text-[10px] font-[700] w-[18px] h-[18px] rounded-full flex items-center justify-center ${isAnimating ? "animate-pulse" : ""}`}>
                         {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                 )}
@@ -95,13 +95,13 @@ export default function NotificationDropdown() {
                     {/* Mobile: fullscreen */}
                     <div className="fixed inset-0 bg-white z-50 flex flex-col md:hidden">
                         {/* Nagłówek */}
-                        <div className="flex justify-between items-center px-5 py-4 border-b border-[#D9DADC]">
-                            <span className="text-[#0B298F] text-[16px] font-[600]">Powiadomienia</span>
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-line">
+                            <span className="text-navy text-[16px] font-[600]">Powiadomienia</span>
                             <div className="flex items-center gap-4">
                                 {unreadCount > 0 && (
                                     <button
                                         onClick={markAllAsRead}
-                                        className="text-[13px] text-[#0B298F] font-[500] hover:opacity-80 transition-opacity"
+                                        className="text-[13px] text-navy font-[500] hover:opacity-80 transition-opacity"
                                     >
                                         Oznacz wszystkie
                                     </button>
@@ -118,33 +118,33 @@ export default function NotificationDropdown() {
                         <div className="flex-1 overflow-y-auto">
                             {notifications.length === 0 ? (
                                 <div className="px-5 py-12 text-center">
-                                    <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-3">
+                                    <div className="w-[48px] h-[48px] rounded-full bg-surface flex items-center justify-center mx-auto mb-3">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                             <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     </div>
-                                    <p className="text-[#5B5E68] text-[14px]">Brak powiadomien</p>
+                                    <p className="text-secondary text-[14px]">Brak powiadomien</p>
                                 </div>
                             ) : (
                                 notifications.slice(0, 15).map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-[#F0F1F3] last:border-b-0 ${
-                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-[#F8F9FA]"
+                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-surface last:border-b-0 ${
+                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-disabled"
                                         }`}
                                         onClick={() => handleNotificationClick(notification.id, notification.link)}
                                     >
                                         <NotificationIcon type={notification.type}/>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-[#010101] font-[600]" : "text-[#010101] font-[500]"}`}>
+                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-ink font-[600]" : "text-ink font-[500]"}`}>
                                                 {notification.title}
                                             </p>
-                                            <p className="text-[#5B5E68] text-[13px] mt-1 leading-snug">{notification.message}</p>
-                                            <p className="text-[#9B9DA3] text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
+                                            <p className="text-secondary text-[13px] mt-1 leading-snug">{notification.message}</p>
+                                            <p className="text-tertiary text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
                                         </div>
                                         {!notification.read && (
-                                            <div className="w-[8px] h-[8px] rounded-full bg-[#FFC428] shrink-0 mt-1.5"/>
+                                            <div className="w-[8px] h-[8px] rounded-full bg-yellow shrink-0 mt-1.5"/>
                                         )}
                                     </div>
                                 ))
@@ -153,14 +153,14 @@ export default function NotificationDropdown() {
                     </div>
 
                     {/* Desktop: dropdown */}
-                    <div className="hidden md:block absolute right-0 top-full mt-3 w-[380px] bg-white rounded-[8px] border border-[#D9DADC] shadow-lg z-50 overflow-hidden">
+                    <div className="hidden md:block absolute right-0 top-full mt-3 w-[380px] bg-white rounded-[8px] border border-line shadow-lg z-50 overflow-hidden">
                         {/* Nagłówek */}
-                        <div className="flex justify-between items-center px-5 py-4 border-b border-[#D9DADC]">
-                            <span className="text-[#0B298F] text-[16px] font-[600]">Powiadomienia</span>
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-line">
+                            <span className="text-navy text-[16px] font-[600]">Powiadomienia</span>
                             {unreadCount > 0 && (
                                 <button
                                     onClick={markAllAsRead}
-                                    className="text-[13px] text-[#0B298F] font-[500] hover:opacity-80 transition-opacity"
+                                    className="text-[13px] text-navy font-[500] hover:opacity-80 transition-opacity"
                                 >
                                     Oznacz wszystkie
                                 </button>
@@ -171,33 +171,33 @@ export default function NotificationDropdown() {
                         <div className="max-h-[400px] overflow-y-auto">
                             {notifications.length === 0 ? (
                                 <div className="px-5 py-12 text-center">
-                                    <div className="w-[48px] h-[48px] rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-3">
+                                    <div className="w-[48px] h-[48px] rounded-full bg-surface flex items-center justify-center mx-auto mb-3">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                             <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     </div>
-                                    <p className="text-[#5B5E68] text-[14px]">Brak powiadomien</p>
+                                    <p className="text-secondary text-[14px]">Brak powiadomien</p>
                                 </div>
                             ) : (
                                 notifications.slice(0, 15).map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-[#F0F1F3] last:border-b-0 ${
-                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-[#F8F9FA]"
+                                        className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors border-b border-surface last:border-b-0 ${
+                                            !notification.read ? "bg-[#FAFBFF] hover:bg-[#F0F2FF]" : "hover:bg-disabled"
                                         }`}
                                         onClick={() => handleNotificationClick(notification.id, notification.link)}
                                     >
                                         <NotificationIcon type={notification.type}/>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-[#010101] font-[600]" : "text-[#010101] font-[500]"}`}>
+                                            <p className={`text-[14px] leading-tight truncate ${!notification.read ? "text-ink font-[600]" : "text-ink font-[500]"}`}>
                                                 {notification.title}
                                             </p>
-                                            <p className="text-[#5B5E68] text-[13px] mt-1 leading-snug">{notification.message}</p>
-                                            <p className="text-[#9B9DA3] text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
+                                            <p className="text-secondary text-[13px] mt-1 leading-snug">{notification.message}</p>
+                                            <p className="text-tertiary text-[12px] mt-1.5">{formatTime(notification.createdAt)}</p>
                                         </div>
                                         {!notification.read && (
-                                            <div className="w-[8px] h-[8px] rounded-full bg-[#FFC428] shrink-0 mt-1.5"/>
+                                            <div className="w-[8px] h-[8px] rounded-full bg-yellow shrink-0 mt-1.5"/>
                                         )}
                                     </div>
                                 ))

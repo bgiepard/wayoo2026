@@ -1,4 +1,4 @@
-import { signIn } from "next-auth/react";
+﻿import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import ModalShell from "./ModalShell";
@@ -74,7 +74,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
 
   const inputCls =
     "w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-[10px] outline-none " +
-    "focus:border-[#0B298F] focus:ring-2 focus:ring-[#0B298F]/10 transition-all placeholder:text-[#9B9DA3]";
+    "focus:border-navy focus:ring-2 focus:ring-navy/10 transition-all placeholder:text-tertiary";
 
   return (
     <ModalShell
@@ -93,7 +93,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
         type="button"
         onClick={handleGoogleLogin}
         disabled={isGoogleLoading}
-        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-[10px] p-3 text-sm font-medium hover:bg-[#F8F9FA] disabled:opacity-50 mb-4 transition-colors"
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-[10px] p-3 text-sm font-medium hover:bg-disabled disabled:opacity-50 mb-4 transition-colors"
       >
         <GoogleIcon />
         {isGoogleLoading ? "Przekierowywanie..." : "Kontynuuj z Google"}
@@ -104,7 +104,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
           <div className="w-full border-t border-[#E5E7EB]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-white px-2 text-[#9B9DA3]">lub</span>
+          <span className="bg-white px-2 text-tertiary">lub</span>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
         <button
           onClick={() => { setIsRegister(!isRegister); setError(""); }}
           data-cy="btn-switch-auth-mode"
-          className="text-sm text-[#6b7280] hover:text-[#1a1a1a] transition-colors"
+          className="text-sm text-muted hover:text-foreground transition-colors"
         >
           {isRegister
             ? "Masz już konto? Zaloguj się"

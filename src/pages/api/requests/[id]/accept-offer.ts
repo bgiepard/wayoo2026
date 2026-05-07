@@ -2,14 +2,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]";
 import { getRequestById, acceptOffer, updateRequestStatus, getDriverById } from "@/services";
-import { notificationsTable } from "@/lib/airtable";
+import { notificationsTable, offersTable } from "@/lib/airtable";
 import { notifyDriverOfferAccepted } from "@/lib/pusher";
-import { offersTable } from "@/lib/airtable";
-
-interface SessionUser {
-  id?: string;
-  email?: string | null;
-}
+import type { SessionUser } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,

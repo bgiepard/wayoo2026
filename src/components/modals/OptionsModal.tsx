@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import ModalShell from "./ModalShell";
 import type { Options } from "@/models";
 
@@ -61,7 +61,7 @@ export default function OptionsModal({ isOpen, onClose, options, onSave, onNext 
         {(Object.keys(optionLabels) as Array<keyof Options>).map((key) => (
           <label
             key={key}
-            className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-[#F8F9FA] cursor-pointer"
+            className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-disabled cursor-pointer"
           >
             <input
               type="checkbox"
@@ -69,7 +69,7 @@ export default function OptionsModal({ isOpen, onClose, options, onSave, onNext 
               onChange={() => handleToggle(key)}
               className="w-4 h-4 accent-[#0B298F]"
             />
-            <span className="text-[15px] text-[#010101]">{optionLabels[key]}</span>
+            <span className="text-[15px] text-ink">{optionLabels[key]}</span>
           </label>
         ))}
       </div>

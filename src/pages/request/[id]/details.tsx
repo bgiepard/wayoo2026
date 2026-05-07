@@ -1,4 +1,4 @@
-import {GetServerSideProps} from "next";
+﻿import {GetServerSideProps} from "next";
 import {getRequestById} from "@/services";
 import type {RequestData, Route} from "@/models";
 import RequestDetailsLayout, {detailsStyles} from "@/components/RequestDetailsLayout";
@@ -43,13 +43,13 @@ export default function RequestDetailsPage({request}: Props) {
                             <div
                                 className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center shrink-0 ${
                                     options[key]
-                                        ? "bg-[#0B298F] border-[#0B298F]"
-                                        : "border-[#D9DADC] bg-white"
+                                        ? "bg-navy border-navy"
+                                        : "border-line bg-white"
                                 }`}
                             >
                                 {options[key] && <DraftCheckIcon/>}
                             </div>
-                            <span className="text-[#010101] text-[16px]">{label}</span>
+                            <span className="text-ink text-[16px]">{label}</span>
                         </div>
                     ))}
                 </div>

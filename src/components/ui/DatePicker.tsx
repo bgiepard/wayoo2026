@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+﻿import { useState, useMemo, useCallback } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 
 const MONTH_NAMES = [
@@ -142,8 +142,8 @@ export default function DatePicker({
           type="button"
           onClick={goToToday}
           disabled={isCurrentMonthView}
-          className="text-sm font-semibold text-[#010101]
-                     hover:text-[#0B298F] disabled:hover:text-[#010101]
+          className="text-sm font-semibold text-ink
+                     hover:text-navy disabled:hover:text-ink
                      transition-colors cursor-pointer disabled:cursor-default"
           title={isCurrentMonthView ? undefined : "Wróć do bieżącego miesiąca"}
         >
@@ -190,20 +190,20 @@ export default function DatePicker({
                   transition-all duration-150 relative flex items-center justify-center
                   ${
                     isSelected(day)
-                      ? "bg-[#0B298F] text-white shadow-md shadow-[#0B298F]/20 scale-105"
+                      ? "bg-navy text-white shadow-md shadow-navy/20 scale-105"
                       : isToday(day)
-                        ? "text-[#0B298F] font-semibold hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
+                        ? "text-navy font-semibold hover:bg-surface active:bg-[#E8E9EB]"
                         : isDisabled(day)
-                          ? "text-[#D9DADC] cursor-not-allowed"
+                          ? "text-line cursor-not-allowed"
                           : isWeekend(day)
-                            ? "text-[#5B5E68] hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
-                            : "text-[#010101] hover:bg-[#F0F1F3] active:bg-[#E8E9EB]"
+                            ? "text-secondary hover:bg-surface active:bg-[#E8E9EB]"
+                            : "text-ink hover:bg-surface active:bg-[#E8E9EB]"
                   }
                 `}
               >
                 {day}
                 {isToday(day) && !isSelected(day) && (
-                  <span className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full bg-[#0B298F]" />
+                  <span className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full bg-navy" />
                 )}
               </button>
             ) : (

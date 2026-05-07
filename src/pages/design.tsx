@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   AddIcon, BellIcon, ChildIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon,
   CloseIcon, DotsCircleIcon, GoogleIcon, LocateIcon, LocationMarkerIcon, MapIcon,
@@ -25,7 +25,7 @@ const NAV_SECTIONS = [
 function Token({ code }: { code: string }) {
   return (
     <code style={{ fontFamily: 'ui-monospace, "Cascadia Code", monospace' }}
-      className="text-[11px] bg-[#f0f4ff] text-[#2563eb] border border-[#dbeafe] px-2 py-0.5 rounded-md whitespace-nowrap">
+      className="text-[11px] bg-accent-glow text-accent border border-badge-info-border px-2 py-0.5 rounded-md whitespace-nowrap">
       {code}
     </code>
   );
@@ -36,9 +36,9 @@ function SectionHeading({ id, num, title, desc }: { id: string; num: string; tit
     <div id={id} className="scroll-mt-8 mb-8 flex items-start gap-4">
       <span style={{ fontFamily: 'ui-monospace, monospace', color: NAVY }}
         className="text-xs font-bold opacity-30 mt-1 select-none">{num}</span>
-      <div className="flex-1 border-b border-[#e5e5e5] pb-4">
-        <h2 className="text-xl font-semibold text-[#1a1a1a]">{title}</h2>
-        {desc && <p className="text-sm text-[#6b7280] mt-0.5">{desc}</p>}
+      <div className="flex-1 border-b border-chrome pb-4">
+        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+        {desc && <p className="text-sm text-muted mt-0.5">{desc}</p>}
       </div>
     </div>
   );
@@ -46,7 +46,7 @@ function SectionHeading({ id, num, title, desc }: { id: string; num: string; tit
 
 function Preview({ children, gray = false }: { children: React.ReactNode; gray?: boolean }) {
   return (
-    <div className={`rounded-xl border border-[#e5e5e5] p-6 ${gray ? 'bg-[#f8f9fa]' : 'bg-white'}`}>
+    <div className={`rounded-xl border border-chrome p-6 ${gray ? 'bg-disabled' : 'bg-white'}`}>
       {children}
     </div>
   );
@@ -55,7 +55,7 @@ function Preview({ children, gray = false }: { children: React.ReactNode; gray?:
 function SubLabel({ text }: { text: string }) {
   return (
     <div style={{ fontFamily: 'ui-monospace, monospace' }}
-      className="text-[10px] font-semibold uppercase tracking-widest text-[#6b7280] mb-2.5">
+      className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-2.5">
       {text}
     </div>
   );
@@ -64,14 +64,14 @@ function SubLabel({ text }: { text: string }) {
 function Swatch({ bg, name, variable, hex }: { bg: string; name: string; variable?: string; hex: string }) {
   return (
     <div>
-      <div className="h-14 w-full rounded-xl border border-[#e5e5e5] mb-2.5" style={{ background: bg }} />
-      <div className="text-sm font-medium text-[#1a1a1a] leading-tight">{name}</div>
+      <div className="h-14 w-full rounded-xl border border-chrome mb-2.5" style={{ background: bg }} />
+      <div className="text-sm font-medium text-foreground leading-tight">{name}</div>
       {variable && (
-        <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-[#2563eb] mt-0.5">
+        <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-accent mt-0.5">
           {variable}
         </div>
       )}
-      <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-[#6b7280]">
+      <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-muted">
         {hex}
       </div>
     </div>
@@ -190,7 +190,7 @@ export default function DesignSystemPage() {
                   }`}
                 >
                   <span style={{ fontFamily: 'ui-monospace, monospace' }}
-                    className={`text-[10px] font-bold tabular-nums transition-opacity ${isActive ? 'opacity-100 text-[#2563eb]' : 'opacity-40'}`}>
+                    className={`text-[10px] font-bold tabular-nums transition-opacity ${isActive ? 'opacity-100 text-accent' : 'opacity-40'}`}>
                     {num}
                   </span>
                   {label}
@@ -212,10 +212,10 @@ export default function DesignSystemPage() {
 
           {/* Page title */}
           <div className="mb-14">
-            <h1 className="text-[2.25rem] font-bold text-[#1a1a1a] tracking-tight leading-tight">
+            <h1 className="text-[2.25rem] font-bold text-foreground tracking-tight leading-tight">
               Design System
             </h1>
-            <p className="text-[#6b7280] mt-2 text-base">
+            <p className="text-muted mt-2 text-base">
               Źródło prawdy o wizualnym języku aplikacji Wayoo dla pasażerów.
             </p>
           </div>
@@ -233,12 +233,12 @@ export default function DesignSystemPage() {
               <Swatch bg="var(--accent-light)" name="Accent Light" variable="var(--accent-light)"  hex="#eff6ff" />
               <Swatch bg={NAVY}               name="Header Navy"   variable="—"                    hex="#0B298F" />
             </div>
-            <div className="rounded-xl border border-[#dbeafe] bg-[#f0f4ff] p-4">
-              <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-[#2563eb] space-y-1">
+            <div className="rounded-xl border border-badge-info-border bg-accent-glow p-4">
+              <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-accent space-y-1">
                 <div>{`/* Użycie jako inline style: */`}</div>
                 <div>{`style={{ backgroundColor: 'var(--accent)' }}`}</div>
                 <div className="mt-2">{`/* Użycie jako wartość Tailwind (Tailwind 4): */`}</div>
-                <div>{`className="bg-[#2563eb] text-[#0B298F]"`}</div>
+                <div>{`className="bg-accent text-navy"`}</div>
               </div>
             </div>
           </section>
@@ -254,7 +254,7 @@ export default function DesignSystemPage() {
                 { el: 'h3', size: '1.25rem', weight: 600, label: 'Nagłówek H3', tw: 'text-xl font-semibold' },
                 { el: 'h4', size: '1rem',    weight: 600, label: 'Nagłówek H4', tw: 'text-base font-semibold' },
               ] as const).map(({ size, weight, label, tw }) => (
-                <div key={label} className="flex items-center justify-between py-4 border-b border-[#f0f0f0]">
+                <div key={label} className="flex items-center justify-between py-4 border-b border-surface">
                   <span style={{ fontSize: size, fontWeight: weight, color: '#1a1a1a', lineHeight: 1.3 }}>
                     {label}
                   </span>
@@ -263,13 +263,13 @@ export default function DesignSystemPage() {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-between py-4 border-b border-[#f0f0f0]">
+              <div className="flex items-center justify-between py-4 border-b border-surface">
                 <p style={{ fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', lineHeight: 1.6 }}>
                   Tekst akapitu — pasażer wybiera ofertę i płaci online.
                 </p>
                 <div className="flex-shrink-0 ml-6"><Token code="text-base text-[--foreground]" /></div>
               </div>
-              <div className="flex items-center justify-between py-4 border-b border-[#f0f0f0]">
+              <div className="flex items-center justify-between py-4 border-b border-surface">
                 <p style={{ fontSize: '1rem', fontWeight: 400, color: '#6b7280', lineHeight: 1.6 }}>
                   Tekst pomocniczy (muted) — podpis, opis dodatkowy.
                 </p>
@@ -298,11 +298,11 @@ export default function DesignSystemPage() {
                       style={{ backgroundColor: 'var(--accent)' }}>
                       Zarezerwuj
                     </button>
-                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-[#f5f5f5] active:scale-[.98] bg-white"
+                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-hover active:scale-[.98] bg-white"
                       style={{ border: '1.5px solid var(--border)', color: 'var(--foreground)' }}>
                       Anuluj
                     </button>
-                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-[#f0f4ff] active:scale-[.98]"
+                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-accent-glow active:scale-[.98]"
                       style={{ color: 'var(--accent)' }}>
                       Szczegóły →
                     </button>
@@ -312,7 +312,7 @@ export default function DesignSystemPage() {
                   </div>
                 </Preview>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <Token code="Primary: bg-[#2563eb] text-white rounded-xl" />
+                  <Token code="Primary: bg-accent text-white rounded-xl" />
                   <Token code="Secondary: border-[--border] bg-white" />
                   <Token code="Ghost: text-[--accent] (no border/bg)" />
                   <Token code="Danger: bg-red-600 text-white" />
@@ -360,7 +360,7 @@ export default function DesignSystemPage() {
                       <PlusIcon className="w-4 h-4" />
                       Dodaj zlecenie
                     </button>
-                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all hover:bg-[#f5f5f5] bg-white"
+                    <button className="px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all hover:bg-gray-hover bg-white"
                       style={{ border: '1.5px solid var(--border)', color: 'var(--foreground)' }}>
                       <BellIcon className="w-4 h-4" />
                       Powiadomienia
@@ -381,9 +381,9 @@ export default function DesignSystemPage() {
               {/* Default */}
               <div>
                 <SubLabel text="Default" />
-                <label className="block text-sm font-medium text-[#1a1a1a] mb-1.5">Skąd jedziesz?</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Skąd jedziesz?</label>
                 <div className="relative">
-                  <LocationMarkerIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7280]" />
+                  <LocationMarkerIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
                   <input type="text" placeholder="Wpisz miasto lub adres" readOnly
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-sm bg-white"
                     style={{ border: '1.5px solid var(--border)', outline: 'none', color: 'var(--foreground)' }} />
@@ -394,9 +394,9 @@ export default function DesignSystemPage() {
               {/* Focus */}
               <div>
                 <SubLabel text="Focus" />
-                <label className="block text-sm font-medium text-[#1a1a1a] mb-1.5">Dokąd jedziesz?</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Dokąd jedziesz?</label>
                 <div className="relative">
-                  <LocationMarkerIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2563eb]" />
+                  <LocationMarkerIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-accent" />
                   <input type="text" defaultValue="Kraków, ul. Floriańska 1" readOnly
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-sm bg-white"
                     style={{
@@ -410,7 +410,7 @@ export default function DesignSystemPage() {
               {/* Error */}
               <div>
                 <SubLabel text="Error" />
-                <label className="block text-sm font-medium text-[#1a1a1a] mb-1.5">Liczba pasażerów</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Liczba pasażerów</label>
                 <input type="text" defaultValue="15" readOnly
                   className="w-full px-4 py-3 rounded-xl text-sm bg-white"
                   style={{
@@ -424,17 +424,17 @@ export default function DesignSystemPage() {
               {/* Disabled */}
               <div>
                 <SubLabel text="Disabled" />
-                <label className="block text-sm font-medium text-[#6b7280] mb-1.5">Status zlecenia</label>
+                <label className="block text-sm font-medium text-muted mb-1.5">Status zlecenia</label>
                 <input type="text" defaultValue="Opublikowane" disabled
-                  className="w-full px-4 py-3 rounded-xl text-sm bg-[#f8f9fa] cursor-not-allowed opacity-60"
+                  className="w-full px-4 py-3 rounded-xl text-sm bg-disabled cursor-not-allowed opacity-60"
                   style={{ border: '1.5px solid var(--border)', outline: 'none', color: 'var(--muted)' }} />
-                <div className="mt-2"><Token code="bg-[#f8f9fa] opacity-60 cursor-not-allowed" /></div>
+                <div className="mt-2"><Token code="bg-disabled opacity-60 cursor-not-allowed" /></div>
               </div>
 
               {/* Select */}
               <div className="col-span-2">
                 <SubLabel text="Select" />
-                <label className="block text-sm font-medium text-[#1a1a1a] mb-1.5">Typ pojazdu</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Typ pojazdu</label>
                 <div className="relative">
                   <select className="w-full appearance-none px-4 py-3 rounded-xl text-sm bg-white pr-10"
                     style={{ border: '1.5px solid var(--border)', color: 'var(--foreground)', outline: 'none' }}>
@@ -442,7 +442,7 @@ export default function DesignSystemPage() {
                     <option>Van (do 8 osób)</option>
                     <option>Minibus (do 16 osób)</option>
                   </select>
-                  <ChevronDownIcon className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6b7280] pointer-events-none" />
+                  <ChevronDownIcon className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
                 </div>
                 <div className="mt-2"><Token code="appearance-none pr-10 + ChevronDownIcon absolute right-3.5" /></div>
               </div>
@@ -456,23 +456,23 @@ export default function DesignSystemPage() {
             <div className="grid grid-cols-8 gap-1 mb-5">
               {ICONS.map(({ Icon, name }) => (
                 <div key={name}
-                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-[#f0f4ff] transition-colors group cursor-default">
-                  <div className="w-8 h-8 flex items-center justify-center text-[#1a1a1a] group-hover:text-[#2563eb] transition-colors">
+                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-accent-glow transition-colors group cursor-default">
+                  <div className="w-8 h-8 flex items-center justify-center text-foreground group-hover:text-accent transition-colors">
                     <Icon className="w-5 h-5" />
                   </div>
                   <span style={{ fontFamily: 'ui-monospace, monospace' }}
-                    className="text-[9px] text-[#6b7280] text-center leading-tight break-all">
+                    className="text-[9px] text-muted text-center leading-tight break-all">
                     {name}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="rounded-xl border border-[#e5e5e5] bg-[#f8f9fa] p-4">
-              <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-[#6b7280] space-y-1">
-                <div className="text-[#1a1a1a] font-medium">Użycie:</div>
+            <div className="rounded-xl border border-chrome bg-disabled p-4">
+              <div style={{ fontFamily: 'ui-monospace, monospace' }} className="text-[11px] text-muted space-y-1">
+                <div className="text-foreground font-medium">Użycie:</div>
                 <div>{`import { BellIcon } from '@/components/icons';`}</div>
                 <div>{`<BellIcon className="w-5 h-5 text-[--accent]" />`}</div>
-                <div className="mt-2 text-[#6b7280]">
+                <div className="mt-2 text-muted">
                   Uwaga: WhyIcon1-4 i GoogleIcon mają hardcoded kolory — className nie zmieni ich barwy.
                 </div>
               </div>
@@ -492,15 +492,15 @@ export default function DesignSystemPage() {
                   style={{ border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <div className="font-semibold text-[#1a1a1a] text-base">Warszawa → Kraków</div>
-                      <div className="text-sm text-[#6b7280] mt-0.5">3 maja 2026 · 09:00</div>
+                      <div className="font-semibold text-foreground text-base">Warszawa → Kraków</div>
+                      <div className="text-sm text-muted mt-0.5">3 maja 2026 · 09:00</div>
                     </div>
                     <span className="text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0"
                       style={{ backgroundColor: 'var(--accent-light)', color: 'var(--accent)' }}>
                       Opublikowane
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-[#6b7280]">
+                  <div className="flex items-center gap-4 text-sm text-muted">
                     <span className="flex items-center gap-1.5"><PassengersIcon className="w-4 h-4" /> 3 os.</span>
                     <span className="flex items-center gap-1.5"><ChildIcon className="w-4 h-4" /> 1 fotelik</span>
                     <span className="flex items-center gap-1.5"><DatesIcon className="w-4 h-4" /> dziś</span>
@@ -514,20 +514,20 @@ export default function DesignSystemPage() {
                 <SubLabel text="Odznaki statusów (Badge)" />
                 <Preview gray>
                   <div className="flex flex-wrap gap-2.5 items-center">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#dcfce7] text-[#16a34a]">Opłacone · paid</span>
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#fef9c3] text-[#a16207]">Oczekuje · new</span>
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full text-[#2563eb]"
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-badge-success-bg text-badge-success">Opłacone · paid</span>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-badge-warning-bg text-badge-warning">Oczekuje · new</span>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full text-accent"
                       style={{ backgroundColor: 'var(--accent-light)' }}>Opublikowane · published</span>
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#fee2e2] text-[#dc2626]">Anulowane · canceled</span>
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#f3f4f6] text-[#6b7280]">Szkic · draft</span>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-badge-error-bg text-badge-error">Anulowane · canceled</span>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-light text-muted">Szkic · draft</span>
                   </div>
                 </Preview>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <Token code="success: bg-[#dcfce7] text-[#16a34a]" />
-                  <Token code="warning: bg-[#fef9c3] text-[#a16207]" />
+                  <Token code="success: bg-badge-success-bg text-badge-success" />
+                  <Token code="warning: bg-badge-warning-bg text-badge-warning" />
                   <Token code="info: bg-[--accent-light] text-[--accent]" />
-                  <Token code="error: bg-[#fee2e2] text-red-600" />
-                  <Token code="neutral: bg-[#f3f4f6] text-[--muted]" />
+                  <Token code="error: bg-badge-error-bg text-red-600" />
+                  <Token code="neutral: bg-gray-light text-[--muted]" />
                 </div>
               </div>
 
@@ -596,9 +596,9 @@ export default function DesignSystemPage() {
                     { label: '48px', tw: 'p-12 / gap-12' },
                   ]).map(({ label, tw }) => (
                     <div key={label} className="flex items-center gap-5">
-                      <div className="w-12 text-right text-xs text-[#6b7280]"
+                      <div className="w-12 text-right text-xs text-muted"
                         style={{ fontFamily: 'ui-monospace, monospace' }}>{label}</div>
-                      <div className="h-5 rounded-sm bg-[#2563eb] opacity-20 flex-shrink-0"
+                      <div className="h-5 rounded-sm bg-accent opacity-20 flex-shrink-0"
                         style={{ width: label }} />
                       <Token code={tw} />
                     </div>
@@ -618,11 +618,11 @@ export default function DesignSystemPage() {
                     { label: 'rounded-full', r: '9999px', desc: '∞' },
                   ]).map(({ label, r, desc }) => (
                     <div key={label} className="flex flex-col items-center gap-2.5">
-                      <div className="w-14 h-14 bg-[#2563eb] opacity-20 flex-shrink-0"
+                      <div className="w-14 h-14 bg-accent opacity-20 flex-shrink-0"
                         style={{ borderRadius: r }} />
                       <div className="text-center">
                         <Token code={label} />
-                        <div className="text-[10px] text-[#6b7280] mt-1">{desc}</div>
+                        <div className="text-[10px] text-muted mt-1">{desc}</div>
                       </div>
                     </div>
                   ))}
@@ -650,8 +650,8 @@ export default function DesignSystemPage() {
           </section>
 
           {/* Footer */}
-          <div className="border-t border-[#e5e5e5] pt-8 pb-16 mt-4">
-            <p className="text-xs text-[#6b7280] text-center">
+          <div className="border-t border-chrome pt-8 pb-16 mt-4">
+            <p className="text-xs text-muted text-center">
               Wayoo Design System · wayoo2026 (pasażer) · Ostatnia aktualizacja: maj 2026
             </p>
           </div>

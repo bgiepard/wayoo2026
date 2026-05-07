@@ -9,6 +9,69 @@
   --accent-light: #eff6ff;
 }
 
+@theme {
+  /* Brand */
+  --color-navy: #0B298F;
+  --color-navy-dark: #081D66;
+  --color-navy-hover: #091F6B;
+
+  /* Tekst */
+  --color-ink: #010101;
+  --color-secondary: #5B5E68;
+  --color-tertiary: #9B9DA3;
+
+  /* Bordy i tła */
+  --color-line: #D9DADC;
+  --color-surface: #F0F1F3;
+
+  /* Akcent (bridge do Tailwind klas) */
+  --color-accent: #2563eb;
+  --color-accent-light: #eff6ff;
+  --color-accent-soft: #EEF2FF;
+  --color-accent-border: #C7D2FE;
+
+  /* Status: sukces */
+  --color-success: #01A83D;
+  --color-success-bg: #E6F6EC;
+  --color-success-border: #A3DFB8;
+
+  /* Status: ostrzeżenie */
+  --color-warning: #B8860B;
+  --color-warning-bg: #FFF8E1;
+  --color-warning-border: #E6D08A;
+
+  /* Status: błąd */
+  --color-danger: #D32F2F;
+  --color-danger-bg: #FDEAEA;
+  --color-danger-border: #F0B8B8;
+
+  /* Bridge do istniejących CSS vars */
+  --color-foreground: #1a1a1a;
+  --color-muted: #6b7280;
+  --color-chrome: #e5e5e5;
+
+  /* Dodatkowe kolory UI */
+  --color-disabled: #f8f9fa;
+  --color-faint: #f9fafb;
+  --color-gray-light: #f3f4f6;
+  --color-gray-hover: #f5f5f5;
+  --color-dark: #1e2939;
+  --color-blue-alt: #4361ee;
+  --color-accent-glow: #f0f4ff;
+  --color-yellow: #FFC428;
+  --color-subtle: #F0F0F1;
+
+  /* Kolory badge (system z CLAUDE.md) */
+  --color-badge-success-bg: #dcfce7;
+  --color-badge-success: #16a34a;
+  --color-badge-warning-bg: #fef9c3;
+  --color-badge-warning: #a16207;
+  --color-badge-error-bg: #fee2e2;
+  --color-badge-error: #dc2626;
+  --color-badge-info-border: #dbeafe;
+  --color-emerald-light: #d1fae5;
+}
+
 body {
   font-family: var(--font-dm-sans), "DM Sans", sans-serif;
   background: var(--background);

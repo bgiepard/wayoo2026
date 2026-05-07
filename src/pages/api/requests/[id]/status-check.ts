@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getRequestById } from "@/services";
 
-// Lekki endpoint do sprawdzenia aktualnego statusu zlecenia (używany przez polling po powrocie ze Stripe)
+// Lekki endpoint do sprawdzenia aktualnego statusu zlecenia
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });

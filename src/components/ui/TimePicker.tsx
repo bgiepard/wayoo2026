@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+﻿import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 
 const MINUTES = [0, 10, 20, 30, 40, 50];
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -78,7 +78,7 @@ export default function TimePicker({
   };
 
   const chevronBtn =
-    "w-8 h-8 flex items-center justify-center text-[#9B9DA3] hover:text-[#0B298F] hover:bg-[#EEF2FF] rounded-full transition-colors active:scale-90";
+    "w-8 h-8 flex items-center justify-center text-tertiary hover:text-navy hover:bg-accent-soft rounded-full transition-colors active:scale-90";
 
   const chevronUp = (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,8 +104,8 @@ export default function TimePicker({
           onChange={(e) => setEditValue(e.target.value.replace(/\D/g, ""))}
           onBlur={commitEdit}
           onKeyDown={handleKeyDown}
-          className="w-16 text-center text-[36px] font-[600] text-[#0B298F] tabular-nums
-                     bg-[#EEF2FF] rounded-[8px] outline-none leading-tight py-1"
+          className="w-16 text-center text-[36px] font-[600] text-navy tabular-nums
+                     bg-accent-soft rounded-[8px] outline-none leading-tight py-1"
         />
       );
     }

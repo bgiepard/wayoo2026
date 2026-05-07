@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Calendar } from "iconoir-react";
 import ModalShell from "./ModalShell";
 import DatePicker from "@/components/ui/DatePicker";
@@ -55,7 +55,7 @@ export default function DateTimeModal({
           {localDate && localTime && (
             <div className="flex items-center gap-3 bg-[#F8F9FF] border border-[#E0E7FF] rounded-[10px] px-4 py-3 mb-4">
               <Calendar width={15} height={15} color="#0B298F" strokeWidth={1.8} className="shrink-0" />
-              <span className="text-[#0B298F] text-[14px] font-medium">
+              <span className="text-navy text-[14px] font-medium">
                 {formatDatePL(localDate)} · {localTime}
               </span>
             </div>
@@ -75,17 +75,17 @@ export default function DateTimeModal({
       <div className="flex md:flex-row flex-col">
         {/* Lewa: kalendarz */}
         <div className="flex-1 px-7 pt-6 pb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9B9DA3] mb-4">Data wyjazdu</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-tertiary mb-4">Data wyjazdu</p>
           <DatePicker value={localDate} onChange={setLocalDate} />
         </div>
 
         {/* Separator */}
-        <div className="hidden md:block w-px bg-[#F0F1F3] my-6" />
-        <div className="block md:hidden h-px bg-[#F0F1F3] mx-7" />
+        <div className="hidden md:block w-px bg-surface my-6" />
+        <div className="block md:hidden h-px bg-surface mx-7" />
 
         {/* Prawa: godzina */}
         <div className="md:w-[200px] px-7 pt-6 pb-6 flex flex-col">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9B9DA3] mb-4">Godzina odjazdu</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-tertiary mb-4">Godzina odjazdu</p>
           <div className="flex-1 flex items-center justify-center">
             <TimePicker value={localTime} onChange={setLocalTime} />
           </div>

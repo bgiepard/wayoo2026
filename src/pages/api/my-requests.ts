@@ -3,12 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { getRequestsByUserId, getRequestsByUserEmail } from "@/services";
 import type { RequestStatus, RequestData } from "@/models";
-
-interface SessionUser {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-}
+import type { SessionUser } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,

@@ -1,4 +1,4 @@
-import {type ReactNode} from "react";
+﻿import {type ReactNode} from "react";
 import type {Route} from "@/models";
 import {DraftEditIcon} from "@/components/icons";
 import {formatDatePL} from "@/lib/formatDate";
@@ -9,13 +9,13 @@ import {Calendar, Clock, Group, Crib} from "iconoir-react";
 // === Shared styles (kept for external use) ===
 
 export const detailsStyles = {
-    card: "bg-white rounded-[8px] p-8 border border-[#D9DADC]",
-    cardTitle: "text-[#0B298F] text-[20px] font-[400]",
+    card: "bg-white rounded-[8px] p-8 border border-line",
+    cardTitle: "text-navy text-[20px] font-[400]",
     rowList: "flex flex-col gap-6",
     row: "flex items-start gap-4",
     rowIcon: "mt-0.5 shrink-0",
-    rowLabel: "text-[#5B5E68] text-[14px] block mb-0.5",
-    rowValue: "text-[#010101] text-[16px] font-[600]",
+    rowLabel: "text-secondary text-[14px] block mb-0.5",
+    rowValue: "text-ink text-[16px] font-[600]",
 };
 
 export function DataRow({icon, label, value}: {icon: ReactNode; label: string; value: ReactNode}) {
@@ -35,7 +35,7 @@ export function CardHeader({title, editLabel, onEdit}: {title: string; editLabel
         <div className="flex justify-between items-center mb-8">
             <h3 className={detailsStyles.cardTitle}>{title}</h3>
             {onEdit && editLabel && (
-                <button onClick={onEdit} className="flex items-center gap-2 text-[#0B298F] text-[14px] font-[500] hover:opacity-80 transition-opacity">
+                <button onClick={onEdit} className="flex items-center gap-2 text-navy text-[14px] font-[500] hover:opacity-80 transition-opacity">
                     <DraftEditIcon/>
                     <span className="hidden md:inline">{editLabel}</span>
                 </button>
@@ -74,9 +74,9 @@ interface RequestDetailsLayoutProps {
     children?: ReactNode;
 }
 
-const iconCircle = "w-[40px] h-[40px] rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0";
-const rowLabel = "text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-0.5";
-const rowValue = "text-[#010101] text-[15px] font-[600]";
+const iconCircle = "w-[40px] h-[40px] rounded-full bg-accent-soft flex items-center justify-center shrink-0";
+const rowLabel = "text-[11px] font-[600] uppercase tracking-wide text-secondary mb-0.5";
+const rowValue = "text-ink text-[15px] font-[600]";
 
 export default function RequestDetailsLayout({
     route,
@@ -103,11 +103,11 @@ export default function RequestDetailsLayout({
                 hasAcceptedOffer={hasAcceptedOffer}
             />
 
-            <h1 className={`text-center text-[#0B298F] text-[26px] font-[400] ${subtitle ? "mb-3" : "mb-12"}`}>
+            <h1 className={`text-center text-navy text-[26px] font-[400] ${subtitle ? "mb-3" : "mb-12"}`}>
                 {title}
             </h1>
             {subtitle && (
-                <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-12">
+                <h2 className="text-center text-secondary text-[16px] font-[400] mb-12">
                     {subtitle}
                 </h2>
             )}
@@ -124,7 +124,7 @@ export default function RequestDetailsLayout({
                         <div className="flex flex-col">
                             <div className="flex items-start gap-4">
                                 <div className="flex flex-col items-center self-stretch">
-                                    <div className="w-3 h-3 rounded-full bg-[#0B298F] shrink-0 mt-1"/>
+                                    <div className="w-3 h-3 rounded-full bg-navy shrink-0 mt-1"/>
                                     <div className="w-px flex-1 bg-[#D0D7F0] mt-1"/>
                                 </div>
                                 <div className="pb-5 flex-1">
@@ -135,7 +135,7 @@ export default function RequestDetailsLayout({
                             {(route.waypoints || []).map((wp, i) => (
                                 <div key={i} className="flex items-start gap-4">
                                     <div className="flex flex-col items-center self-stretch">
-                                        <div className="w-3 h-3 rounded-full border-2 border-[#0B298F] bg-white shrink-0 mt-1"/>
+                                        <div className="w-3 h-3 rounded-full border-2 border-navy bg-white shrink-0 mt-1"/>
                                         <div className="w-px flex-1 bg-[#D0D7F0] mt-1"/>
                                     </div>
                                     <div className="pb-5 flex-1">
@@ -145,7 +145,7 @@ export default function RequestDetailsLayout({
                                 </div>
                             ))}
                             <div className="flex items-start gap-4">
-                                <div className="w-3 h-3 rounded-full bg-[#0B298F] shrink-0 mt-1"/>
+                                <div className="w-3 h-3 rounded-full bg-navy shrink-0 mt-1"/>
                                 <div className="flex-1">
                                     <p className={rowLabel}>Lokalizacja końcowa</p>
                                     <p className={rowValue}>{route.destination.address}</p>
@@ -158,7 +158,7 @@ export default function RequestDetailsLayout({
                     <section className={detailsStyles.card}>
                         <CardHeader title="Termin wyjazdu" editLabel="Edytuj termin wyjazdu" onEdit={onEditDateTime}/>
                         <div className="flex flex-col -mx-8">
-                            <div className="flex items-center gap-4 px-8 py-4 border-b border-[#F0F1F3]">
+                            <div className="flex items-center gap-4 px-8 py-4 border-b border-surface">
                                 <div className={iconCircle}>
                                     <Calendar width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
                                 </div>
@@ -183,7 +183,7 @@ export default function RequestDetailsLayout({
                     <section className={detailsStyles.card}>
                         <CardHeader title="Pasażerowie" editLabel="Edytuj liczbę pasażerów" onEdit={onEditPassengers}/>
                         <div className="flex flex-col -mx-8">
-                            <div className="flex items-center gap-4 px-8 py-4 border-b border-[#F0F1F3]">
+                            <div className="flex items-center gap-4 px-8 py-4 border-b border-surface">
                                 <div className={iconCircle}>
                                     <Group width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
                                 </div>
@@ -192,7 +192,7 @@ export default function RequestDetailsLayout({
                                     <p className={rowValue}>{adults} dorosłych</p>
                                 </div>
                             </div>
-                            <div className={`flex items-center gap-4 px-8 py-4 ${childSeats > 0 ? "border-b border-[#F0F1F3]" : ""}`}>
+                            <div className={`flex items-center gap-4 px-8 py-4 ${childSeats > 0 ? "border-b border-surface" : ""}`}>
                                 <div className={iconCircle}>
                                     <Group width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
                                 </div>

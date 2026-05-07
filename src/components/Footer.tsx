@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import logo from "@/assets/logo.png";
 import {
   LinkedInIcon,
@@ -13,7 +13,7 @@ import {
 export default function Footer() {
   return (
     <footer>
-      <div className="bg-[#0B298F] text-white">
+      <div className="bg-navy text-white">
         <div className="max-w-[1150px] mx-auto px-4 py-12 lg:py-16 flex flex-col lg:flex-row gap-10 lg:gap-6">
 
           {/* Kolumna 1: Logo + opis + social */}
@@ -78,8 +78,8 @@ export default function Footer() {
       </div>
 
       {/* Dolny pasek */}
-      <div className="bg-[#FFC428] p-2 text-center">
-        <span className="text-[#010101] text-[13px]">© 2026 Wayoo Prosta Spółka Akcyjna. Wszelkie prawa zastrzeżone.</span>
+      <div className="bg-yellow p-2 text-center">
+        <span className="text-ink text-[13px]">© 2026 Wayoo Prosta Spółka Akcyjna. Wszelkie prawa zastrzeżone.</span>
       </div>
     </footer>
   );

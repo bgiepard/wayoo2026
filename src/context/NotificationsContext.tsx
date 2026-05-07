@@ -1,27 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-
-export interface Notification {
-  id: string;
-  type: "new_offer" | "info";
-  title: string;
-  message: string;
-  link?: string;
-  read: boolean;
-  createdAt: Date;
-}
-
-interface NotificationsContextType {
-  notifications: Notification[];
-  unreadCount: number;
-  addNotification: (notification: Omit<Notification, "id" | "read" | "createdAt">) => void;
-  addLocalNotification: (notification: Omit<Notification, "id" | "read" | "createdAt">) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  clearAll: () => void;
-  refreshNotifications: () => Promise<void>;
-  isLoading: boolean;
-}
+import type { Notification, NotificationsContextType } from "@/models";
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 

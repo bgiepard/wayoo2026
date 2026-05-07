@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+﻿import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,7 +23,7 @@ export default function Header() {
 
   return (
     <header>
-      <div className="bg-[#0B298F] px-4 py-[18px]">
+      <div className="bg-navy px-4 py-[18px]">
         <div className="max-w-[1150px] mx-auto flex justify-between items-center">
           <Link href="/" className="text-xl font-semibold">
             <Image src={logo} width={120} height={40} alt="Wayoo logo" />
@@ -111,7 +111,7 @@ export default function Header() {
       </div>
 
       {/* Desktop nav bar */}
-      <div className="hidden lg:block bg-[#081D66]">
+      <div className="hidden lg:block bg-navy-dark">
         <nav className="max-w-[1150px] mx-auto flex justify-center items-center gap-8 py-2 text-sm text-white">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="hover:text-gray-300 py-2 px-4 text-[14px] font-[600]">
@@ -131,7 +131,7 @@ export default function Header() {
 
       {/* Mobile menu drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-[300px] bg-[#0B298F] z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-0 right-0 h-full w-[300px] bg-navy z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

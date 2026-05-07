@@ -1,4 +1,4 @@
-import {GetServerSideProps} from "next";
+﻿import {GetServerSideProps} from "next";
 import {getServerSession} from "next-auth";
 import Link from "next/link";
 import {useState, useEffect} from "react";
@@ -28,12 +28,12 @@ interface Props {
 type Tab = "active" | "completed";
 
 const statusConfig: Record<string, { label: string; bg: string; text: string; dot: string; border: string }> = {
-    draft: {label: "Wersja robocza", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#9B9DA3]", border: "border-[#D9DADC]"},
-    published_waiting: {label: "Oczekuje na oferty", bg: "bg-[#FFF8E1]", text: "text-[#B8860B]", dot: "bg-[#B8860B]", border: "border-[#E6D08A]"},
-    published_offers: {label: "", bg: "bg-[#E6F6EC]", text: "text-[#01A83D]", dot: "bg-[#01A83D]", border: "border-[#A3DFB8]"},
-    accepted: {label: "Kierowca wybrany", bg: "bg-[#EEF2FF]", text: "text-[#0B298F]", dot: "bg-[#0B298F]", border: "border-[#C7D2FE]"},
-    completed: {label: "Zakończone", bg: "bg-[#F0F1F3]", text: "text-[#5B5E68]", dot: "bg-[#5B5E68]", border: "border-[#D9DADC]"},
-    canceled: {label: "Anulowane", bg: "bg-[#FDEAEA]", text: "text-[#D32F2F]", dot: "bg-[#D32F2F]", border: "border-[#F0B8B8]"},
+    draft: {label: "Wersja robocza", bg: "bg-surface", text: "text-secondary", dot: "bg-tertiary", border: "border-line"},
+    published_waiting: {label: "Oczekuje na oferty", bg: "bg-warning-bg", text: "text-warning", dot: "bg-warning", border: "border-warning-border"},
+    published_offers: {label: "", bg: "bg-success-bg", text: "text-success", dot: "bg-success", border: "border-success-border"},
+    accepted: {label: "Kierowca wybrany", bg: "bg-accent-soft", text: "text-navy", dot: "bg-navy", border: "border-accent-border"},
+    completed: {label: "Zakończone", bg: "bg-surface", text: "text-secondary", dot: "bg-secondary", border: "border-line"},
+    canceled: {label: "Anulowane", bg: "bg-danger-bg", text: "text-danger", dot: "bg-danger", border: "border-danger-border"},
 };
 
 function getStatusInfo(status: RequestStatus, offersCount: number) {
@@ -81,7 +81,7 @@ function formatOfferExpiry(expiresAt: string | null): { label: string; expired: 
     return { label, expired: false, urgent: hoursLeft < 24 };
 }
 
-const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
+const featureBadge = "text-[12px] bg-accent-soft text-navy px-2 py-0.5 rounded-[4px] font-[500]";
 
 export default function MyRequestsPage({requests}: Props) {
     const router = useRouter();
@@ -105,56 +105,56 @@ export default function MyRequestsPage({requests}: Props) {
         <main className="pb-12 px-4 max-w-[1250px] mx-auto">
             {/* Naglowek */}
             <div className="pt-12 mb-10">
-                <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                <h1 className="text-center text-navy text-[26px] font-[400] mb-3">
                     Moje zapytania
                 </h1>
-                <h2 className="text-center text-[#5B5E68] text-[16px] font-[400]">
+                <h2 className="text-center text-secondary text-[16px] font-[400]">
                     Przeglądaj swoje zlecenia transportowe i sprawdzaj oferty przewoźników.
                 </h2>
             </div>
 
             {/* Taby */}
-            <div className="flex gap-1 mb-8 border-b border-[#D9DADC]">
+            <div className="flex gap-1 mb-8 border-b border-line">
                 <button
                     onClick={() => setActiveTab("active")}
                     className={`px-5 py-3 text-[14px] font-[500] transition-colors relative ${
                         activeTab === "active"
-                            ? "text-[#0B298F]"
-                            : "text-[#9B9DA3] hover:text-[#5B5E68]"
+                            ? "text-navy"
+                            : "text-tertiary hover:text-secondary"
                     }`}
                 >
                     Aktywne ({activeRequests.length})
                     {activeTab === "active" && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0B298F]"/>
+                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-navy"/>
                     )}
                 </button>
                 <button
                     onClick={() => setActiveTab("completed")}
                     className={`px-5 py-3 text-[14px] font-[500] transition-colors relative ${
                         activeTab === "completed"
-                            ? "text-[#0B298F]"
-                            : "text-[#9B9DA3] hover:text-[#5B5E68]"
+                            ? "text-navy"
+                            : "text-tertiary hover:text-secondary"
                     }`}
                 >
                     Zakończone ({completedRequests.length})
                     {activeTab === "completed" && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0B298F]"/>
+                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-navy"/>
                     )}
                 </button>
             </div>
 
             {/* Pusta lista */}
             {displayedRequests.length === 0 ? (
-                <div className="bg-white rounded-[8px] border border-[#D9DADC] p-16 text-center">
-                    <div className="w-16 h-16 rounded-full bg-[#F0F1F3] flex items-center justify-center mx-auto mb-6">
+                <div className="bg-white rounded-[8px] border border-line p-16 text-center">
+                    <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mx-auto mb-6">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                             <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
                     </div>
-                    <p className="text-[#010101] text-[18px] font-[500] mb-2">
+                    <p className="text-ink text-[18px] font-[500] mb-2">
                         {activeTab === "active" ? "Brak aktywnych zapytań" : "Brak zakończonych zapytań"}
                     </p>
-                    <p className="text-[#5B5E68] text-[14px] max-w-[360px] mx-auto">
+                    <p className="text-secondary text-[14px] max-w-[360px] mx-auto">
                         {activeTab === "active"
                             ? "Złóż nowe zapytanie transportowe, a oferty pojawią się tutaj."
                             : "Twoje zakończone i anulowane zlecenia pojawią się tutaj."}
@@ -162,7 +162,7 @@ export default function MyRequestsPage({requests}: Props) {
                     {activeTab === "active" && (
                         <Link
                             href="/"
-                            className="inline-block mt-6 bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors"
+                            className="inline-block mt-6 bg-navy hover:bg-navy-hover text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors"
                         >
                             Złóż zapytanie
                         </Link>
@@ -184,27 +184,27 @@ export default function MyRequestsPage({requests}: Props) {
                             <Link
                                 key={request.id}
                                 href={`/request/${request.id}`}
-                                className="bg-white rounded-[8px] border border-[#D9DADC] p-6 hover:border-[#0B298F] transition-all group"
+                                className="bg-white rounded-[8px] border border-line p-6 hover:border-navy transition-all group"
                             >
                                 {/* Gora: trasa + status */}
                                 <div className="flex items-start justify-between mb-5">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
                                             <DraftOriginIcon/>
-                                            <span className="text-[#010101] text-[16px] font-[600] truncate">
+                                            <span className="text-ink text-[16px] font-[600] truncate">
                                                 {originName}
                                             </span>
                                         </div>
                                         {waypointsCount > 0 && (
                                             <div className="ml-[28px] mb-1">
-                                                <span className="text-[#9B9DA3] text-[13px]">
+                                                <span className="text-tertiary text-[13px]">
                                                     + {waypointsCount} {waypointsCount === 1 ? "przystanek" : waypointsCount < 5 ? "przystanki" : "przystankow"}
                                                 </span>
                                             </div>
                                         )}
                                         <div className="flex items-center gap-2">
                                             <DraftDestinationIcon/>
-                                            <span className="text-[#010101] text-[16px] font-[600] truncate">
+                                            <span className="text-ink text-[16px] font-[600] truncate">
                                                 {destName}
                                             </span>
                                         </div>
@@ -218,28 +218,28 @@ export default function MyRequestsPage({requests}: Props) {
                                 </div>
 
                                 {/* Separator */}
-                                <div className="border-t border-[#D9DADC] mb-5"/>
+                                <div className="border-t border-line mb-5"/>
 
                                 {/* Srodek: data, godzina, pasazerowie */}
                                 <div className="flex items-center gap-6 mb-4 flex-wrap">
                                     <div className="flex items-center gap-2">
                                         <DraftCalendarIcon/>
-                                        <span className="text-[#5B5E68] text-[14px]">
+                                        <span className="text-secondary text-[14px]">
                                             {formatDatePL(request.date)}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <DraftClockIcon/>
-                                        <span className="text-[#5B5E68] text-[14px]">
+                                        <span className="text-secondary text-[14px]">
                                             {request.time}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <DraftUsersIcon/>
-                                        <span className="text-[#5B5E68] text-[14px]">
+                                        <span className="text-secondary text-[14px]">
                                             {totalPassengers} {totalPassengers === 1 ? "osoba" : totalPassengers < 5 ? "osoby" : "osob"}
                                             {request.children > 0 && (
-                                                <span className="text-[#9B9DA3]"> (w tym {request.children} {request.children === 1 ? "dziecko" : "dzieci"})</span>
+                                                <span className="text-tertiary"> (w tym {request.children} {request.children === 1 ? "dziecko" : "dzieci"})</span>
                                             )}
                                         </span>
                                     </div>
@@ -254,12 +254,12 @@ export default function MyRequestsPage({requests}: Props) {
                                         {request.status === "published" && (() => {
                                             const { label, expired, urgent } = formatOfferExpiry(request.offerExpiresAt);
                                             if (!label) return null;
-                                            if (expired) return <span className="text-[12px] font-[500] bg-[#FDEAEA] text-[#D32F2F] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
-                                            if (urgent) return <span className="text-[12px] font-[500] bg-[#FFF8E1] text-[#B8860B] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
-                                            return <span className="text-[12px] font-[500] bg-[#F0F1F3] text-[#5B5E68] px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                            if (expired) return <span className="text-[12px] font-[500] bg-danger-bg text-danger px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                            if (urgent) return <span className="text-[12px] font-[500] bg-warning-bg text-warning px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
+                                            return <span className="text-[12px] font-[500] bg-surface text-secondary px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
                                         })()}
                                     </div>
-                                    <span className="text-[#9B9DA3] text-[13px] shrink-0 ml-4">
+                                    <span className="text-tertiary text-[13px] shrink-0 ml-4">
                                         {getTimeAgo(request.createdAt)}
                                     </span>
                                 </div>

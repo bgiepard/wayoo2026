@@ -2,12 +2,7 @@ import { createContext, useContext, useEffect, useRef, ReactNode, useState, useC
 import { useSession } from "next-auth/react";
 import { getPusherClient, type NewOfferEvent } from "@/lib/pusher-client";
 import { useNotifications } from "./NotificationsContext";
-
-interface PusherContextType {
-  isConnected: boolean;
-  hasNewNotification: boolean;
-  clearNewNotificationFlag: () => void;
-}
+import type { PusherContextType } from "@/models";
 
 const PusherContext = createContext<PusherContextType | null>(null);
 

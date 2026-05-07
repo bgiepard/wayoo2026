@@ -6,11 +6,7 @@ import {
   markAllNotificationsAsRead,
   createNotification,
 } from "@/services";
-
-interface SessionUser {
-  id?: string;
-  email?: string | null;
-}
+import type { SessionUser } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,

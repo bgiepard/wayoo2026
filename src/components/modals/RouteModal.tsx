@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import ModalShell from "./ModalShell";
 import PlaceAutocomplete from "@/components/PlaceAutocomplete";
 import type { Route, Place } from "@/models";
@@ -17,8 +17,8 @@ export interface RouteModalProps {
 }
 
 const inputCls =
-  "w-full px-4 py-[13px] text-[14px] text-[#010101] bg-white border border-[#E5E7EB] rounded-[10px] " +
-  "focus:border-[#0B298F] focus:ring-2 focus:ring-[#0B298F]/10 outline-none transition-all placeholder:text-[#9B9DA3]";
+  "w-full px-4 py-[13px] text-[14px] text-ink bg-white border border-[#E5E7EB] rounded-[10px] " +
+  "focus:border-navy focus:ring-2 focus:ring-navy/10 outline-none transition-all placeholder:text-tertiary";
 
 // paddingLeft centruje linię dokładnie pod ikonką (w-9 = 36px → środek 18px, linia 2px → środek 1px → PL = 17px)
 const Connector = () => (
@@ -88,8 +88,8 @@ export default function RouteModal({
               data-cy="btn-add-waypoint"
               onClick={handleAddWaypoint}
               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 mb-3
-                         text-[#0B298F] text-[14px] font-medium
-                         hover:bg-[#F0F4FF] rounded-[8px] transition-colors
+                         text-navy text-[14px] font-medium
+                         hover:bg-accent-glow rounded-[8px] transition-colors
                          border border-dashed border-[#C7D2F6]"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ export default function RouteModal({
     >
       {/* Punkt startowy */}
       <div className="flex items-center gap-4">
-        <div className="w-9 h-9 rounded-full bg-[#0B298F] flex items-center justify-center shrink-0 shadow-sm shadow-[#0B298F]/30">
+        <div className="w-9 h-9 rounded-full bg-navy flex items-center justify-center shrink-0 shadow-sm shadow-navy/30">
           <MapPin width={16} height={16} color="white" strokeWidth={2} />
         </div>
         <div className="flex-1">
@@ -132,7 +132,7 @@ export default function RouteModal({
       {localWaypoints.map((waypoint, index) => (
         <div key={index}>
           <div className="flex items-center gap-4">
-            <div className="w-9 h-9 rounded-full bg-[#F0F4FF] border border-[#D0D9F5] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-full bg-accent-glow border border-[#D0D9F5] flex items-center justify-center shrink-0">
               <MapPin width={14} height={14} color="#6B7FD4" strokeWidth={2} />
             </div>
             <div className="flex-1 flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function RouteModal({
 
       {/* Punkt końcowy */}
       <div className="flex items-center gap-4">
-        <div className="w-9 h-9 rounded-full bg-[#0B298F] flex items-center justify-center shrink-0 shadow-sm shadow-[#0B298F]/30">
+        <div className="w-9 h-9 rounded-full bg-navy flex items-center justify-center shrink-0 shadow-sm shadow-navy/30">
           <TriangleFlag width={16} height={16} color="white" strokeWidth={2} />
         </div>
         <div className="flex-1">

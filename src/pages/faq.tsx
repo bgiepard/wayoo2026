@@ -1,20 +1,20 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import Link from "next/link";
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
-    return <p className="text-[11px] font-[700] tracking-[.1em] uppercase text-[#0B298F] mb-[10px]">{children}</p>;
+    return <p className="text-[11px] font-[700] tracking-[.1em] uppercase text-navy mb-[10px]">{children}</p>;
 }
 
 function H2({ children }: { children: React.ReactNode }) {
     return (
-        <h2 className="text-[clamp(22px,3vw,32px)] font-[600] tracking-[-0.022em] text-[#1a1a1a] leading-[1.22] mb-3">
+        <h2 className="text-[clamp(22px,3vw,32px)] font-[600] tracking-[-0.022em] text-foreground leading-[1.22] mb-3">
             {children}
         </h2>
     );
 }
 
 function Lead({ children }: { children: React.ReactNode }) {
-    return <p className="text-[16px] text-[#6b7280] max-w-[580px] mb-11 leading-[1.72]">{children}</p>;
+    return <p className="text-[16px] text-muted max-w-[580px] mb-11 leading-[1.72]">{children}</p>;
 }
 
 const faqs = [
@@ -36,7 +36,7 @@ const faqs = [
     },
     {
         q: "Jak przebiega płatność?",
-        a: "Płatność odbywa się online przez bezpieczną bramkę Stripe — po wybraniu oferty zostaniesz przekierowany do płatności kartą.",
+        a: "Po wybraniu oferty skontaktujesz się bezpośrednio z przewoźnikiem w celu ustalenia formy płatności.",
     },
     {
         q: "Czy mogę anulować zapytanie?",
@@ -55,12 +55,12 @@ const faqs = [
 function FaqItem({ q, a }: { q: string; a: string }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className="border-b border-[#e5e5e5]">
+        <div className="border-b border-chrome">
             <button
                 className="w-full flex items-start justify-between gap-4 py-5 text-left"
                 onClick={() => setOpen((o) => !o)}
             >
-                <span className="text-[15px] font-[600] text-[#1a1a1a] leading-[1.4]">{q}</span>
+                <span className="text-[15px] font-[600] text-foreground leading-[1.4]">{q}</span>
                 <svg
                     width="20" height="20" viewBox="0 0 20 20" fill="none"
                     className={`shrink-0 mt-[2px] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
@@ -69,7 +69,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
                 </svg>
             </button>
             {open && (
-                <p className="text-[14px] text-[#6b7280] leading-[1.72] pb-5">{a}</p>
+                <p className="text-[14px] text-muted leading-[1.72] pb-5">{a}</p>
             )}
         </div>
     );
@@ -79,7 +79,7 @@ export default function FaqPage() {
     return (
         <div>
             {/* HERO */}
-            <div className="bg-[#1e2939] px-6 py-[72px] relative overflow-hidden">
+            <div className="bg-dark px-6 py-[72px] relative overflow-hidden">
                 <div
                     className="absolute inset-0 pointer-events-none"
                     style={{ background: "radial-gradient(ellipse 65% 55% at 75% 55%, rgba(67,97,238,.16) 0%, transparent 70%)" }}
@@ -87,7 +87,7 @@ export default function FaqPage() {
                 <div className="max-w-[1100px] mx-auto relative z-10">
                     <span className="inline-block text-[11px] font-[600] tracking-[.1em] uppercase text-white/40 mb-4">Pomoc i kontakt</span>
                     <h1 className="text-[clamp(26px,3.8vw,44px)] font-[600] text-white leading-[1.17] tracking-[-0.025em] mb-[18px] max-w-[660px]">
-                        Jak możemy <em className="text-[#4361ee] not-italic">Ci pomóc?</em>
+                        Jak możemy <em className="text-blue-alt not-italic">Ci pomóc?</em>
                     </h1>
                     <p className="text-[16px] text-white/60 max-w-[540px] leading-[1.72]">
                         Znajdziesz tu odpowiedzi na najczęściej zadawane pytania oraz dane kontaktowe do naszego zespołu.
@@ -111,7 +111,7 @@ export default function FaqPage() {
             </div>
 
             {/* Kontakt */}
-            <div className="bg-[#f9fafb]">
+            <div className="bg-faint">
                 <div className="max-w-[1100px] mx-auto px-6 py-[72px]">
                     <Eyebrow>Kontakt</Eyebrow>
                     <H2>Skontaktuj się z nami</H2>
@@ -152,18 +152,18 @@ export default function FaqPage() {
                                 href: undefined,
                             },
                         ].map((item) => (
-                            <div key={item.label} className="bg-white border border-[#e5e5e5] rounded-xl p-6 flex flex-col items-start gap-3">
-                                <div className="w-10 h-10 rounded-[10px] bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                            <div key={item.label} className="bg-white border border-chrome rounded-xl p-6 flex flex-col items-start gap-3">
+                                <div className="w-10 h-10 rounded-[10px] bg-accent-soft flex items-center justify-center shrink-0">
                                     {item.icon}
                                 </div>
                                 <div>
-                                    <p className="text-[12px] text-[#6b7280] mb-1">{item.label}</p>
+                                    <p className="text-[12px] text-muted mb-1">{item.label}</p>
                                     {item.href ? (
-                                        <a href={item.href} className="text-[15px] font-[600] text-[#0B298F] hover:underline">
+                                        <a href={item.href} className="text-[15px] font-[600] text-navy hover:underline">
                                             {item.value}
                                         </a>
                                     ) : (
-                                        <p className="text-[15px] font-[600] text-[#1a1a1a]">{item.value}</p>
+                                        <p className="text-[15px] font-[600] text-foreground">{item.value}</p>
                                     )}
                                 </div>
                             </div>
@@ -175,7 +175,7 @@ export default function FaqPage() {
             {/* CTA */}
             <div className="bg-white">
                 <div className="max-w-[1100px] mx-auto px-6 py-[72px]">
-                    <div className="bg-[#0B298F] rounded-xl px-10 py-[50px] text-center">
+                    <div className="bg-navy rounded-xl px-10 py-[50px] text-center">
                         <h2 className="text-[clamp(22px,3vw,32px)] font-[600] text-white leading-[1.22] tracking-[-0.022em]">
                             Gotowy na wygodny transport grupowy?
                         </h2>
@@ -184,7 +184,7 @@ export default function FaqPage() {
                         </p>
                         <Link
                             href="/"
-                            className="bg-white text-[#0B298F] font-[700] px-6 rounded-lg inline-flex items-center h-12 hover:opacity-90 transition-opacity text-[14px]"
+                            className="bg-white text-navy font-[700] px-6 rounded-lg inline-flex items-center h-12 hover:opacity-90 transition-opacity text-[14px]"
                         >
                             Zarezerwuj teraz →
                         </Link>

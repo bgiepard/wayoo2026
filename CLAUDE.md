@@ -13,9 +13,6 @@ npm run dev           # serwer deweloperski (port 3000)
 npm run build         # build produkcyjny
 npm run lint          # ESLint
 npx tsc --noEmit      # sprawdzenie typów
-npm run cy:open       # Cypress UI
-npm run cy:run        # Cypress headless
-npm run migrate:offers  # migracja statusów ofert w Airtable (tsx scripts/)
 ```
 
 ## Stack technologiczny
@@ -24,7 +21,6 @@ npm run migrate:offers  # migracja statusów ofert w Airtable (tsx scripts/)
 - **Tailwind CSS 4** — bez pliku config, `@import "tailwindcss"` w globals.css
 - **Airtable** — baza danych
 - **NextAuth 4** (JWT, cookie: `next-auth.session-token.wayoo`) — email/hasło + Google OAuth
-- **Stripe** — płatności (Checkout Session + Webhook)
 - **Pusher** — real-time WebSocket
 - **Google Maps API** — autocomplete (`@react-google-maps/api`), skrypt globalnie w `_app.tsx`
 - **Statsig** — feature flags i session replay (owija aplikację w `StatsigWrapper`)
@@ -59,7 +55,6 @@ Provider stack w `_app.tsx`: `SessionProvider → StatsigWrapper → Notificatio
 | `/request/draft/details` | Podgląd zlecenia przed opublikowaniem |
 | `/request/[id]` | Szczegóły opublikowanego zlecenia |
 | `/request/[id]/offers` | Lista ofert od kierowców |
-| `/request/[id]/payment` | Płatność Stripe za wybraną ofertę |
 | `/my-requests` | Lista zleceń zalogowanego użytkownika |
 | `/account` | Ustawienia konta |
 
@@ -69,31 +64,24 @@ Provider stack w `_app.tsx`: `SessionProvider → StatsigWrapper → Notificatio
 - `GET /api/my-requests` — zlecenia zalogowanego użytkownika
 - `GET /api/offers?requestId=X` — oferty na zlecenie
 - `PATCH /api/requests/[id]/status` — zmiana statusu zlecenia
-- `POST /api/stripe/create-checkout-session` — inicjacja Stripe Checkout
-- `POST /api/stripe/webhook` — webhook Stripe (weryfikacja podpisu, zmiana statusów na `paid`, odrzucenie innych ofert, powiadomienie kierowcy przez Pusher)
+- `GET /api/requests/[id]/status-check` — sprawdzenie aktualnego statusu zlecenia
 - `GET/PATCH /api/notifications` — powiadomienia użytkownika
 - `POST /api/auth/register` — rejestracja
-
-## Płatności (Stripe)
-
-Flow: użytkownik klika "Zapłać" → `POST /api/stripe/create-checkout-session` (tworzy Checkout Session, zapisuje `stripeSessionId` w Airtable) → redirect do Stripe → po płatności webhook zmienia Request na `paid`, Offer na `paid`, inne oferty na `rejected` → Pusher notification do kierowcy.
-
-Webhook wymaga raw body — Next.js body parser jest wyłączony w `api/stripe/webhook.ts`.
 
 ## Modele danych i statusy
 
 Wszystkie typy w `src/models/index.ts`.
 
-**Request:** `draft` → `published` → `paid` → `completed` | `canceled`
+**Request:** `draft` → `published` → `accepted` → `completed` | `canceled`
 
-**Offer:** `new` → `paid` | `rejected` | `canceled`
+**Offer:** `new` → `accepted` | `rejected` | `canceled`
 
 Pola `route` (typ `Route`) i `options` (typ `Options`) przechowywane jako **JSON stringi** w Airtable — zawsze `JSON.parse` po odczycie, `JSON.stringify` przed zapisem.
 
 ## Real-time (Pusher)
 
 - Kanał: `request-{requestId}` — subskrypcja na zdarzenia dotyczące zlecenia
-- Eventy: `new-offer`, `offer-accepted`, `offer-paid`
+- Eventy: `new-offer`, `offer-accepted`
 - `PusherContext` zarządza połączeniem i auto-subskrybuje kanały aktywnych zleceń; `NotificationsContext` przechowuje listę powiadomień
 
 ## Ważne konwencje

@@ -1,4 +1,4 @@
-import {GetServerSideProps} from "next";
+﻿import {GetServerSideProps} from "next";
 import {useRouter} from "next/router";
 import {useState, useEffect, useCallback} from "react";
 import {getRequestById, getOffersByRequest} from "@/services";
@@ -14,7 +14,7 @@ const vehicleTypeLabels: Record<string, string> = {
     car: "Samochód",
 };
 
-const featureBadge = "text-[12px] bg-[#EEF2FF] text-[#0B298F] px-2 py-0.5 rounded-[4px] font-[500]";
+const featureBadge = "text-[12px] bg-accent-soft text-navy px-2 py-0.5 rounded-[4px] font-[500]";
 
 interface DriverContact {
     name: string | null;
@@ -144,19 +144,19 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
 
             {isRequestAccepted ? (
                 <>
-                    <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                    <h1 className="text-center text-navy text-[26px] font-[400] mb-3">
                         Oferta wybrana
                     </h1>
-                    <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-6">
+                    <h2 className="text-center text-secondary text-[16px] font-[400] mb-6">
                         Skontaktuj się bezpośrednio z kierowcą.
                     </h2>
                 </>
             ) : pendingOffers.length > 0 ? (
                 <>
-                    <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                    <h1 className="text-center text-navy text-[26px] font-[400] mb-3">
                         Wybierz najlepszą ofertę!
                     </h1>
-                    <h2 className="text-center text-[#5B5E68] text-[16px] font-[400] mb-6">
+                    <h2 className="text-center text-secondary text-[16px] font-[400] mb-6">
                         {pendingOffers.length} {pendingOffers.length === 1 ? "oferta dostępna" : pendingOffers.length <= 4 ? "oferty dostępne" : "ofert dostępnych"}
                     </h2>
                 </>
@@ -165,7 +165,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             )}
 
             {/* Szczegóły trasy */}
-            <div className="bg-[#E7EAF4] rounded-[8px] border border-[#D9DADC] p-6 my-16 grid grid-cols-1 sm:grid-cols-4 gap-6">
+            <div className="bg-[#E7EAF4] rounded-[8px] border border-line p-6 my-16 grid grid-cols-1 sm:grid-cols-4 gap-6">
                 {route && (
                     <div className="flex items-start gap-3 sm:col-span-2">
                         <div className="shrink-0 mt-0.5">
@@ -176,8 +176,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                             </svg>
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[12px] text-[#5B5E68] mb-1">Trasa</p>
-                            <p className="text-[14px] font-[500] text-[#010101] break-words">
+                            <p className="text-[12px] text-secondary mb-1">Trasa</p>
+                            <p className="text-[14px] font-[500] text-ink break-words">
                                 {route.origin?.address?.split(",")[0]}
                                 {route.waypoints?.length > 0 && route.waypoints.map((wp: {address: string}, i: number) => (
                                     <span key={i}> → {wp.address?.split(",")[0]}</span>
@@ -196,8 +196,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         </svg>
                     </div>
                     <div>
-                        <p className="text-[12px] text-[#5B5E68] mb-0.5">Data i godzina</p>
-                        <p className="text-[14px] font-[500] text-[#010101]">{request.date}, {request.time}</p>
+                        <p className="text-[12px] text-secondary mb-0.5">Data i godzina</p>
+                        <p className="text-[14px] font-[500] text-ink">{request.date}, {request.time}</p>
                     </div>
                 </div>
 
@@ -211,10 +211,10 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         </svg>
                     </div>
                     <div>
-                        <p className="text-[12px] text-[#5B5E68] mb-0.5">Pasażerowie</p>
-                        <p className="text-[14px] font-[500] text-[#010101]">
+                        <p className="text-[12px] text-secondary mb-0.5">Pasażerowie</p>
+                        <p className="text-[14px] font-[500] text-ink">
                             {request.adults + request.children} os.{" "}
-                            <span className="text-[13px] text-[#5B5E68] font-[400]">
+                            <span className="text-[13px] text-secondary font-[400]">
                                 ({request.adults} dorosłych{request.children > 0 ? `, ${request.children} dzieci` : ""})
                             </span>
                         </p>
@@ -224,9 +224,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
 
             {/* Zaakceptowana oferta */}
             {acceptedOffer && (
-                <div className="bg-[#E6F6EC] rounded-[8px] p-8 border border-[#01A83D]">
+                <div className="bg-success-bg rounded-[8px] p-8 border border-success">
                     {acceptedOffer.vehicle && (
-                        <div className="flex gap-5 mb-6 pb-6 border-b border-[#01A83D]/20">
+                        <div className="flex gap-5 mb-6 pb-6 border-b border-success/20">
                             {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
                                 <div className="flex gap-2 shrink-0">
                                     {acceptedOffer.vehicle.photos.slice(0, 3).map((photo, idx) => (
@@ -241,7 +241,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                     {acceptedOffer.vehicle.photos.length > 3 && (
                                         <button
                                             onClick={() => openLightbox(acceptedOffer.vehicle!.photos, 3)}
-                                            className="w-[80px] h-[80px] rounded-[8px] bg-white flex items-center justify-center text-[#5B5E68] text-[14px] font-[500] hover:bg-[#F5F5F5] transition-colors"
+                                            className="w-[80px] h-[80px] rounded-[8px] bg-white flex items-center justify-center text-secondary text-[14px] font-[500] hover:bg-gray-hover transition-colors"
                                         >
                                             +{acceptedOffer.vehicle.photos.length - 3}
                                         </button>
@@ -249,8 +249,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 </div>
                             )}
                             <div className="flex-1">
-                                <p className="text-[#010101] text-[18px] font-[600]">{acceptedOffer.vehicle.name}</p>
-                                <p className="text-[#5B5E68] text-[14px] mt-1">
+                                <p className="text-ink text-[18px] font-[600]">{acceptedOffer.vehicle.name}</p>
+                                <p className="text-secondary text-[14px] mt-1">
                                     {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} · {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type} · {acceptedOffer.vehicle.seats} miejsc
                                 </p>
                                 <div className="flex gap-2 mt-3 flex-wrap">
@@ -272,22 +272,22 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 </svg>
                             </div>
                             <div>
-                                <p className="text-[#010101] text-[16px] font-[600]">{acceptedOffer.driverName || "Nieznany"}</p>
+                                <p className="text-ink text-[16px] font-[600]">{acceptedOffer.driverName || "Nieznany"}</p>
                             </div>
                         </div>
-                        <p className="text-[#010101] text-[28px] font-[600] leading-tight shrink-0">{acceptedOffer.price} PLN</p>
+                        <p className="text-ink text-[28px] font-[600] leading-tight shrink-0">{acceptedOffer.price} PLN</p>
                     </div>
 
                     {/* Dane kontaktowe kierowcy */}
                     {driverContact && (
-                        <div className="bg-white rounded-[8px] p-4 border border-[#01A83D]/30 mt-2">
-                            <p className="text-[12px] text-[#5B5E68] font-[500] uppercase tracking-wide mb-3">Dane kontaktowe kierowcy</p>
+                        <div className="bg-white rounded-[8px] p-4 border border-success/30 mt-2">
+                            <p className="text-[12px] text-secondary font-[500] uppercase tracking-wide mb-3">Dane kontaktowe kierowcy</p>
                             <div className="flex flex-col gap-2">
                                 {driverContact.name && (
-                                    <p className="text-[15px] font-[600] text-[#010101]">{driverContact.name}</p>
+                                    <p className="text-[15px] font-[600] text-ink">{driverContact.name}</p>
                                 )}
                                 {driverContact.phone && (
-                                    <a href={`tel:${driverContact.phone}`} className="flex items-center gap-2 text-[#0B298F] text-[15px] font-[500] hover:underline">
+                                    <a href={`tel:${driverContact.phone}`} className="flex items-center gap-2 text-navy text-[15px] font-[500] hover:underline">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 10.82 19.79 19.79 0 01.77 2.18 2 2 0 012.75 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.28-1.28a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
@@ -295,7 +295,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                     </a>
                                 )}
                                 {driverContact.email && (
-                                    <a href={`mailto:${driverContact.email}`} className="flex items-center gap-2 text-[#0B298F] text-[15px] font-[500] hover:underline">
+                                    <a href={`mailto:${driverContact.email}`} className="flex items-center gap-2 text-navy text-[15px] font-[500] hover:underline">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                             <polyline points="22,6 12,13 2,6" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -309,7 +309,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
 
                     {acceptedOffer.message && (
                         <div className="mt-4 bg-white/60 rounded-[6px] px-4 py-3">
-                            <p className="text-[#5B5E68] text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
+                            <p className="text-secondary text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
                         </div>
                     )}
                 </div>
@@ -318,9 +318,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             {/* Oczekiwanie na oferty */}
             {!acceptedOffer && offers.length === 0 && (
                 <div className="p-16 text-center">
-                    <div className="w-12 h-12 border-[3px] border-[#D9DADC] border-t-[#0B298F] rounded-full animate-spin mx-auto mb-6"/>
-                    <p className="text-[#010101] text-[20px] font-[500]">Oczekiwanie na oferty...</p>
-                    <p className="text-[#5B5E68] text-[14px] mt-2 max-w-[400px] mx-auto">
+                    <div className="w-12 h-12 border-[3px] border-line border-t-[#0B298F] rounded-full animate-spin mx-auto mb-6"/>
+                    <p className="text-ink text-[20px] font-[500]">Oczekiwanie na oferty...</p>
+                    <p className="text-secondary text-[14px] mt-2 max-w-[400px] mx-auto">
                         Przewoźnicy przeglądają Twoje zapytanie. Powiadomienie pojawi się automatycznie.
                     </p>
                 </div>
@@ -334,7 +334,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     )}
                     <div className="flex flex-col gap-6">
                         {pendingOffers.map((offer) => (
-                            <div key={offer.id} className="rounded-[8px] border border-[#D9DADC] overflow-hidden">
+                            <div key={offer.id} className="rounded-[8px] border border-line overflow-hidden">
                                 {/* Górna sekcja: pojazd + zdjęcia */}
                                 {offer.vehicle && (
                                     <div className="bg-white p-6 flex gap-6 items-start">
@@ -343,7 +343,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
                                                     <path d="M2.5 9.16663H3.37123M3.37123 9.16663H16.6288M3.37123 9.16663C3.38051 9.12374 3.39147 9.08122 3.40413 9.03922C3.43435 8.93898 3.47702 8.84258 3.56283 8.64952L4.85138 5.75028C5.10614 5.17707 5.23373 4.89029 5.43508 4.68014C5.61306 4.49437 5.83136 4.35246 6.0734 4.26527C6.34723 4.16663 6.66113 4.16663 7.28841 4.16663H12.7113C13.3386 4.16663 13.6528 4.16663 13.9266 4.26527C14.1687 4.35246 14.3866 4.49437 14.5646 4.68014C14.7658 4.89015 14.8932 5.17669 15.1476 5.74913L16.4413 8.66007C16.524 8.84613 16.5661 8.94082 16.5958 9.03922C16.6085 9.08122 16.6195 9.12374 16.6288 9.16663M3.37123 9.16663C3.36085 9.21466 3.35258 9.26315 3.34643 9.31189C3.33333 9.41576 3.33333 9.52135 3.33333 9.73263V14.1666M16.6288 9.16663H17.5M16.6288 9.16663C16.6392 9.21466 16.6475 9.26315 16.6536 9.31189C16.6667 9.41513 16.6667 9.52011 16.6667 9.72883V14.1667M16.6667 14.1667L13.3333 14.1667M16.6667 14.1667V14.9999C16.6667 15.9203 15.9205 16.6666 15 16.6666C14.0795 16.6666 13.3333 15.9204 13.3333 15V14.1667M13.3333 14.1667L6.66667 14.1666M6.66667 14.1666H3.33333M6.66667 14.1666V15C6.66667 15.9204 5.92047 16.6666 5 16.6666C4.07953 16.6666 3.33333 15.9204 3.33333 15V14.1666" stroke="#5B5E68" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                                 </svg>
-                                                <p className="text-[16px] font-[600] text-[#010101]">
+                                                <p className="text-[16px] font-[600] text-ink">
                                                     {offer.vehicle.brand} {offer.vehicle.model} ({offer.vehicle.year})
                                                 </p>
                                             </div>
@@ -354,7 +354,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                                     <path d="M23 21V19C22.9986 18.1137 22.7068 17.2528 22.1694 16.5523C21.6321 15.8519 20.8799 15.3516 20.03 15.13" stroke="#5B5E68" strokeWidth="1.8" strokeLinecap="round"/>
                                                     <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="#5B5E68" strokeWidth="1.8" strokeLinecap="round"/>
                                                 </svg>
-                                                <p className="text-[14px] text-[#5B5E68]">{offer.vehicle.seats} miejsc</p>
+                                                <p className="text-[14px] text-secondary">{offer.vehicle.seats} miejsc</p>
                                             </div>
                                             <div className="flex gap-2 flex-wrap">
                                                 {offer.vehicle.hasWifi && <span className={featureBadge}>Wifi</span>}
@@ -386,9 +386,9 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 )}
 
                                 {/* Dolna sekcja: kierowca + cena + przycisk */}
-                                <div className="bg-[#F5F5F5] px-6 py-4 flex items-center justify-between">
+                                <div className="bg-gray-hover px-6 py-4 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-[40px] h-[40px] rounded-full bg-[#D9DADC] flex items-center justify-center shrink-0">
+                                        <div className="w-[40px] h-[40px] rounded-full bg-line flex items-center justify-center shrink-0">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                                 <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#9B9DA3"/>
                                                 <path d="M12 14C7.58 14 4 16.01 4 18.5V20H20V18.5C20 16.01 16.42 14 12 14Z" fill="#9B9DA3"/>
@@ -396,19 +396,19 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                         </div>
                                         <div>
                                             {offer.driverName && (
-                                                <p className="text-[14px] font-[600] text-[#010101]">{offer.driverName}</p>
+                                                <p className="text-[14px] font-[600] text-ink">{offer.driverName}</p>
                                             )}
                                             {offer.message && (
-                                                <p className="text-[13px] text-[#5B5E68]">Wiadomość: <span className="italic">&quot;{offer.message}&quot;</span></p>
+                                                <p className="text-[13px] text-secondary">Wiadomość: <span className="italic">&quot;{offer.message}&quot;</span></p>
                                             )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 shrink-0">
-                                        <p className="text-[#0B298F] text-[24px] font-[600] leading-tight">{offer.price} zł</p>
+                                        <p className="text-navy text-[24px] font-[600] leading-tight">{offer.price} zł</p>
                                         <button
                                             onClick={() => handleAcceptOffer(offer.id)}
                                             disabled={acceptingOfferId !== null}
-                                            className="bg-[#0B298F] hover:bg-[#091F6B] disabled:opacity-50 text-white px-6 py-3 rounded-xl font-[600] text-[14px] transition-colors"
+                                            className="bg-navy hover:bg-navy-hover disabled:opacity-50 text-white px-6 py-3 rounded-xl font-[600] text-[14px] transition-colors"
                                         >
                                             {acceptingOfferId === offer.id ? "Wybieranie..." : "WYBIERAM OFERTĘ"}
                                         </button>
@@ -419,8 +419,8 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     </div>
 
                     <div className="my-16 flex flex-col items-center gap-3 text-center">
-                        <div className="w-8 h-8 border-[2px] border-[#D9DADC] border-t-[#0B298F] rounded-full animate-spin"/>
-                        <p className="text-[#5B5E68] text-[14px]">
+                        <div className="w-8 h-8 border-[2px] border-line border-t-[#0B298F] rounded-full animate-spin"/>
+                        <p className="text-secondary text-[14px]">
                             Czekamy na kolejne oferty od przewoźników...
                         </p>
                     </div>
@@ -436,7 +436,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 <p className="text-[12px] text-red-600">{cancelError}</p>
                             )}
                             <div className="flex items-center gap-3 text-[14px]">
-                                <span className="text-[#5B5E68]">Na pewno anulować zapytanie?</span>
+                                <span className="text-secondary">Na pewno anulować zapytanie?</span>
                                 <button
                                     onClick={handleCancelRequest}
                                     disabled={isCancelling}
@@ -446,7 +446,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                 </button>
                                 <button
                                     onClick={() => setShowCancelConfirm(false)}
-                                    className="text-[#9B9DA3] hover:text-[#5B5E68] transition-colors"
+                                    className="text-tertiary hover:text-secondary transition-colors"
                                 >
                                     Nie
                                 </button>
@@ -455,7 +455,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     ) : (
                         <button
                             onClick={() => setShowCancelConfirm(true)}
-                            className="text-[#9B9DA3] hover:text-red-500 text-[13px] transition-colors"
+                            className="text-tertiary hover:text-red-500 text-[13px] transition-colors"
                         >
                             Anuluj zapytanie
                         </button>

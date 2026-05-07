@@ -1,4 +1,4 @@
-import {GetServerSideProps} from "next";
+﻿import {GetServerSideProps} from "next";
 import {getServerSession} from "next-auth";
 import {signOut} from "next-auth/react";
 import {useState} from "react";
@@ -124,10 +124,10 @@ export default function AccountPage({user}: Props) {
         <main className="pb-12 px-4 max-w-[1250px] mx-auto">
             {/* Naglowek */}
             <div className="pt-12 mb-10">
-                <h1 className="text-center text-[#0B298F] text-[26px] font-[400] mb-3">
+                <h1 className="text-center text-navy text-[26px] font-[400] mb-3">
                     Moje konto
                 </h1>
-                <h2 className="text-center text-[#5B5E68] text-[16px] font-[400]">
+                <h2 className="text-center text-secondary text-[16px] font-[400]">
                     Zarzadzaj swoimi danymi i ustawieniami konta.
                 </h2>
             </div>
@@ -139,8 +139,8 @@ export default function AccountPage({user}: Props) {
                         onClick={() => setActiveTab("account")}
                         className={`px-4 py-3 text-left text-[14px] font-[500] rounded-[8px] transition-colors ${
                             activeTab === "account"
-                                ? "bg-[#EEF2FF] text-[#0B298F]"
-                                : "text-[#5B5E68] hover:bg-[#F8F9FA]"
+                                ? "bg-accent-soft text-navy"
+                                : "text-secondary hover:bg-disabled"
                         }`}
                     >
                         <div className="flex items-center gap-3">
@@ -155,8 +155,8 @@ export default function AccountPage({user}: Props) {
                         onClick={() => setActiveTab("notifications")}
                         className={`px-4 py-3 text-left text-[14px] font-[500] rounded-[8px] transition-colors ${
                             activeTab === "notifications"
-                                ? "bg-[#EEF2FF] text-[#0B298F]"
-                                : "text-[#5B5E68] hover:bg-[#F8F9FA]"
+                                ? "bg-accent-soft text-navy"
+                                : "text-secondary hover:bg-disabled"
                         }`}
                     >
                         <div className="flex items-center gap-3">
@@ -167,11 +167,11 @@ export default function AccountPage({user}: Props) {
                         </div>
                     </button>
 
-                    <div className="border-t border-[#D9DADC] my-3"/>
+                    <div className="border-t border-line my-3"/>
 
                     <button
                         onClick={handleLogout}
-                        className="px-4 py-3 text-left text-[14px] font-[500] rounded-[8px] text-[#D32F2F] hover:bg-[#FDEAEA] transition-colors"
+                        className="px-4 py-3 text-left text-[14px] font-[500] rounded-[8px] text-danger hover:bg-danger-bg transition-colors"
                     >
                         <div className="flex items-center gap-3">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -187,69 +187,69 @@ export default function AccountPage({user}: Props) {
                     {activeTab === "account" && (
                         <div className="flex flex-col gap-6">
                             {/* Avatar + imie */}
-                            <div className="bg-white rounded-[8px] border border-[#D9DADC] p-8">
-                                <div className="flex items-center gap-5 mb-8 pb-8 border-b border-[#D9DADC]">
-                                    <div className="w-[64px] h-[64px] rounded-full bg-[#0B298F] flex items-center justify-center shrink-0">
+                            <div className="bg-white rounded-[8px] border border-line p-8">
+                                <div className="flex items-center gap-5 mb-8 pb-8 border-b border-line">
+                                    <div className="w-[64px] h-[64px] rounded-full bg-navy flex items-center justify-center shrink-0">
                                         <span className="text-white text-[22px] font-[600]">{initials}</span>
                                     </div>
                                     <div>
-                                        <p className="text-[#010101] text-[20px] font-[600]">
+                                        <p className="text-ink text-[20px] font-[600]">
                                             {user.firstName && user.lastName
                                                 ? `${user.firstName} ${user.lastName}`
                                                 : "Uzytkownik"}
                                         </p>
-                                        <p className="text-[#5B5E68] text-[14px] mt-0.5">{user.email}</p>
+                                        <p className="text-secondary text-[14px] mt-0.5">{user.email}</p>
                                     </div>
                                 </div>
 
-                                <h3 className="text-[#0B298F] text-[20px] font-[400] mb-6">Informacje osobiste</h3>
+                                <h3 className="text-navy text-[20px] font-[400] mb-6">Informacje osobiste</h3>
 
                                 <div className="grid grid-cols-2 gap-x-12 gap-y-6">
                                     {/* Imie */}
                                     <div>
-                                        <span className="text-[#5B5E68] text-[14px] block mb-1">Imie</span>
-                                        <span className="text-[#010101] text-[16px] font-[600]">
-                                            {user.firstName || <span className="text-[#9B9DA3] font-[400]">Nie podano</span>}
+                                        <span className="text-secondary text-[14px] block mb-1">Imie</span>
+                                        <span className="text-ink text-[16px] font-[600]">
+                                            {user.firstName || <span className="text-tertiary font-[400]">Nie podano</span>}
                                         </span>
                                     </div>
 
                                     {/* Nazwisko */}
                                     <div>
-                                        <span className="text-[#5B5E68] text-[14px] block mb-1">Nazwisko</span>
-                                        <span className="text-[#010101] text-[16px] font-[600]">
-                                            {user.lastName || <span className="text-[#9B9DA3] font-[400]">Nie podano</span>}
+                                        <span className="text-secondary text-[14px] block mb-1">Nazwisko</span>
+                                        <span className="text-ink text-[16px] font-[600]">
+                                            {user.lastName || <span className="text-tertiary font-[400]">Nie podano</span>}
                                         </span>
                                     </div>
 
                                     {/* Email */}
                                     <div>
-                                        <span className="text-[#5B5E68] text-[14px] block mb-1">Adres email</span>
+                                        <span className="text-secondary text-[14px] block mb-1">Adres email</span>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[#010101] text-[16px] font-[600]">{user.email}</span>
+                                            <span className="text-ink text-[16px] font-[600]">{user.email}</span>
                                             {user.emailVerified ? (
-                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-[#E6F6EC] text-[#01A83D] font-[500] border border-[#A3DFB8]">
+                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-success-bg text-success font-[500] border border-success-border">
                                                     Zweryfikowany
                                                 </span>
                                             ) : (
-                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-[#FFF8E1] text-[#B8860B] font-[500] border border-[#E6D08A]">
+                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-warning-bg text-warning font-[500] border border-warning-border">
                                                     Niezweryfikowany
                                                 </span>
                                             )}
                                         </div>
                                         {!user.emailVerified && (
                                             verificationSent ? (
-                                                <p className="text-[#01A83D] text-[13px] mt-2">Email weryfikacyjny wysłany. Sprawdź skrzynkę.</p>
+                                                <p className="text-success text-[13px] mt-2">Email weryfikacyjny wysłany. Sprawdź skrzynkę.</p>
                                             ) : (
                                                 <>
                                                     <button
                                                         onClick={handleSendVerification}
                                                         disabled={sendingVerification}
-                                                        className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                                                        className="text-navy text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
                                                     >
                                                         {sendingVerification ? "Wysyłanie..." : "Wyślij link weryfikacyjny"}
                                                     </button>
                                                     {verificationError && (
-                                                        <p className="text-[#D32F2F] text-[13px] mt-1">{verificationError}</p>
+                                                        <p className="text-danger text-[13px] mt-1">{verificationError}</p>
                                                     )}
                                                 </>
                                             )
@@ -258,17 +258,17 @@ export default function AccountPage({user}: Props) {
 
                                     {/* Telefon */}
                                     <div>
-                                        <span className="text-[#5B5E68] text-[14px] block mb-1">Numer telefonu</span>
+                                        <span className="text-secondary text-[14px] block mb-1">Numer telefonu</span>
                                         {user.phone ? (
                                             <>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[#010101] text-[16px] font-[600]">{user.phone}</span>
+                                                    <span className="text-ink text-[16px] font-[600]">{user.phone}</span>
                                                     {phoneVerified ? (
-                                                        <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-[#E6F6EC] text-[#01A83D] font-[500] border border-[#A3DFB8]">
+                                                        <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-success-bg text-success font-[500] border border-success-border">
                                                             Zweryfikowany
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-[#FFF8E1] text-[#B8860B] font-[500] border border-[#E6D08A]">
+                                                        <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-warning-bg text-warning font-[500] border border-warning-border">
                                                             Niezweryfikowany
                                                         </span>
                                                     )}
@@ -277,14 +277,14 @@ export default function AccountPage({user}: Props) {
                                                     <button
                                                         onClick={handleSendPhoneCode}
                                                         disabled={sendingCode}
-                                                        className="text-[#0B298F] text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                                                        className="text-navy text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
                                                     >
                                                         {sendingCode ? "Wysyłanie..." : "Wyślij kod SMS"}
                                                     </button>
                                                 )}
                                                 {!phoneVerified && codeSent && (
                                                     <div className="mt-3 flex flex-col gap-2">
-                                                        <p className="text-[#5B5E68] text-[13px]">Wpisz 6-cyfrowy kod z SMS:</p>
+                                                        <p className="text-secondary text-[13px]">Wpisz 6-cyfrowy kod z SMS:</p>
                                                         <div className="flex items-center gap-2">
                                                             <input
                                                                 type="text"
@@ -293,42 +293,42 @@ export default function AccountPage({user}: Props) {
                                                                 value={smsCode}
                                                                 onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, ""))}
                                                                 placeholder="000000"
-                                                                className="w-[120px] border border-[#D9DADC] rounded-[8px] px-3 py-2 text-[16px] font-[600] tracking-widest text-center focus:outline-none focus:border-[#0B298F]"
+                                                                className="w-[120px] border border-line rounded-[8px] px-3 py-2 text-[16px] font-[600] tracking-widest text-center focus:outline-none focus:border-navy"
                                                             />
                                                             <button
                                                                 onClick={handleVerifyPhoneCode}
                                                                 disabled={verifyingCode || smsCode.length < 4}
-                                                                className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-4 py-2 rounded-[8px] text-[13px] font-[500] transition-colors disabled:opacity-50"
+                                                                className="bg-navy hover:bg-navy-hover text-white px-4 py-2 rounded-[8px] text-[13px] font-[500] transition-colors disabled:opacity-50"
                                                             >
                                                                 {verifyingCode ? "Sprawdzanie..." : "Zweryfikuj"}
                                                             </button>
                                                             <button
                                                                 onClick={handleSendPhoneCode}
                                                                 disabled={sendingCode}
-                                                                className="text-[#9B9DA3] text-[13px] hover:text-[#5B5E68] transition-colors disabled:opacity-50"
+                                                                className="text-tertiary text-[13px] hover:text-secondary transition-colors disabled:opacity-50"
                                                             >
                                                                 Wyślij ponownie
                                                             </button>
                                                         </div>
-                                                        {smsError && <p className="text-[#D32F2F] text-[13px]">{smsError}</p>}
+                                                        {smsError && <p className="text-danger text-[13px]">{smsError}</p>}
                                                     </div>
                                                 )}
                                             </>
                                         ) : (
-                                            <span className="text-[#9B9DA3] text-[16px]">Nie podano</span>
+                                            <span className="text-tertiary text-[16px]">Nie podano</span>
                                         )}
                                     </div>
 
                                     {/* Metoda logowania */}
                                     <div>
-                                        <span className="text-[#5B5E68] text-[14px] block mb-1">Metoda logowania</span>
+                                        <span className="text-secondary text-[14px] block mb-1">Metoda logowania</span>
                                         <div className="flex items-center gap-2">
                                             {user.provider === "google" && (
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                                     <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 4.962-3.32 8.49-8.327 8.49a8.684 8.684 0 0 1-6.154-2.55A8.66 8.66 0 0 1-1.347 8a8.684 8.684 0 0 1 2.55-6.154A8.66 8.66 0 0 1 7.357-.704c2.34 0 4.303.86 5.812 2.266L10.9 3.83C10.039 3.007 8.862 2.58 7.357 2.58c-2.998 0-5.42 2.546-5.42 5.42 0 2.873 2.422 5.42 5.42 5.42 2.777 0 4.603-1.583 4.987-3.756H7.357V7.023h7.73c.26 0 .458.3.458.536z" transform="translate(0.5 0.5)" fill="#4285F4"/>
                                                 </svg>
                                             )}
-                                            <span className="text-[#010101] text-[16px] font-[600]">
+                                            <span className="text-ink text-[16px] font-[600]">
                                                 {providerLabels[user.provider] || user.provider}
                                             </span>
                                         </div>
@@ -339,25 +339,25 @@ export default function AccountPage({user}: Props) {
                     )}
 
                     {activeTab === "notifications" && (
-                        <div className="bg-white rounded-[8px] border border-[#D9DADC] p-8">
-                            <h3 className="text-[#0B298F] text-[20px] font-[400] mb-2">Ustawienia powiadomien</h3>
-                            <p className="text-[#5B5E68] text-[14px] mb-8">Wybierz, w jaki sposob chcesz otrzymywac powiadomienia o swoich zleceniach.</p>
+                        <div className="bg-white rounded-[8px] border border-line p-8">
+                            <h3 className="text-navy text-[20px] font-[400] mb-2">Ustawienia powiadomien</h3>
+                            <p className="text-secondary text-[14px] mb-8">Wybierz, w jaki sposob chcesz otrzymywac powiadomienia o swoich zleceniach.</p>
 
                             <div className="flex flex-col gap-3">
                                 {/* Email */}
-                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-[#D9DADC] hover:border-[#0B298F] transition-colors cursor-pointer">
+                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-line hover:border-navy transition-colors cursor-pointer">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-accent-soft flex items-center justify-center shrink-0">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                 <path d="M2.5 5.83333L8.83248 10.5962C9.21524 10.8784 9.40662 11.0196 9.61622 11.0722C9.80167 11.1188 9.99505 11.1188 10.1805 11.0722C10.3901 11.0196 10.5815 10.8784 10.9643 10.5962L17.5 5.83333M5.66667 16.6667H14.3333C15.7335 16.6667 16.4335 16.6667 16.9683 16.394C17.4387 16.1545 17.8212 15.772 18.0608 15.3016C18.3333 14.7668 18.3333 14.0668 18.3333 12.6667V7.33333C18.3333 5.93319 18.3333 5.23314 18.0608 4.69836C17.8212 4.22795 17.4387 3.84549 16.9683 3.60582C16.4335 3.33333 15.7335 3.33333 14.3333 3.33333H5.66667C4.26653 3.33333 3.56647 3.33333 3.03169 3.60582C2.56129 3.84549 2.17883 4.22795 1.93916 4.69836C1.66667 5.23314 1.66667 5.93319 1.66667 7.33333V12.6667C1.66667 14.0668 1.66667 14.7668 1.93916 15.3016C2.17883 15.772 2.56129 16.1545 3.03169 16.394C3.56647 16.6667 4.26653 16.6667 5.66667 16.6667Z" stroke="#0B298F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-[#010101] text-[16px] font-[500] block">Powiadomienia email</span>
-                                            <span className="text-[#5B5E68] text-[13px]">Otrzymuj aktualizacje na swoj adres email</span>
+                                            <span className="text-ink text-[16px] font-[500] block">Powiadomienia email</span>
+                                            <span className="text-secondary text-[13px]">Otrzymuj aktualizacje na swoj adres email</span>
                                         </div>
                                     </div>
-                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.email ? "bg-[#0B298F]" : "bg-[#D9DADC]"}`}>
+                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.email ? "bg-navy" : "bg-line"}`}>
                                         <div className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-white shadow transition-transform ${notifications.email ? "left-[22px]" : "left-[2px]"}`}/>
                                         <input
                                             type="checkbox"
@@ -369,19 +369,19 @@ export default function AccountPage({user}: Props) {
                                 </label>
 
                                 {/* Push */}
-                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-[#D9DADC] hover:border-[#0B298F] transition-colors cursor-pointer">
+                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-line hover:border-navy transition-colors cursor-pointer">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-accent-soft flex items-center justify-center shrink-0">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                 <path d="M7.5 15C7.5 15.663 7.76339 16.2989 8.23223 16.7678C8.70107 17.2366 9.33696 17.5 10 17.5C10.663 17.5 11.2989 17.2366 11.7678 16.7678C12.2366 16.2989 12.5 15.663 12.5 15M10 2.5V4.16667M16.6667 8.33333C16.6667 6.56522 15.9643 4.86953 14.714 3.61929C13.4638 2.36905 11.7681 1.66667 10 1.66667C8.2319 1.66667 6.53621 2.36905 5.28596 3.61929C4.03572 4.86953 3.33334 6.56522 3.33334 8.33333C3.33334 11.1025 2.63376 13.0171 1.90398 14.2807C1.28899 15.3461 0.981499 15.8788 0.993857 16.0335C1.00753 16.2057 1.04036 16.2713 1.18092 16.3739C1.30584 16.4652 1.84536 16.4652 2.92441 16.4652H17.0756C18.1547 16.4652 18.6942 16.4652 18.8191 16.3739C18.9597 16.2713 18.9925 16.2057 19.0062 16.0335C19.0185 15.8788 18.711 15.3461 18.096 14.2807C17.3663 13.0171 16.6667 11.1025 16.6667 8.33333Z" stroke="#0B298F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-[#010101] text-[16px] font-[500] block">Powiadomienia push</span>
-                                            <span className="text-[#5B5E68] text-[13px]">Powiadomienia w przegladarce w czasie rzeczywistym</span>
+                                            <span className="text-ink text-[16px] font-[500] block">Powiadomienia push</span>
+                                            <span className="text-secondary text-[13px]">Powiadomienia w przegladarce w czasie rzeczywistym</span>
                                         </div>
                                     </div>
-                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.push ? "bg-[#0B298F]" : "bg-[#D9DADC]"}`}>
+                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.push ? "bg-navy" : "bg-line"}`}>
                                         <div className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-white shadow transition-transform ${notifications.push ? "left-[22px]" : "left-[2px]"}`}/>
                                         <input
                                             type="checkbox"
@@ -393,19 +393,19 @@ export default function AccountPage({user}: Props) {
                                 </label>
 
                                 {/* SMS */}
-                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-[#D9DADC] hover:border-[#0B298F] transition-colors cursor-pointer">
+                                <label className="flex items-center justify-between p-4 rounded-[8px] border border-line hover:border-navy transition-colors cursor-pointer">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                                        <div className="w-[40px] h-[40px] rounded-[8px] bg-accent-soft flex items-center justify-center shrink-0">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                 <path d="M6.66667 7.5H6.675M10 7.5H10.0083M13.3333 7.5H13.3417M5.83333 13.3333H3.33333C2.41286 13.3333 1.66667 12.5871 1.66667 11.6667V4.16667C1.66667 3.24619 2.41286 2.5 3.33333 2.5H16.6667C17.5871 2.5 18.3333 3.24619 18.3333 4.16667V11.6667C18.3333 12.5871 17.5871 13.3333 16.6667 13.3333H10.8333L5.83333 17.5V13.3333Z" stroke="#0B298F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-[#010101] text-[16px] font-[500] block">Powiadomienia SMS</span>
-                                            <span className="text-[#5B5E68] text-[13px]">Wiadomosci tekstowe na Twoj numer telefonu</span>
+                                            <span className="text-ink text-[16px] font-[500] block">Powiadomienia SMS</span>
+                                            <span className="text-secondary text-[13px]">Wiadomosci tekstowe na Twoj numer telefonu</span>
                                         </div>
                                     </div>
-                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.sms ? "bg-[#0B298F]" : "bg-[#D9DADC]"}`}>
+                                    <div className={`w-[44px] h-[24px] rounded-full transition-colors relative ${notifications.sms ? "bg-navy" : "bg-line"}`}>
                                         <div className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-white shadow transition-transform ${notifications.sms ? "left-[22px]" : "left-[2px]"}`}/>
                                         <input
                                             type="checkbox"
@@ -418,7 +418,7 @@ export default function AccountPage({user}: Props) {
                             </div>
 
                             <div className="flex justify-end mt-8">
-                                <button className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors">
+                                <button className="bg-navy hover:bg-navy-hover text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors">
                                     Zapisz ustawienia
                                 </button>
                             </div>

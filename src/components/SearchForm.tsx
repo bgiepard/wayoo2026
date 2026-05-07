@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useRouter } from "next/router";
 import RouteModal from "./modals/RouteModal";
 import DateTimeModal from "./modals/DateTimeModal";
@@ -135,7 +135,7 @@ export default function SearchForm() {
 
   const buttonBase = "hover:bg-gray-100 text-left text-sm transition-colors pl-3 rounded-[4px]";
   const buttonError = "ring-2 ring-red-400";
-  const labelBase = "text-[#5B5E68] text-xs block";
+  const labelBase = "text-secondary text-xs block";
   const iconBase = "shrink-0 text-gray-500";
   const placeholderBase = "text-gray-400";
 
@@ -168,7 +168,7 @@ export default function SearchForm() {
           </div>
         </button>
 
-        <span className="w-[1px] bg-[#D9DADC] self-stretch my-1" />
+        <span className="w-[1px] bg-line self-stretch my-1" />
 
         <button
           type="button"
@@ -183,7 +183,7 @@ export default function SearchForm() {
           </div>
         </button>
 
-        <span className="w-[1px] bg-[#D9DADC] self-stretch my-1" />
+        <span className="w-[1px] bg-line self-stretch my-1" />
 
         <button
           type="button"
@@ -216,21 +216,21 @@ export default function SearchForm() {
         >
           <RouteIcon className="shrink-0 text-gray-500" />
           <div className="min-w-0">
-            <span className="block text-[15px] font-semibold text-[#010101]">Trasa</span>
+            <span className="block text-[15px] font-semibold text-ink">Trasa</span>
             {hasRoute ? (
-              <span className="text-[14px] text-[#010101] truncate block">
+              <span className="text-[14px] text-ink truncate block">
                 {data.route.origin.address.split(",")[0]}
                 {waypointsCount > 0 && ` → ${waypointsCount} przyst.`}
                 {" → "}
                 {data.route.destination.address.split(",")[0]}
               </span>
             ) : (
-              <span className="text-[14px] text-[#9CA3AF]">Wybierz punkty trasy</span>
+              <span className="text-[14px] text-tertiary">Wybierz punkty trasy</span>
             )}
           </div>
         </button>
 
-        <div className="h-[1px] bg-[#D9DADC] mx-5" />
+        <div className="h-[1px] bg-line mx-5" />
 
         <button
           type="button"
@@ -239,16 +239,16 @@ export default function SearchForm() {
         >
           <DatesIcon className="shrink-0 text-gray-500" />
           <div className="min-w-0">
-            <span className="block text-[15px] font-semibold text-[#010101]">Termin</span>
+            <span className="block text-[15px] font-semibold text-ink">Termin</span>
             {data.date && data.time ? (
-              <span className="text-[14px] text-[#010101]">{data.date} {data.time}</span>
+              <span className="text-[14px] text-ink">{data.date} {data.time}</span>
             ) : (
-              <span className="text-[14px] text-[#9CA3AF]">Wybierz termin wyjazdu</span>
+              <span className="text-[14px] text-tertiary">Wybierz termin wyjazdu</span>
             )}
           </div>
         </button>
 
-        <div className="h-[1px] bg-[#D9DADC] mx-5" />
+        <div className="h-[1px] bg-line mx-5" />
 
         <button
           type="button"
@@ -257,11 +257,11 @@ export default function SearchForm() {
         >
           <PassengersIcon className="shrink-0 text-gray-500" />
           <div className="min-w-0">
-            <span className="block text-[15px] font-semibold text-[#010101]">Pasażerowie</span>
+            <span className="block text-[15px] font-semibold text-ink">Pasażerowie</span>
             {data.adults + data.children > 0 ? (
-              <span className="text-[14px] text-[#010101]">{data.adults + data.children} os.</span>
+              <span className="text-[14px] text-ink">{data.adults + data.children} os.</span>
             ) : (
-              <span className="text-[14px] text-[#9CA3AF]">Wybierz liczbę pasażerów</span>
+              <span className="text-[14px] text-tertiary">Wybierz liczbę pasażerów</span>
             )}
           </div>
         </button>
@@ -269,7 +269,7 @@ export default function SearchForm() {
         <div className="px-5 pb-5 pt-2">
           <button
             type="submit"
-            className="w-full py-4 bg-[#0B298F] text-white text-[16px] font-semibold rounded-[8px]"
+            className="w-full py-4 bg-navy text-white text-[16px] font-semibold rounded-[8px]"
           >
             Dalej
           </button>

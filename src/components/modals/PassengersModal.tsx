@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, CSSProperties } from "react";
+﻿import { useState, useEffect, useRef, CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import ModalShell from "./ModalShell";
 import { labelBase, inputBase } from "@/components/ui/modalStyles";
@@ -72,7 +72,7 @@ function AgeDropdown({
         onClick={handleToggle}
         className={`${inputBase} flex items-center text-left ${open ? "border-blue-500 ring-1 ring-blue-500" : ""}`}
       >
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-[#5B5E68]">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-secondary">
           <ChildIcon className="w-5 h-5" />
         </div>
         <span className={selected ? "text-gray-900" : "text-gray-400"}>
@@ -130,7 +130,7 @@ function Counter({
 
   return (
     <div className="flex justify-between items-center py-3">
-      <span className="text-[#010101] text-[16px]">{label}</span>
+      <span className="text-ink text-[16px]">{label}</span>
       <div className="flex items-center gap-[10px]">
         <button
           type="button"
@@ -139,13 +139,13 @@ function Counter({
           onClick={() => onChange(Math.max(min, value - 1))}
           className={`${counterBox} transition-colors ${
             canDecrement
-              ? "border-[#0B298F] text-[#0B298F] hover:bg-blue-50"
-              : "border-[#D9DADC] bg-[#F0F0F1] text-[#8E8F96] cursor-not-allowed"
+              ? "border-navy text-navy hover:bg-blue-50"
+              : "border-line bg-surface text-tertiary cursor-not-allowed"
           }`}
         >
           -
         </button>
-        <span className={`${counterBox} border-[#D9DADC] bg-[#FCFDFD] text-gray-900`}>
+        <span className={`${counterBox} border-line bg-[#FCFDFD] text-gray-900`}>
           {value}
         </span>
         <button
@@ -155,8 +155,8 @@ function Counter({
           onClick={() => onChange(value + 1)}
           className={`${counterBox} transition-colors ${
             canIncrement
-              ? "border-[#0B298F] text-[#0B298F] hover:bg-blue-50"
-              : "border-[#D9DADC] bg-[#F0F0F1] text-[#8E8F96] cursor-not-allowed"
+              ? "border-navy text-navy hover:bg-blue-50"
+              : "border-line bg-surface text-tertiary cursor-not-allowed"
           }`}
         >
           +
@@ -253,13 +253,13 @@ export default function PassengersModal({
             <div
               className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 ${
                 localNeedsSeats
-                  ? "bg-[#0B298F] border-[#0B298F]"
-                  : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
+                  ? "bg-navy border-navy"
+                  : "border-line bg-white group-hover:border-tertiary"
               }`}
             >
               {localNeedsSeats && <DraftCheckIcon />}
             </div>
-            <span className="text-[#010101] text-[16px]">Potrzebujesz fotelików?</span>
+            <span className="text-ink text-[16px]">Potrzebujesz fotelików?</span>
           </button>
         )}
 

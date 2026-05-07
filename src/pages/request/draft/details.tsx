@@ -1,4 +1,4 @@
-import {useRouter} from "next/router";
+﻿import {useRouter} from "next/router";
 import {useState, useEffect} from "react";
 import {useSession} from "next-auth/react";
 import LoginModal from "@/components/modals/LoginModal";
@@ -120,7 +120,7 @@ export default function DraftDetailsPage() {
     if (!requestData) {
         return (
             <main className="py-8 px-4 max-w-[1250px] mx-auto">
-                <p className="text-[#5B5E68]">Ładowanie...</p>
+                <p className="text-secondary">Ładowanie...</p>
             </main>
         );
     }
@@ -157,13 +157,13 @@ export default function DraftDetailsPage() {
                                 onClick={() => toggleOption(key)}
                                 className="flex items-center gap-4 px-8 py-4 group hover:bg-[#F8F9FF] transition-colors text-left"
                             >
-                                <div className={`w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 transition-colors ${options[key] ? "bg-[#EEF2FF]" : "bg-[#F0F1F3]"}`}>
+                                <div className={`w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 transition-colors ${options[key] ? "bg-accent-soft" : "bg-surface"}`}>
                                     <Icon width={18} height={18} color={options[key] ? "#0B298F" : "#8E8F96"} strokeWidth={1.8}/>
                                 </div>
-                                <span className={`flex-1 text-[15px] font-[500] transition-colors ${options[key] ? "text-[#010101]" : "text-[#5B5E68]"}`}>
+                                <span className={`flex-1 text-[15px] font-[500] transition-colors ${options[key] ? "text-ink" : "text-secondary"}`}>
                                     {label}
                                 </span>
-                                <div className={`relative w-[44px] h-[24px] rounded-full transition-colors shrink-0 ${options[key] ? "bg-[#0B298F]" : "bg-[#D9DADC]"}`}>
+                                <div className={`relative w-[44px] h-[24px] rounded-full transition-colors shrink-0 ${options[key] ? "bg-navy" : "bg-line"}`}>
                                     <div className={`absolute top-[3px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform ${options[key] ? "translate-x-[23px]" : "translate-x-[3px]"}`}/>
                                 </div>
                             </button>
@@ -172,13 +172,13 @@ export default function DraftDetailsPage() {
 
                     {/* Uwagi specjalne */}
                     <div className="mt-4 pt-2">
-                        <p className="text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-1">Uwagi specjalne</p>
-                        <p className="text-[#9B9DA3] text-[13px] mb-3">Dodatkowe instrukcje lub pytania dla kierowcy</p>
+                        <p className="text-[11px] font-[600] uppercase tracking-wide text-secondary mb-1">Uwagi specjalne</p>
+                        <p className="text-tertiary text-[13px] mb-3">Dodatkowe instrukcje lub pytania dla kierowcy</p>
                         <textarea
                             value={specialNotes}
                             onChange={(e) => setSpecialNotes(e.target.value)}
                             placeholder="Wpisz inne wymagania, instrukcje lub pytania dotyczące podróży..."
-                            className="w-full bg-[#FCFDFD] border border-[#D9DADC] rounded-[8px] px-4 py-3 text-[14px] text-[#010101] placeholder:text-[#9B9DA3] resize-none focus:border-[#0B298F] focus:outline-none transition-colors"
+                            className="w-full bg-[#FCFDFD] border border-line rounded-[8px] px-4 py-3 text-[14px] text-ink placeholder:text-tertiary resize-none focus:border-navy focus:outline-none transition-colors"
                             rows={3}
                         />
                     </div>
@@ -187,31 +187,31 @@ export default function DraftDetailsPage() {
                 {/* Ważność zapytania */}
                 <section className={detailsStyles.card}>
                     <CardHeader title="Ważność zapytania" />
-                    <p className="text-[#5B5E68] text-[14px] -mt-4 mb-6">
+                    <p className="text-secondary text-[14px] -mt-4 mb-6">
                         Ustaw deadline — po tym czasie kierowcy nie będą mogli składać ofert.
                     </p>
                     <button
                         type="button"
                         onClick={() => setActiveModal("offerExpiry")}
-                        className="flex items-center gap-4 -mx-8 px-8 py-4 w-[calc(100%+64px)] group hover:bg-[#F8F9FF] transition-colors rounded-b-[8px] border-t border-[#F0F1F3]"
+                        className="flex items-center gap-4 -mx-8 px-8 py-4 w-[calc(100%+64px)] group hover:bg-[#F8F9FF] transition-colors rounded-b-[8px] border-t border-surface"
                     >
-                        <div className="w-[40px] h-[40px] rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0">
+                        <div className="w-[40px] h-[40px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
                             <Calendar width={18} height={18} color="#0B298F" strokeWidth={1.8}/>
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-[11px] font-[600] uppercase tracking-wide text-[#5B5E68] mb-0.5">Termin ważności</p>
-                            <p className={`text-[15px] font-[600] ${offerExpiresDate ? "text-[#010101]" : "text-[#9B9DA3]"}`}>
+                            <p className="text-[11px] font-[600] uppercase tracking-wide text-secondary mb-0.5">Termin ważności</p>
+                            <p className={`text-[15px] font-[600] ${offerExpiresDate ? "text-ink" : "text-tertiary"}`}>
                                 {offerExpiresDate ? `${offerExpiresDate} · ${offerExpiresTime}` : "Wybierz datę i godzinę"}
                             </p>
                         </div>
-                        <span className="text-[#0B298F] text-[13px] font-[500] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">Zmień →</span>
+                        <span className="text-navy text-[13px] font-[500] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">Zmień →</span>
                     </button>
                 </section>
 
                 {/* Zielony banner */}
-                <div className="bg-[#E6F6EC] rounded-[2px] px-4 py-2 flex items-center gap-3 border border-[#01A83D] mb-8 mt-8">
+                <div className="bg-success-bg rounded-[2px] px-4 py-2 flex items-center gap-3 border border-success mb-8 mt-8">
                     <div className="shrink-0"><DraftCheckBadgeIcon/></div>
-                    <span className="text-[#01A83D] text-[14px] leading-[140%]">
+                    <span className="text-success text-[14px] leading-[140%]">
                         Średni czas ofert przewoźników na podobne zlecenia to 11 minut.
                     </span>
                 </div>
@@ -220,7 +220,7 @@ export default function DraftDetailsPage() {
                 <div className="flex justify-end">
                     {status === "loading" ? (
                         <button disabled
-                                className="bg-gray-200 text-[#5B5E68] px-8 py-3 rounded-xl font-[500] text-[16px]">
+                                className="bg-gray-200 text-secondary px-8 py-3 rounded-xl font-[500] text-[16px]">
                             Ładowanie...
                         </button>
                     ) : (
@@ -228,7 +228,7 @@ export default function DraftDetailsPage() {
                             data-cy="btn-publish"
                             onClick={handlePublish}
                             disabled={isPublishing}
-                            className="bg-[#0B298F] hover:bg-[#091F6B] text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
+                            className="bg-navy hover:bg-navy-hover text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors disabled:opacity-50"
                         >
                             {isPublishing ? "Publikowanie..." : "Sprawdź oferty"}
                         </button>

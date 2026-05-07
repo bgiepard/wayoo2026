@@ -1,4 +1,4 @@
-
+﻿
 interface Props {
   requestId?: string;
   activeStep: number;
@@ -24,17 +24,17 @@ export default function RequestSteps({ requestId, activeStep, hasAcceptedOffer =
           <div className="w-full flex-col">
             <div className="flex items-center justify-center gap-[10px]">
               <div className={`w-6 h-6 rounded-[8px] flex shrink-0 items-center justify-center text-[16px] font-[600] transition-colors ${
-                isActive ? "bg-[#0B298F] text-white" : accessible ? "bg-[#F0F0F1] md:bg-gray-100 text-[#8E8F96] md:text-gray-700" : "bg-[#F0F0F1] md:bg-gray-50 text-[#8E8F96] md:text-gray-400"
+                isActive ? "bg-navy text-white" : accessible ? "bg-surface md:bg-gray-100 text-tertiary md:text-gray-700" : "bg-surface md:bg-gray-50 text-tertiary md:text-gray-400"
               }`}>
                 {step.id}
               </div>
               <span className={`font-[13px] w-full ${
-                isActive ? "text-[#0B298F] block" : accessible ? "text-gray-600 hidden md:block" : "text-gray-400 hidden md:block"
+                isActive ? "text-navy block" : accessible ? "text-gray-600 hidden md:block" : "text-gray-400 hidden md:block"
               }`}>
                 {step.label}
               </span>
             </div>
-            <div className={`h-1 rounded mt-3 ${isActive ? "w-full bg-[#0B298F]" : "w-6 md:w-full bg-[#F0F0F1] md:bg-gray-200"}`} />
+            <div className={`h-1 rounded mt-3 ${isActive ? "w-full bg-navy" : "w-6 md:w-full bg-surface md:bg-gray-200"}`} />
           </div>
         );
 
