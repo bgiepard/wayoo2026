@@ -5,7 +5,8 @@ import {getRequestById, getOffersByRequest} from "@/services";
 import type {RequestData, OfferData} from "@/models";
 import RequestSteps from "@/components/RequestSteps";
 import {getPusherClient, type NewOfferEvent} from "@/lib/pusher-client";
-import {ChevronLeftIcon, ChevronRightIcon, CloseIcon} from "@/components/icons";
+import {ChevronLeftIcon, ChevronRightIcon, CloseIcon, ChevronDownIcon} from "@/components/icons";
+import {Calendar, Clock, Group, ChatBubble, Bus, DirectorChair, Sparks} from "iconoir-react";
 
 const vehicleTypeLabels: Record<string, string> = {
     bus: "Autobus",
@@ -31,6 +32,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
     const router = useRouter();
     const [offers, setOffers] = useState<OfferData[]>(initialOffers);
     const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
+    const [isRouteExpanded, setIsRouteExpanded] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
     const [cancelError, setCancelError] = useState("");
@@ -165,153 +167,226 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
             )}
 
             {/* Szczegóły trasy */}
-            <div className="bg-[#E7EAF4] rounded-[8px] border border-line p-6 my-16 grid grid-cols-1 sm:grid-cols-4 gap-6">
-                {route && (
-                    <div className="flex items-start gap-3 sm:col-span-2">
-                        <div className="shrink-0 mt-0.5">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="5" r="2" stroke="#0B298F" strokeWidth="2"/>
-                                <path d="M12 7V17" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 2"/>
-                                <circle cx="12" cy="19" r="2" stroke="#0B298F" strokeWidth="2"/>
-                            </svg>
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[12px] text-secondary mb-1">Trasa</p>
-                            <p className="text-[14px] font-[500] text-ink break-words">
-                                {route.origin?.address?.split(",")[0]}
-                                {route.waypoints?.length > 0 && route.waypoints.map((wp: {address: string}, i: number) => (
-                                    <span key={i}> → {wp.address?.split(",")[0]}</span>
+            <div className="bg-white rounded-[12px] my-10" style={{border: "1px solid var(--border)", boxShadow: "0 2px 10px rgba(0,0,0,0.06)"}}>
+                {/* Nagłówek karty — klikalny */}
+                <button
+                    onClick={() => setIsRouteExpanded(v => !v)}
+                    className="w-full px-6 py-3.5 flex items-center gap-2.5 hover:bg-[#fafafa] transition-colors rounded-t-[12px]"
+                    style={{borderBottom: isRouteExpanded ? "1px solid var(--border)" : "none"}}
+                >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                        <circle cx="5" cy="5" r="2.5" stroke="#0B298F" strokeWidth="2"/>
+                        <path d="M5 7.5V16.5" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeDasharray="2.5 2.5"/>
+                        <circle cx="5" cy="19" r="2.5" stroke="#0B298F" strokeWidth="2"/>
+                        <path d="M10 5H21M10 19H21" stroke="#0B298F" strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                    <h3 className="text-navy text-[12px] font-[700] uppercase tracking-[0.08em]">Szczegóły trasy</h3>
+                    {!isRouteExpanded && route && (
+                        <span className="flex-1 text-left text-[13px] font-[500] text-ink ml-2 truncate">
+                            {route.origin?.address?.split(",")[0]}
+                            <span className="text-secondary mx-1.5">→</span>
+                            {route.destination?.address?.split(",")[0]}
+                        </span>
+                    )}
+                    <ChevronDownIcon
+                        className="w-4 h-4 text-secondary shrink-0 transition-transform duration-200 ml-auto"
+                        style={{transform: isRouteExpanded ? "rotate(180deg)" : "rotate(0deg)"}}
+                    />
+                </button>
+
+                {/* Trzy sekcje — widoczne tylko po rozwinięciu */}
+                {isRouteExpanded && (
+                <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                    {/* Punkty trasy */}
+                    {route && (
+                        <div className="p-6 border-b sm:border-b-0 sm:border-r border-line">
+                            <p className="text-[10px] font-[700] uppercase tracking-[0.08em] text-secondary mb-4">Punkty trasy</p>
+                            <div className="flex flex-col">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex flex-col items-center self-stretch">
+                                        <div className="w-2 h-2 rounded-full bg-navy shrink-0 mt-1"/>
+                                        <div className="w-px flex-1 bg-line mt-1"/>
+                                    </div>
+                                    <p className="text-[13px] font-[500] text-ink leading-snug pb-3">{route.origin?.address?.split(",")[0]}</p>
+                                </div>
+                                {(route.waypoints || []).map((wp: {address: string}, i: number) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                        <div className="flex flex-col items-center self-stretch">
+                                            <div className="w-2 h-2 rounded-full border-2 border-navy bg-white shrink-0 mt-1"/>
+                                            <div className="w-px flex-1 bg-line mt-1"/>
+                                        </div>
+                                        <p className="text-[13px] font-[500] text-ink leading-snug pb-3">{wp.address?.split(",")[0]}</p>
+                                    </div>
                                 ))}
-                                {" → "}{route.destination?.address?.split(",")[0]}
-                            </p>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-navy shrink-0 mt-1"/>
+                                    <p className="text-[13px] font-[500] text-ink leading-snug">{route.destination?.address?.split(",")[0]}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Termin wyjazdu */}
+                    <div className="p-6 border-b sm:border-b-0 sm:border-r border-line">
+                        <p className="text-[10px] font-[700] uppercase tracking-[0.08em] text-secondary mb-4">Termin wyjazdu</p>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-[34px] h-[34px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                    <Calendar width={15} height={15} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-secondary font-[500] mb-0.5">Data</p>
+                                    <p className="text-[13px] font-[600] text-ink">{request.date}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-[34px] h-[34px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                    <Clock width={15} height={15} color="#0B298F" strokeWidth={1.8}/>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-secondary font-[500] mb-0.5">Godzina</p>
+                                    <p className="text-[13px] font-[600] text-ink">{request.time}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {/* Pasażerowie */}
+                    <div className="p-6">
+                        <p className="text-[10px] font-[700] uppercase tracking-[0.08em] text-secondary mb-4">Pasażerowie</p>
+                        <div className="flex items-center gap-3">
+                            <div className="w-[34px] h-[34px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                <Group width={15} height={15} color="#0B298F" strokeWidth={1.8}/>
+                            </div>
+                            <div>
+                                <p className="text-[13px] font-[600] text-ink">
+                                    {request.adults + request.children}{" "}
+                                    {request.adults + request.children === 1 ? "osoba" : request.adults + request.children <= 4 ? "osoby" : "osób"}
+                                </p>
+                                <p className="text-[11px] text-secondary mt-0.5">
+                                    {request.adults} dorosłych{request.children > 0 ? `, ${request.children} dzieci` : ""}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 )}
-
-                <div className="flex items-start gap-3">
-                    <div className="shrink-0 mt-0.5">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="#0B298F" strokeWidth="2"/>
-                            <path d="M16 2V6M8 2V6M3 10H21" stroke="#0B298F" strokeWidth="2" strokeLinecap="round"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="text-[12px] text-secondary mb-0.5">Data i godzina</p>
-                        <p className="text-[14px] font-[500] text-ink">{request.date}, {request.time}</p>
-                    </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                    <div className="shrink-0 mt-0.5">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="#0B298F" strokeWidth="2" strokeLinecap="round"/>
-                            <circle cx="9" cy="7" r="4" stroke="#0B298F" strokeWidth="2"/>
-                            <path d="M23 21V19C22.9986 18.1137 22.7068 17.2528 22.1694 16.5523C21.6321 15.8519 20.8799 15.3516 20.03 15.13" stroke="#0B298F" strokeWidth="2" strokeLinecap="round"/>
-                            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="#0B298F" strokeWidth="2" strokeLinecap="round"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="text-[12px] text-secondary mb-0.5">Pasażerowie</p>
-                        <p className="text-[14px] font-[500] text-ink">
-                            {request.adults + request.children} os.{" "}
-                            <span className="text-[13px] text-secondary font-[400]">
-                                ({request.adults} dorosłych{request.children > 0 ? `, ${request.children} dzieci` : ""})
-                            </span>
-                        </p>
-                    </div>
-                </div>
             </div>
 
             {/* Zaakceptowana oferta */}
             {acceptedOffer && (
-                <div className="bg-success-bg rounded-[8px] p-8 border border-success">
+                <div className="bg-white rounded-[12px] overflow-hidden" style={{border: "1.5px solid #16a34a", boxShadow: "0 4px 16px rgba(22,163,74,0.10)"}}>
+                    {/* Nagłówek sukcesu */}
+                    <div className="bg-[#f0fdf4] px-6 py-4 border-b border-[#bbf7d0] flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" fill="#16a34a"/>
+                                <path d="M8 12l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span className="text-[13px] font-[700] text-[#16a34a] uppercase tracking-[0.06em]">Wybrana oferta</span>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-navy text-[26px] font-[700] leading-none">{acceptedOffer.price} <span className="text-[16px] font-[500]">zł</span></p>
+                        </div>
+                    </div>
+
+                    {/* Pojazd */}
                     {acceptedOffer.vehicle && (
-                        <div className="flex gap-5 mb-6 pb-6 border-b border-success/20">
-                            {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
-                                <div className="flex gap-2 shrink-0">
-                                    {acceptedOffer.vehicle.photos.slice(0, 3).map((photo, idx) => (
-                                        <button
-                                            key={idx}
-                                            onClick={() => openLightbox(acceptedOffer.vehicle!.photos, idx)}
-                                            className="w-[80px] h-[80px] rounded-[8px] overflow-hidden hover:opacity-80 transition-opacity"
-                                        >
-                                            <img src={photo} alt={acceptedOffer.vehicle?.name} className="w-full h-full object-cover"/>
-                                        </button>
-                                    ))}
-                                    {acceptedOffer.vehicle.photos.length > 3 && (
-                                        <button
-                                            onClick={() => openLightbox(acceptedOffer.vehicle!.photos, 3)}
-                                            className="w-[80px] h-[80px] rounded-[8px] bg-white flex items-center justify-center text-secondary text-[14px] font-[500] hover:bg-gray-hover transition-colors"
-                                        >
-                                            +{acceptedOffer.vehicle.photos.length - 3}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                            <div className="flex-1">
-                                <p className="text-ink text-[18px] font-[600]">{acceptedOffer.vehicle.name}</p>
-                                <p className="text-secondary text-[14px] mt-1">
-                                    {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} · {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type} · {acceptedOffer.vehicle.seats} miejsc
-                                </p>
-                                <div className="flex gap-2 mt-3 flex-wrap">
-                                    {acceptedOffer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
-                                    {acceptedOffer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
-                                    {acceptedOffer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
-                                    {acceptedOffer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                        <div className="p-6 border-b border-line">
+                            <div className="flex gap-5 items-start">
+                                {acceptedOffer.vehicle.photos && acceptedOffer.vehicle.photos.length > 0 && (
+                                    <div className="flex gap-2 shrink-0">
+                                        {acceptedOffer.vehicle.photos.slice(0, 3).map((photo, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => openLightbox(acceptedOffer.vehicle!.photos, idx)}
+                                                className="w-[90px] h-[66px] rounded-[8px] overflow-hidden hover:opacity-80 transition-opacity relative"
+                                            >
+                                                <img src={photo} alt={acceptedOffer.vehicle?.name} className="w-full h-full object-cover"/>
+                                                {idx === 2 && acceptedOffer.vehicle!.photos.length > 3 && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[13px] font-[600]">
+                                                        +{acceptedOffer.vehicle!.photos.length - 3}
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-ink text-[17px] font-[700]">{acceptedOffer.vehicle.name}</p>
+                                    <p className="text-secondary text-[13px] mt-0.5">
+                                        {acceptedOffer.vehicle.brand} {acceptedOffer.vehicle.model} · {vehicleTypeLabels[acceptedOffer.vehicle.type] || acceptedOffer.vehicle.type} · {acceptedOffer.vehicle.seats} miejsc
+                                    </p>
+                                    <div className="flex gap-2 mt-3 flex-wrap">
+                                        {acceptedOffer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
+                                        {acceptedOffer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
+                                        {acceptedOffer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
+                                        {acceptedOffer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center shrink-0">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#01A83D"/>
-                                    <path d="M12 14C7.58 14 4 16.01 4 18.5V20H20V18.5C20 16.01 16.42 14 12 14Z" fill="#01A83D"/>
-                                </svg>
+                    {/* Kierowca + kontakt */}
+                    <div className="p-6">
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-[44px] h-[44px] rounded-full bg-navy flex items-center justify-center shrink-0">
+                                <span className="text-white text-[16px] font-[700]">
+                                    {acceptedOffer.driverName?.[0]?.toUpperCase() || "?"}
+                                </span>
                             </div>
                             <div>
-                                <p className="text-ink text-[16px] font-[600]">{acceptedOffer.driverName || "Nieznany"}</p>
+                                <p className="text-ink text-[16px] font-[700]">{acceptedOffer.driverName || "Nieznany kierowca"}</p>
+                                <p className="text-secondary text-[12px]">Kierowca</p>
                             </div>
                         </div>
-                        <p className="text-ink text-[28px] font-[600] leading-tight shrink-0">{acceptedOffer.price} PLN</p>
-                    </div>
 
-                    {/* Dane kontaktowe kierowcy */}
-                    {driverContact && (
-                        <div className="bg-white rounded-[8px] p-4 border border-success/30 mt-2">
-                            <p className="text-[12px] text-secondary font-[500] uppercase tracking-wide mb-3">Dane kontaktowe kierowcy</p>
-                            <div className="flex flex-col gap-2">
-                                {driverContact.name && (
-                                    <p className="text-[15px] font-[600] text-ink">{driverContact.name}</p>
-                                )}
+                        {driverContact && (
+                            <div className="flex flex-col gap-2.5">
                                 {driverContact.phone && (
-                                    <a href={`tel:${driverContact.phone}`} className="flex items-center gap-2 text-navy text-[15px] font-[500] hover:underline">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 10.82 19.79 19.79 0 01.77 2.18 2 2 0 012.75 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.28-1.28a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <a href={`tel:${driverContact.phone}`} className="flex items-center gap-3 px-4 py-3 rounded-[10px] bg-[#f8f9fb] hover:bg-[#f0f4ff] transition-colors group">
+                                        <div className="w-[32px] h-[32px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.86 10.82 19.79 19.79 0 01.77 2.18 2 2 0 012.75 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.28-1.28a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] text-secondary font-[600] uppercase tracking-wide">Telefon</p>
+                                            <p className="text-[14px] font-[600] text-navy group-hover:underline">{driverContact.phone}</p>
+                                        </div>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-secondary shrink-0">
+                                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
-                                        {driverContact.phone}
                                     </a>
                                 )}
                                 {driverContact.email && (
-                                    <a href={`mailto:${driverContact.email}`} className="flex items-center gap-2 text-navy text-[15px] font-[500] hover:underline">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                            <polyline points="22,6 12,13 2,6" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <a href={`mailto:${driverContact.email}`} className="flex items-center gap-3 px-4 py-3 rounded-[10px] bg-[#f8f9fb] hover:bg-[#f0f4ff] transition-colors group">
+                                        <div className="w-[32px] h-[32px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <polyline points="22,6 12,13 2,6" stroke="#0B298F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] text-secondary font-[600] uppercase tracking-wide">E-mail</p>
+                                            <p className="text-[14px] font-[600] text-navy truncate group-hover:underline">{driverContact.email}</p>
+                                        </div>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-secondary shrink-0">
+                                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
-                                        {driverContact.email}
                                     </a>
                                 )}
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {acceptedOffer.message && (
-                        <div className="mt-4 bg-white/60 rounded-[6px] px-4 py-3">
-                            <p className="text-secondary text-[14px] italic">&quot;{acceptedOffer.message}&quot;</p>
-                        </div>
-                    )}
+                        {acceptedOffer.message && (
+                            <div className="mt-4 bg-[#f8f9fb] rounded-[10px] px-4 py-3 border border-line">
+                                <p className="text-[10px] text-secondary font-[600] uppercase tracking-wide mb-1">Wiadomość od kierowcy</p>
+                                <p className="text-secondary text-[13px] italic">&quot;{acceptedOffer.message}&quot;</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -332,85 +407,85 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                     {acceptError && (
                         <p className="text-red-600 text-[13px] text-center mb-4">{acceptError}</p>
                     )}
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
                         {pendingOffers.map((offer) => (
-                            <div key={offer.id} className="rounded-[8px] border border-line overflow-hidden">
-                                {/* Górna sekcja: pojazd + zdjęcia */}
-                                {offer.vehicle && (
-                                    <div className="bg-white p-6 flex gap-6 items-start">
+                            <div key={offer.id} className="bg-white rounded-[8px] overflow-hidden border border-line" style={{boxShadow: "0 1px 4px rgba(0,0,0,0.06)"}}>
+                                <div className="p-5">
+                                    <div className="flex gap-4">
+                                        {/* Lewa: kierowca + pojazd */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
-                                                    <path d="M2.5 9.16663H3.37123M3.37123 9.16663H16.6288M3.37123 9.16663C3.38051 9.12374 3.39147 9.08122 3.40413 9.03922C3.43435 8.93898 3.47702 8.84258 3.56283 8.64952L4.85138 5.75028C5.10614 5.17707 5.23373 4.89029 5.43508 4.68014C5.61306 4.49437 5.83136 4.35246 6.0734 4.26527C6.34723 4.16663 6.66113 4.16663 7.28841 4.16663H12.7113C13.3386 4.16663 13.6528 4.16663 13.9266 4.26527C14.1687 4.35246 14.3866 4.49437 14.5646 4.68014C14.7658 4.89015 14.8932 5.17669 15.1476 5.74913L16.4413 8.66007C16.524 8.84613 16.5661 8.94082 16.5958 9.03922C16.6085 9.08122 16.6195 9.12374 16.6288 9.16663M3.37123 9.16663C3.36085 9.21466 3.35258 9.26315 3.34643 9.31189C3.33333 9.41576 3.33333 9.52135 3.33333 9.73263V14.1666M16.6288 9.16663H17.5M16.6288 9.16663C16.6392 9.21466 16.6475 9.26315 16.6536 9.31189C16.6667 9.41513 16.6667 9.52011 16.6667 9.72883V14.1667M16.6667 14.1667L13.3333 14.1667M16.6667 14.1667V14.9999C16.6667 15.9203 15.9205 16.6666 15 16.6666C14.0795 16.6666 13.3333 15.9204 13.3333 15V14.1667M13.3333 14.1667L6.66667 14.1666M6.66667 14.1666H3.33333M6.66667 14.1666V15C6.66667 15.9204 5.92047 16.6666 5 16.6666C4.07953 16.6666 3.33333 15.9204 3.33333 15V14.1666" stroke="#5B5E68" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                                </svg>
-                                                <p className="text-[16px] font-[600] text-ink">
-                                                    {offer.vehicle.brand} {offer.vehicle.model} ({offer.vehicle.year})
-                                                </p>
+                                            {/* Kierowca + wiadomość jako podtytuł */}
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="w-[38px] h-[38px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                                                    <span className="text-navy text-[13px] font-[700]">
+                                                        {offer.driverName?.[0]?.toUpperCase() || "?"}
+                                                    </span>
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-[14px] font-[600] text-ink">{offer.driverName || "Kierowca"}</p>
+                                                    {offer.message ? (
+                                                        <p className="text-[12px] text-secondary italic truncate">&quot;{offer.message}&quot;</p>
+                                                    ) : (
+                                                        <p className="text-[12px] text-secondary">Oferta przejazdu</p>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                                                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="#5B5E68" strokeWidth="1.8" strokeLinecap="round"/>
-                                                    <circle cx="9" cy="7" r="4" stroke="#5B5E68" strokeWidth="1.8"/>
-                                                    <path d="M23 21V19C22.9986 18.1137 22.7068 17.2528 22.1694 16.5523C21.6321 15.8519 20.8799 15.3516 20.03 15.13" stroke="#5B5E68" strokeWidth="1.8" strokeLinecap="round"/>
-                                                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="#5B5E68" strokeWidth="1.8" strokeLinecap="round"/>
-                                                </svg>
-                                                <p className="text-[14px] text-secondary">{offer.vehicle.seats} miejsc</p>
-                                            </div>
-                                            <div className="flex gap-2 flex-wrap">
-                                                {offer.vehicle.hasWifi && <span className={featureBadge}>Wifi</span>}
-                                                {offer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
-                                                {offer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
-                                                {offer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
-                                            </div>
-                                        </div>
 
-                                        {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
-                                            <div className="flex gap-2 shrink-0">
-                                                {offer.vehicle.photos.slice(0, 3).map((photo, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => openLightbox(offer.vehicle!.photos, idx)}
-                                                        className="w-[100px] h-[100px] rounded-[8px] overflow-hidden hover:opacity-80 transition-opacity relative"
-                                                    >
-                                                        <img src={photo} alt={offer.vehicle?.name} className="w-full h-full object-cover"/>
-                                                        {idx === 2 && offer.vehicle!.photos.length > 3 && (
-                                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[14px] font-[500]">
-                                                                +{offer.vehicle!.photos.length - 3}
-                                                            </div>
-                                                        )}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Dolna sekcja: kierowca + cena + przycisk */}
-                                <div className="bg-gray-hover px-6 py-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-[40px] h-[40px] rounded-full bg-line flex items-center justify-center shrink-0">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#9B9DA3"/>
-                                                <path d="M12 14C7.58 14 4 16.01 4 18.5V20H20V18.5C20 16.01 16.42 14 12 14Z" fill="#9B9DA3"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            {offer.driverName && (
-                                                <p className="text-[14px] font-[600] text-ink">{offer.driverName}</p>
-                                            )}
-                                            {offer.message && (
-                                                <p className="text-[13px] text-secondary">Wiadomość: <span className="italic">&quot;{offer.message}&quot;</span></p>
+                                            {/* Pojazd */}
+                                            {offer.vehicle && (
+                                                <>
+                                                    <p className="text-[13px] font-[600] text-ink mb-0.5">
+                                                        {offer.vehicle.brand} {offer.vehicle.model}
+                                                        <span className="text-secondary font-[400]"> ({offer.vehicle.year})</span>
+                                                    </p>
+                                                    <p className="text-[12px] text-secondary mb-2.5">
+                                                        {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type} · {offer.vehicle.seats} miejsc
+                                                    </p>
+                                                    <div className="flex gap-1.5 flex-wrap">
+                                                        {offer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
+                                                        {offer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
+                                                        {offer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                                                        {offer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
+
+                                        {/* Prawa: zdjęcia + cena */}
+                                        <div className="shrink-0 flex flex-col items-end justify-between gap-3">
+                                            {offer.vehicle?.photos && offer.vehicle.photos.length > 0 && (
+                                                <div className="flex gap-1.5">
+                                                    {offer.vehicle.photos.slice(0, 2).map((photo, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => openLightbox(offer.vehicle!.photos, idx)}
+                                                            className="w-[80px] h-[58px] rounded-[6px] overflow-hidden hover:opacity-80 transition-opacity relative"
+                                                        >
+                                                            <img src={photo} alt="" className="w-full h-full object-cover"/>
+                                                            {idx === 1 && offer.vehicle!.photos.length > 2 && (
+                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[12px] font-[600]">
+                                                                    +{offer.vehicle!.photos.length - 2}
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <div className="text-right">
+                                                <p className="text-navy text-[22px] font-[700] leading-none">{offer.price}</p>
+                                                <p className="text-[11px] text-secondary mt-0.5">PLN / przejazd</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4 shrink-0">
-                                        <p className="text-navy text-[24px] font-[600] leading-tight">{offer.price} zł</p>
+
+                                    {/* Przycisk — dół po prawej */}
+                                    <div className="mt-4 pt-4 border-t border-surface flex justify-end">
                                         <button
                                             onClick={() => handleAcceptOffer(offer.id)}
                                             disabled={acceptingOfferId !== null}
-                                            className="bg-navy hover:bg-navy-hover disabled:opacity-50 text-white px-6 py-3 rounded-xl font-[600] text-[14px] transition-colors"
+                                            className="bg-navy hover:bg-navy-hover disabled:opacity-50 text-white px-6 py-2.5 rounded-[8px] font-[600] text-[14px] transition-colors"
                                         >
-                                            {acceptingOfferId === offer.id ? "Wybieranie..." : "WYBIERAM OFERTĘ"}
+                                            {acceptingOfferId === offer.id ? "Wybieranie..." : "Przejdź do oferty →"}
                                         </button>
                                     </div>
                                 </div>
