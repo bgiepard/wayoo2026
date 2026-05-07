@@ -1,10 +1,10 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import Modal from "./ui/Modal";
-import { GoogleIcon } from "./icons";
+import ModalShell from "./ModalShell";
+import { GoogleIcon } from "@/components/icons";
 
-interface LoginModalProps {
+export interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   callbackUrl?: string;
@@ -21,7 +21,6 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
   const [error, setError] = useState("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  // Użyj przekazanego callbackUrl lub aktualnej ścieżki
   const redirectUrl = callbackUrl || router.asPath;
 
   const resetForm = () => {
@@ -36,15 +35,9 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
+    const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) {
-      setError("Nieprawidlowy email lub haslo");
+      setError("Nieprawidłowy email lub hasło");
     } else {
       resetForm();
       onClose();
@@ -54,21 +47,17 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, firstName, lastName, phone }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error);
         return;
       }
-
       await signIn("credentials", { email, password, redirect: false });
       resetForm();
       onClose();
@@ -77,38 +66,34 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
     }
   };
 
-  const switchMode = () => {
-    setIsRegister(!isRegister);
-    setError("");
-  };
-
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     setError("");
     await signIn("google", { callbackUrl: redirectUrl });
   };
 
-  const inputClass = "border border-gray-200 rounded-lg p-3 text-sm focus:border-blue-500";
+  const inputCls =
+    "w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-[10px] outline-none " +
+    "focus:border-[#0B298F] focus:ring-2 focus:ring-[#0B298F]/10 transition-all placeholder:text-[#9B9DA3]";
 
   return (
-    <Modal
+    <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      title={isRegister ? "Zarejestruj sie" : "Zaloguj sie"}
-
+      title={isRegister ? "Zarejestruj się" : "Zaloguj się"}
+      subtitle={isRegister ? "Utwórz nowe konto pasażera" : "Witaj z powrotem"}
     >
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-[10px] text-red-600 text-sm">
           {error}
         </div>
       )}
 
-      {/* Google Login Button */}
       <button
         type="button"
         onClick={handleGoogleLogin}
         disabled={isGoogleLoading}
-        className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-lg p-3 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 mb-4"
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-[10px] p-3 text-sm font-medium hover:bg-[#F8F9FA] disabled:opacity-50 mb-4 transition-colors"
       >
         <GoogleIcon />
         {isGoogleLoading ? "Przekierowywanie..." : "Kontynuuj z Google"}
@@ -116,27 +101,24 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
 
       <div className="relative mb-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
+          <div className="w-full border-t border-[#E5E7EB]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-white px-2 text-gray-500">lub</span>
+          <span className="bg-white px-2 text-[#9B9DA3]">lub</span>
         </div>
       </div>
 
-      <form
-        onSubmit={isRegister ? handleRegister : handleLogin}
-        className="flex flex-col gap-4"
-      >
+      <form onSubmit={isRegister ? handleRegister : handleLogin} className="flex flex-col gap-3">
         {isRegister && (
           <>
             <div className="flex gap-3">
               <input
                 type="text"
                 data-cy="input-first-name"
-                placeholder="Imie"
+                placeholder="Imię"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className={`${inputClass} flex-1`}
+                className={`${inputCls} flex-1`}
                 required
               />
               <input
@@ -145,7 +127,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
                 placeholder="Nazwisko"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className={`${inputClass} flex-1`}
+                className={`${inputCls} flex-1`}
                 required
               />
             </div>
@@ -154,7 +136,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
               placeholder="Telefon (opcjonalnie)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className={inputClass}
+              className={inputCls}
             />
           </>
         )}
@@ -164,34 +146,39 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={inputClass}
+          className={inputCls}
           required
         />
         <input
           type="password"
           data-cy="input-password"
-          placeholder="Haslo"
+          placeholder="Hasło"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={inputClass}
+          className={inputCls}
           required
         />
         <button
           type="submit"
           data-cy="btn-auth-submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 text-sm font-medium"
+          className="w-full py-3 rounded-[10px] text-white text-[15px] font-semibold transition-all hover:opacity-90"
+          style={{ backgroundColor: "#0B298F" }}
         >
-          {isRegister ? "Zarejestruj" : "Zaloguj"}
+          {isRegister ? "Zarejestruj się" : "Zaloguj się"}
         </button>
       </form>
 
       <div className="mt-4 text-center">
-        <button onClick={switchMode} data-cy="btn-switch-auth-mode" className="text-sm text-gray-500 hover:text-gray-700">
+        <button
+          onClick={() => { setIsRegister(!isRegister); setError(""); }}
+          data-cy="btn-switch-auth-mode"
+          className="text-sm text-[#6b7280] hover:text-[#1a1a1a] transition-colors"
+        >
           {isRegister
-            ? "Masz juz konto? Zaloguj sie"
-            : "Nie masz konta? Zarejestruj sie"}
+            ? "Masz już konto? Zaloguj się"
+            : "Nie masz konta? Zarejestruj się"}
         </button>
       </div>
-    </Modal>
+    </ModalShell>
   );
 }

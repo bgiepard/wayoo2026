@@ -1,10 +1,10 @@
 import {useRouter} from "next/router";
 import {useState, useEffect} from "react";
 import {useSession} from "next-auth/react";
-import LoginModal from "@/components/LoginModal";
-import RouteModal from "@/components/RouteModal";
-import DateTimeModal from "@/components/DateTimeModal";
-import PassengersModal from "@/components/PassengersModal";
+import LoginModal from "@/components/modals/LoginModal";
+import RouteModal from "@/components/modals/RouteModal";
+import DateTimeModal from "@/components/modals/DateTimeModal";
+import PassengersModal from "@/components/modals/PassengersModal";
 import RequestDetailsLayout, {detailsStyles, CardHeader} from "@/components/RequestDetailsLayout";
 import {DraftCheckBadgeIcon} from "@/components/icons";
 import type {SearchData, Route} from "@/models";

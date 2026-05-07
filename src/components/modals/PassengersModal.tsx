@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import { labelBase, inputBase } from "./ui/modalStyles";
-import { ChildIcon, ChevronDownIcon, DraftCheckIcon, CloseIcon } from "./icons";
+import { useState, useEffect, useRef, CSSProperties } from "react";
+import { createPortal } from "react-dom";
+import ModalShell from "./ModalShell";
+import { labelBase, inputBase } from "@/components/ui/modalStyles";
+import { ChildIcon, ChevronDownIcon, DraftCheckIcon } from "@/components/icons";
 
-interface PassengersModalProps {
+export interface PassengersModalProps {
   isOpen: boolean;
   onClose: () => void;
   adults: number;
@@ -29,24 +31,45 @@ function AgeDropdown({
   dataCy?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (
+        buttonRef.current?.contains(e.target as Node) ||
+        listRef.current?.contains(e.target as Node)
+      ) return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const handleToggle = () => {
+    if (!open && buttonRef.current) {
+      const r = buttonRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "fixed",
+        top: r.bottom + 4,
+        left: r.left,
+        width: r.width,
+        zIndex: 9999,
+      });
+    }
+    setOpen((v) => !v);
+  };
+
   const selected = AGE_OPTIONS.find((o) => o.value === value);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative">
       <button
+        ref={buttonRef}
         type="button"
         data-cy={dataCy}
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         className={`${inputBase} flex items-center text-left ${open ? "border-blue-500 ring-1 ring-blue-500" : ""}`}
       >
         <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-[#5B5E68]">
@@ -58,8 +81,12 @@ function AgeDropdown({
         <ChevronDownIcon className={`w-4 h-4 ml-auto text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
-      {open && (
-        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[200px] overflow-y-auto">
+      {open && createPortal(
+        <div
+          ref={listRef}
+          style={dropdownStyle}
+          className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[200px] overflow-y-auto"
+        >
           {AGE_OPTIONS.map((option) => (
             <button
               key={option.value}
@@ -74,7 +101,8 @@ function AgeDropdown({
               {option.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -193,83 +221,63 @@ export default function PassengersModal({
 
   const isValid = !localNeedsSeats || localAges.every((age) => age > 0);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-end md:items-center justify-center z-50">
-      <div className="bg-white shadow-2xl flex flex-col w-full h-full md:h-auto md:rounded-[20px] md:w-full md:max-w-[440px] overflow-hidden">
+    <ModalShell
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Pasażerowie"
+      subtitle="Podaj liczbę osób w grupie"
+      footer={
+        <button
+          data-cy="btn-modal-confirm"
+          onClick={handleSave}
+          disabled={!isValid}
+          className="w-full py-3 rounded-[10px] text-white text-[15px] font-semibold transition-all"
+          style={{ backgroundColor: isValid ? "#0B298F" : "#D9DADC" }}
+        >
+          {confirmLabel || "Potwierdź"}
+        </button>
+      }
+    >
+      <div className="flex flex-col gap-3">
+        <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} dataCy="adults" />
+        <Counter label="Dzieci" value={localChildren} min={0} onChange={handleChildrenChange} dataCy="children" />
 
-        {/* Nagłówek */}
-        <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-[#F0F1F3]">
-          <div>
-            <h2 className="text-[#010101] text-[18px] font-[600]">Pasażerowie</h2>
-            <p className="text-[#9B9DA3] text-[13px] mt-0.5">Podaj liczbę osób w grupie</p>
-          </div>
+        {localChildren > 0 && (
           <button
-            onClick={onClose}
-            className="text-[#9B9DA3] hover:text-[#5B5E68] p-1.5 rounded-full hover:bg-[#F0F1F3] transition-colors"
+            type="button"
+            data-cy="checkbox-child-seats"
+            onClick={() => setLocalNeedsSeats(!localNeedsSeats)}
+            className="flex items-center gap-3 mt-1 cursor-pointer group"
           >
-            <CloseIcon className="w-5 h-5" />
+            <div
+              className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 ${
+                localNeedsSeats
+                  ? "bg-[#0B298F] border-[#0B298F]"
+                  : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
+              }`}
+            >
+              {localNeedsSeats && <DraftCheckIcon />}
+            </div>
+            <span className="text-[#010101] text-[16px]">Potrzebujesz fotelików?</span>
           </button>
-        </div>
+        )}
 
-        {/* Treść */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
-          <div className="flex flex-col gap-3">
-            <Counter label="Dorośli" value={localAdults} min={1} onChange={setLocalAdults} dataCy="adults" />
-            <Counter label="Dzieci" value={localChildren} min={0} onChange={handleChildrenChange} dataCy="children" />
-
-            {localChildren > 0 && (
-              <button
-                type="button"
-                data-cy="checkbox-child-seats"
-                onClick={() => setLocalNeedsSeats(!localNeedsSeats)}
-                className="flex items-center gap-3 mt-1 cursor-pointer group"
-              >
-                <div
-                  className={`w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors shrink-0 ${
-                    localNeedsSeats
-                      ? "bg-[#0B298F] border-[#0B298F]"
-                      : "border-[#D9DADC] bg-white group-hover:border-[#9B9DA3]"
-                  }`}
-                >
-                  {localNeedsSeats && <DraftCheckIcon />}
-                </div>
-                <span className="text-[#010101] text-[16px]">Potrzebujesz fotelików?</span>
-              </button>
-            )}
-
-            {localNeedsSeats && localChildren > 0 && (
-              <div className="flex flex-col gap-4 mt-2">
-                {localAges.map((age, index) => (
-                  <div key={index}>
-                    <label className={labelBase}>Wiek dziecka #{index + 1}</label>
-                    <AgeDropdown
-                      value={age}
-                      onChange={(val) => handleAgeChange(index, val)}
-                      dataCy={`age-dropdown-${index}`}
-                    />
-                  </div>
-                ))}
+        {localNeedsSeats && localChildren > 0 && (
+          <div className="flex flex-col gap-4 mt-2">
+            {localAges.map((age, index) => (
+              <div key={index}>
+                <label className={labelBase}>Wiek dziecka #{index + 1}</label>
+                <AgeDropdown
+                  value={age}
+                  onChange={(val) => handleAgeChange(index, val)}
+                  dataCy={`age-dropdown-${index}`}
+                />
               </div>
-            )}
+            ))}
           </div>
-        </div>
-
-        {/* Stopka */}
-        <div className="px-7 pb-6 pt-4 border-t border-[#F0F1F3]">
-          <button
-            data-cy="btn-modal-confirm"
-            onClick={handleSave}
-            disabled={!isValid}
-            className="w-full py-3 rounded-[10px] text-white text-[15px] font-[600] transition-all"
-            style={{ backgroundColor: isValid ? "#0B298F" : "#D9DADC" }}
-          >
-            {confirmLabel || "Potwierdź"}
-          </button>
-        </div>
-
+        )}
       </div>
-    </div>
+    </ModalShell>
   );
 }

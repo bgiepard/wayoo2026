@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import LoginModal from "./LoginModal";
+import LoginModal from "./modals/LoginModal";
 import NotificationDropdown from "./NotificationDropdown";
 import logo from "@/assets/logo.png";
 import userIcon from "@/assets/user_icon.svg";

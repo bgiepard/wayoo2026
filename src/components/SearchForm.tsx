@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import RouteModal from "./RouteModal";
-import DateTimeModal from "./DateTimeModal";
-import PassengersModal from "./PassengersModal";
+import RouteModal from "./modals/RouteModal";
+import DateTimeModal from "./modals/DateTimeModal";
+import PassengersModal from "./modals/PassengersModal";
 import { RouteIcon, DatesIcon, PassengersIcon } from "./icons";
 import type { SearchData, Options, Route, Place } from "@/models";
 import { emptyRoute } from "@/models";

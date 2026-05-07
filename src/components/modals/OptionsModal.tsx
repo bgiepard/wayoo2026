@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import Modal from "./ui/Modal";
+import ModalShell from "./ModalShell";
 import type { Options } from "@/models";
 
 export type { Options } from "@/models";
 
-interface OptionsModalProps {
+export interface OptionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   options: Options;
@@ -41,28 +41,38 @@ export default function OptionsModal({ isOpen, onClose, options, onSave, onNext 
   };
 
   return (
-    <Modal
+    <ModalShell
       isOpen={isOpen}
       onClose={onClose}
       title="Dodatkowe opcje"
-      onConfirm={handleSave}
+      subtitle="Wybierz udogodnienia dla tej trasy"
+      footer={
+        <button
+          data-cy="btn-modal-confirm"
+          onClick={handleSave}
+          className="w-full py-3 rounded-[10px] text-white text-[15px] font-semibold transition-all"
+          style={{ backgroundColor: "#0B298F" }}
+        >
+          Potwierdź
+        </button>
+      }
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
         {(Object.keys(optionLabels) as Array<keyof Options>).map((key) => (
           <label
             key={key}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+            className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-[#F8F9FA] cursor-pointer"
           >
             <input
               type="checkbox"
               checked={localOptions[key]}
               onChange={() => handleToggle(key)}
-              className="w-4 h-4 accent-blue-600"
+              className="w-4 h-4 accent-[#0B298F]"
             />
-            <span className="text-sm">{optionLabels[key]}</span>
+            <span className="text-[15px] text-[#010101]">{optionLabels[key]}</span>
           </label>
         ))}
       </div>
-    </Modal>
+    </ModalShell>
   );
 }
