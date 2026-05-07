@@ -8,7 +8,7 @@ import PassengersModal from "@/components/modals/PassengersModal";
 import RequestDetailsLayout, {detailsStyles, CardHeader} from "@/components/RequestDetailsLayout";
 import {DraftCheckBadgeIcon} from "@/components/icons";
 import type {SearchData, Route} from "@/models";
-import {calculateRouteDistance} from "@/models";
+import {calculateRouteDistance} from "@/utils/geo";
 import {Wifi, Bathroom, Tv, AirConditioner, EvPlug, Bag, Calendar} from "iconoir-react";
 
 const optionsList = [

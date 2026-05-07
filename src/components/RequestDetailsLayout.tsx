@@ -1,7 +1,7 @@
 ﻿import {type ReactNode} from "react";
 import type {Route} from "@/models";
 import {DraftEditIcon} from "@/components/icons";
-import {formatDatePL} from "@/lib/formatDate";
+import {formatDatePL} from "@/utils/formatDate";
 import RequestSteps from "@/components/RequestSteps";
 import RouteMap from "@/components/RouteMap";
 import {Calendar, Clock, Group, Crib} from "iconoir-react";

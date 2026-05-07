@@ -3,7 +3,7 @@ import { Calendar } from "iconoir-react";
 import ModalShell from "./ModalShell";
 import DatePicker from "@/components/ui/DatePicker";
 import TimePicker from "@/components/ui/TimePicker";
-import { formatDatePL } from "@/lib/formatDate";
+import { formatDatePL } from "@/utils/formatDate";
 
 export interface DateTimeModalProps {
   isOpen: boolean;

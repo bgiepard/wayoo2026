@@ -6,7 +6,7 @@ import {useRouter} from "next/router";
 import {authOptions} from "./api/auth/[...nextauth]";
 import {getRequestsByUserEmail, getOffersCountByRequestIds} from "@/services";
 import type {RequestData, RequestStatus, Route} from "@/models";
-import {formatDatePL} from "@/lib/formatDate";
+import {formatDatePL} from "@/utils/formatDate";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { pl } from "date-fns/locale";
 import {
