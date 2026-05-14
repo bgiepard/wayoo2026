@@ -189,8 +189,7 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         </span>
                     )}
                     <ChevronDownIcon
-                        className="w-4 h-4 text-secondary shrink-0 transition-transform duration-200 ml-auto"
-                        style={{transform: isRouteExpanded ? "rotate(180deg)" : "rotate(0deg)"}}
+                        className={`w-4 h-4 text-secondary shrink-0 transition-transform duration-200 ml-auto ${isRouteExpanded ? "rotate-180" : "rotate-0"}`}
                     />
                 </button>
 
@@ -411,10 +410,10 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                         {pendingOffers.map((offer) => (
                             <div key={offer.id} className="bg-white rounded-[8px] overflow-hidden border border-line" style={{boxShadow: "0 1px 4px rgba(0,0,0,0.06)"}}>
                                 <div className="p-5">
-                                    <div className="flex gap-4">
-                                        {/* Lewa: kierowca + pojazd */}
+                                    <div className="flex gap-4 items-stretch">
+                                        {/* Lewa: kierowca + pojazd ze zdjęciem */}
                                         <div className="flex-1 min-w-0">
-                                            {/* Kierowca + wiadomość jako podtytuł */}
+                                            {/* Kierowca */}
                                             <div className="flex items-center gap-3 mb-3">
                                                 <div className="w-[38px] h-[38px] rounded-full bg-accent-soft flex items-center justify-center shrink-0">
                                                     <span className="text-navy text-[13px] font-[700]">
@@ -431,62 +430,55 @@ export default function RequestOffersPage({request, initialOffers}: Props) {
                                                 </div>
                                             </div>
 
-                                            {/* Pojazd */}
+                                            {/* Pojazd: zdjęcie obok szczegółów */}
                                             {offer.vehicle && (
-                                                <>
-                                                    <p className="text-[13px] font-[600] text-ink mb-0.5">
-                                                        {offer.vehicle.brand} {offer.vehicle.model}
-                                                        <span className="text-secondary font-[400]"> ({offer.vehicle.year})</span>
-                                                    </p>
-                                                    <p className="text-[12px] text-secondary mb-2.5">
-                                                        {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type} · {offer.vehicle.seats} miejsc
-                                                    </p>
-                                                    <div className="flex gap-1.5 flex-wrap">
-                                                        {offer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
-                                                        {offer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
-                                                        {offer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
-                                                        {offer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-
-                                        {/* Prawa: zdjęcia + cena */}
-                                        <div className="shrink-0 flex flex-col items-end justify-between gap-3">
-                                            {offer.vehicle?.photos && offer.vehicle.photos.length > 0 && (
-                                                <div className="flex gap-1.5">
-                                                    {offer.vehicle.photos.slice(0, 2).map((photo, idx) => (
+                                                <div className="flex gap-3 items-start">
+                                                    {offer.vehicle.photos && offer.vehicle.photos.length > 0 && (
                                                         <button
-                                                            key={idx}
-                                                            onClick={() => openLightbox(offer.vehicle!.photos, idx)}
-                                                            className="w-[80px] h-[58px] rounded-[6px] overflow-hidden hover:opacity-80 transition-opacity relative"
+                                                            onClick={() => openLightbox(offer.vehicle!.photos, 0)}
+                                                            className="w-[72px] h-[54px] rounded-[6px] overflow-hidden hover:opacity-80 transition-opacity relative shrink-0"
                                                         >
-                                                            <img src={photo} alt="" className="w-full h-full object-cover"/>
-                                                            {idx === 1 && offer.vehicle!.photos.length > 2 && (
-                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[12px] font-[600]">
-                                                                    +{offer.vehicle!.photos.length - 2}
+                                                            <img src={offer.vehicle.photos[0]} alt="" className="w-full h-full object-cover"/>
+                                                            {offer.vehicle.photos.length > 1 && (
+                                                                <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-white text-[11px] font-[600]">
+                                                                    +{offer.vehicle.photos.length - 1}
                                                                 </div>
                                                             )}
                                                         </button>
-                                                    ))}
+                                                    )}
+                                                    <div className="min-w-0">
+                                                        <p className="text-[13px] font-[600] text-ink mb-0.5">
+                                                            {offer.vehicle.brand} {offer.vehicle.model}
+                                                            <span className="text-secondary font-[400]"> ({offer.vehicle.year})</span>
+                                                        </p>
+                                                        <p className="text-[12px] text-secondary mb-2">
+                                                            {vehicleTypeLabels[offer.vehicle.type] || offer.vehicle.type} · {offer.vehicle.seats} miejsc
+                                                        </p>
+                                                        <div className="flex gap-1.5 flex-wrap">
+                                                            {offer.vehicle.hasWifi && <span className={featureBadge}>WiFi</span>}
+                                                            {offer.vehicle.hasTV && <span className={featureBadge}>TV</span>}
+                                                            {offer.vehicle.hasAirConditioning && <span className={featureBadge}>Klimatyzacja</span>}
+                                                            {offer.vehicle.hasWC && <span className={featureBadge}>WC</span>}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
+                                        </div>
+
+                                        {/* Prawa: cena (góra) + przycisk (dół) */}
+                                        <div className="shrink-0 flex flex-col items-end justify-end gap-3">
                                             <div className="text-right">
                                                 <p className="text-navy text-[22px] font-[700] leading-none">{offer.price}</p>
                                                 <p className="text-[11px] text-secondary mt-0.5">PLN / przejazd</p>
                                             </div>
+                                            <button
+                                                onClick={() => handleAcceptOffer(offer.id)}
+                                                disabled={acceptingOfferId !== null}
+                                                className="bg-navy hover:bg-navy-hover disabled:opacity-50 text-white px-5 py-2 rounded-[8px] font-[600] text-[13px] transition-colors whitespace-nowrap"
+                                            >
+                                                {acceptingOfferId === offer.id ? "Wybieranie..." : "Przejdź do oferty →"}
+                                            </button>
                                         </div>
-                                    </div>
-
-                                    {/* Przycisk — dół po prawej */}
-                                    <div className="mt-4 pt-4 border-t border-surface flex justify-end">
-                                        <button
-                                            onClick={() => handleAcceptOffer(offer.id)}
-                                            disabled={acceptingOfferId !== null}
-                                            className="bg-navy hover:bg-navy-hover disabled:opacity-50 text-white px-6 py-2.5 rounded-[8px] font-[600] text-[14px] transition-colors"
-                                        >
-                                            {acceptingOfferId === offer.id ? "Wybieranie..." : "Przejdź do oferty →"}
-                                        </button>
                                     </div>
                                 </div>
                             </div>

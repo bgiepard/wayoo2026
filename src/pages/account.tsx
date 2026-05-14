@@ -22,11 +22,6 @@ const providerLabels: Record<string, string> = {
 export default function AccountPage({user}: Props) {
     const [activeTab, setActiveTab] = useState<Tab>("account");
 
-    // Email verification
-    const [sendingVerification, setSendingVerification] = useState(false);
-    const [verificationSent, setVerificationSent] = useState(false);
-    const [verificationError, setVerificationError] = useState("");
-
     // Phone verification
     const [phoneVerified, setPhoneVerified] = useState(user.phoneVerified);
     const [sendingCode, setSendingCode] = useState(false);
@@ -93,28 +88,6 @@ export default function AccountPage({user}: Props) {
             setSmsError("Błąd sieci. Spróbuj ponownie.");
         } finally {
             setVerifyingCode(false);
-        }
-    };
-
-    const handleSendVerification = async () => {
-        setSendingVerification(true);
-        setVerificationError("");
-        try {
-            const res = await fetch("/api/auth/resend-verification", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({email: user.email}),
-            });
-            if (res.ok) {
-                setVerificationSent(true);
-            } else {
-                const data = await res.json();
-                setVerificationError(data.error || "Nie udało się wysłać emaila.");
-            }
-        } catch {
-            setVerificationError("Błąd sieci. Spróbuj ponownie.");
-        } finally {
-            setSendingVerification(false);
         }
     };
 
@@ -224,36 +197,7 @@ export default function AccountPage({user}: Props) {
                                     {/* Email */}
                                     <div>
                                         <span className="text-secondary text-[14px] block mb-1">Adres email</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-ink text-[16px] font-[600]">{user.email}</span>
-                                            {user.emailVerified ? (
-                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-success-bg text-success font-[500] border border-success-border">
-                                                    Zweryfikowany
-                                                </span>
-                                            ) : (
-                                                <span className="text-[12px] px-2.5 py-0.5 rounded-full bg-warning-bg text-warning font-[500] border border-warning-border">
-                                                    Niezweryfikowany
-                                                </span>
-                                            )}
-                                        </div>
-                                        {!user.emailVerified && (
-                                            verificationSent ? (
-                                                <p className="text-success text-[13px] mt-2">Email weryfikacyjny wysłany. Sprawdź skrzynkę.</p>
-                                            ) : (
-                                                <>
-                                                    <button
-                                                        onClick={handleSendVerification}
-                                                        disabled={sendingVerification}
-                                                        className="text-navy text-[13px] font-[500] mt-2 hover:opacity-80 transition-opacity disabled:opacity-50"
-                                                    >
-                                                        {sendingVerification ? "Wysyłanie..." : "Wyślij link weryfikacyjny"}
-                                                    </button>
-                                                    {verificationError && (
-                                                        <p className="text-danger text-[13px] mt-1">{verificationError}</p>
-                                                    )}
-                                                </>
-                                            )
-                                        )}
+                                        <span className="text-ink text-[16px] font-[600]">{user.email}</span>
                                     </div>
 
                                     {/* Telefon */}

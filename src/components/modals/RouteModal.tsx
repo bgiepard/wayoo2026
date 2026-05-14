@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ModalShell from "./ModalShell";
 import PlaceAutocomplete from "@/components/PlaceAutocomplete";
 import type { Route, Place } from "@/models";
@@ -122,6 +122,7 @@ export default function RouteModal({
             onChange={setLocalOrigin}
             placeholder="Skąd jedziesz?"
             inputClassName={inputCls}
+            types={["address"]}
           />
         </div>
       </div>
@@ -142,6 +143,7 @@ export default function RouteModal({
                 onChange={(place) => handleWaypointChange(index, place)}
                 placeholder={`Przystanek ${index + 1}`}
                 inputClassName={inputCls}
+                types={["address"]}
               />
               <button
                 type="button"
@@ -171,6 +173,7 @@ export default function RouteModal({
             onChange={setLocalDestination}
             placeholder="Dokąd jedziesz?"
             inputClassName={inputCls}
+            types={["address"]}
           />
         </div>
       </div>

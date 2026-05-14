@@ -32,8 +32,13 @@ export default function DateTimeModal({
     setLocalTime(time);
   }, [date, time]);
 
+  const handleDateChange = (d: string) => {
+    setLocalDate(d);
+    if (!localTime) setLocalTime("08:00");
+  };
+
   const handleSave = () => {
-    onSave(localDate, localTime);
+    onSave(localDate, localTime || "08:00");
     if (onNext) {
       onNext();
     } else {
@@ -41,7 +46,7 @@ export default function DateTimeModal({
     }
   };
 
-  const isValid = localDate && localTime;
+  const isValid = !!localDate;
 
   return (
     <ModalShell
@@ -52,11 +57,11 @@ export default function DateTimeModal({
       noPadding
       footer={
         <>
-          {localDate && localTime && (
+          {localDate && (
             <div className="flex items-center gap-3 bg-[#F8F9FF] border border-[#E0E7FF] rounded-[10px] px-4 py-3 mb-4">
               <Calendar width={15} height={15} color="#0B298F" strokeWidth={1.8} className="shrink-0" />
               <span className="text-navy text-[14px] font-medium">
-                {formatDatePL(localDate)} · {localTime}
+                {formatDatePL(localDate)}{(localTime || "08:00") && ` · ${localTime || "08:00"}`}
               </span>
             </div>
           )}
@@ -76,7 +81,7 @@ export default function DateTimeModal({
         {/* Lewa: kalendarz */}
         <div className="flex-1 px-7 pt-6 pb-6">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-tertiary mb-4">Data wyjazdu</p>
-          <DatePicker value={localDate} onChange={setLocalDate} />
+          <DatePicker value={localDate} onChange={handleDateChange} />
         </div>
 
         {/* Separator */}

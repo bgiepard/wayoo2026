@@ -1,6 +1,6 @@
 ﻿import {useRouter} from "next/router";
 import {useState, useEffect} from "react";
-import {useSession} from "next-auth/react";
+import {useSession, getSession} from "next-auth/react";
 import LoginModal from "@/components/modals/LoginModal";
 import RouteModal from "@/components/modals/RouteModal";
 import DateTimeModal from "@/components/modals/DateTimeModal";
@@ -81,7 +81,8 @@ export default function DraftDetailsPage() {
     };
 
     const handlePublish = async () => {
-        if (!session) {
+        const currentSession = session ?? await getSession();
+        if (!currentSession) {
             setIsLoginModalOpen(true);
             return;
         }
@@ -239,6 +240,10 @@ export default function DraftDetailsPage() {
             <LoginModal
                 isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
+                onVerified={() => {
+                    setIsLoginModalOpen(false);
+                    handlePublish();
+                }}
             />
 
             <RouteModal

@@ -9,13 +9,6 @@ import type {RequestData, RequestStatus, Route} from "@/models";
 import {formatDatePL} from "@/utils/formatDate";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { pl } from "date-fns/locale";
-import {
-    DraftOriginIcon,
-    DraftDestinationIcon,
-    DraftCalendarIcon,
-    DraftClockIcon,
-    DraftUsersIcon,
-} from "@/components/icons";
 
 interface RequestWithOffers extends RequestData {
     offersCount: number;
@@ -102,166 +95,167 @@ export default function MyRequestsPage({requests}: Props) {
     const displayedRequests = activeTab === "active" ? activeRequests : completedRequests;
 
     return (
-        <main className="pb-12 px-4 max-w-[1250px] mx-auto">
-            {/* Naglowek */}
-            <div className="pt-12 mb-10">
-                <h1 className="text-center text-navy text-[26px] font-[400] mb-3">
-                    Moje zapytania
-                </h1>
-                <h2 className="text-center text-secondary text-[16px] font-[400]">
-                    Przeglądaj swoje zlecenia transportowe i sprawdzaj oferty przewoźników.
-                </h2>
+        <main className="pb-16 px-4 max-w-[860px] mx-auto">
+
+            {/* Nagłówek */}
+            <div className="pt-10 pb-8 flex items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-[26px] font-[700] text-ink leading-tight">Moje zapytania</h1>
+                    <p className="text-secondary text-[14px] mt-1.5">
+                        {activeRequests.length > 0 || completedRequests.length > 0
+                            ? `${activeRequests.length} aktywnych · ${completedRequests.length} zakończonych`
+                            : "Przeglądaj swoje zlecenia i oferty przewoźników"}
+                    </p>
+                </div>
+                <Link
+                    href="/"
+                    className="shrink-0 bg-navy hover:bg-navy-hover text-white px-5 py-2.5 rounded-xl font-[600] text-[14px] transition-colors"
+                >
+                    + Nowe zapytanie
+                </Link>
             </div>
 
             {/* Taby */}
-            <div className="flex gap-1 mb-8 border-b border-line">
-                <button
-                    onClick={() => setActiveTab("active")}
-                    className={`px-5 py-3 text-[14px] font-[500] transition-colors relative ${
-                        activeTab === "active"
-                            ? "text-navy"
-                            : "text-tertiary hover:text-secondary"
-                    }`}
-                >
-                    Aktywne ({activeRequests.length})
-                    {activeTab === "active" && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-navy"/>
-                    )}
-                </button>
-                <button
-                    onClick={() => setActiveTab("completed")}
-                    className={`px-5 py-3 text-[14px] font-[500] transition-colors relative ${
-                        activeTab === "completed"
-                            ? "text-navy"
-                            : "text-tertiary hover:text-secondary"
-                    }`}
-                >
-                    Zakończone ({completedRequests.length})
-                    {activeTab === "completed" && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-navy"/>
-                    )}
-                </button>
+            <div className="flex border-b border-line mb-6">
+                {(["active", "completed"] as Tab[]).map((tab) => {
+                    const isActive = activeTab === tab;
+                    const count = tab === "active" ? activeRequests.length : completedRequests.length;
+                    const label = tab === "active" ? "Aktywne" : "Zakończone";
+                    return (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex items-center gap-2 px-4 py-3 text-[14px] font-[500] transition-colors relative ${
+                                isActive ? "text-navy" : "text-tertiary hover:text-secondary"
+                            }`}
+                        >
+                            {label}
+                            <span className={`text-[11px] font-[700] px-1.5 py-0.5 rounded-full tabular-nums ${
+                                isActive ? "bg-navy text-white" : "bg-surface text-tertiary"
+                            }`}>
+                                {count}
+                            </span>
+                            {isActive && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-navy rounded-t-full"/>}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Pusta lista */}
             {displayedRequests.length === 0 ? (
-                <div className="bg-white rounded-[8px] border border-line p-16 text-center">
-                    <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mx-auto mb-6">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <div className="bg-white rounded-[12px] border border-line py-16 px-8 text-center">
+                    <div className="w-14 h-14 rounded-full bg-surface flex items-center justify-center mx-auto mb-5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="#9B9DA3" strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
                     </div>
-                    <p className="text-ink text-[18px] font-[500] mb-2">
+                    <p className="text-ink text-[17px] font-[600] mb-2">
                         {activeTab === "active" ? "Brak aktywnych zapytań" : "Brak zakończonych zapytań"}
                     </p>
-                    <p className="text-secondary text-[14px] max-w-[360px] mx-auto">
+                    <p className="text-secondary text-[14px] max-w-[340px] mx-auto leading-relaxed">
                         {activeTab === "active"
-                            ? "Złóż nowe zapytanie transportowe, a oferty pojawią się tutaj."
+                            ? "Złóż nowe zapytanie, a oferty od przewoźników pojawią się tutaj."
                             : "Twoje zakończone i anulowane zlecenia pojawią się tutaj."}
                     </p>
                     {activeTab === "active" && (
                         <Link
                             href="/"
-                            className="inline-block mt-6 bg-navy hover:bg-navy-hover text-white px-8 py-3 rounded-xl font-[500] text-[16px] transition-colors"
+                            className="inline-block mt-6 bg-navy hover:bg-navy-hover text-white px-7 py-2.5 rounded-xl font-[600] text-[14px] transition-colors"
                         >
                             Złóż zapytanie
                         </Link>
                     )}
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                     {displayedRequests.map((request) => {
                         const route: Route = JSON.parse(request.route || "{}");
-                        const originName = route.origin?.address?.split(",")[0] || "Brak";
-                        const destName = route.destination?.address?.split(",")[0] || "Brak";
+                        const originName = route.origin?.address?.split(",")[0] || "—";
+                        const destName = route.destination?.address?.split(",")[0] || "—";
                         const waypointsCount = route.waypoints?.length || 0;
                         const statusInfo = getStatusInfo(request.status, request.offersCount);
                         const options: Record<string, boolean> = JSON.parse(request.options || "{}");
                         const activeOptions = Object.entries(optionLabels).filter(([key]) => options[key]);
                         const totalPassengers = request.adults + request.children;
+                        const hasOffers = request.status === "published" && request.offersCount > 0;
+                        const isDraft = request.status === "draft";
+                        const expiry = request.status === "published" ? formatOfferExpiry(request.offerExpiresAt) : null;
 
                         return (
                             <Link
                                 key={request.id}
                                 href={`/request/${request.id}`}
-                                className="bg-white rounded-[8px] border border-line p-6 hover:border-navy transition-all group"
+                                className={`block bg-white rounded-[10px] p-5 transition-all ${
+                                    isDraft
+                                        ? "border border-dashed border-line hover:border-navy"
+                                        : "border border-line hover:border-navy"
+                                }`}
+                                style={hasOffers ? {boxShadow: "inset 3px 0 0 #01A83D, 0 1px 4px rgba(0,0,0,0.04)"} : {boxShadow: "0 1px 3px rgba(0,0,0,0.04)"}}
                             >
-                                {/* Gora: trasa + status */}
-                                <div className="flex items-start justify-between mb-5">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <DraftOriginIcon/>
-                                            <span className="text-ink text-[16px] font-[600] truncate">
-                                                {originName}
-                                            </span>
+                                {/* Trasa + status */}
+                                <div className="flex items-start justify-between gap-4 mb-4">
+                                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                                        {/* Connector kropki */}
+                                        <div className="flex flex-col items-center shrink-0 mt-[3px]">
+                                            <div className="w-[7px] h-[7px] rounded-full bg-navy"/>
+                                            <div className="w-px bg-line" style={{height: waypointsCount > 0 ? "28px" : "16px", marginTop: "3px", marginBottom: "3px"}}/>
+                                            <div className="w-[7px] h-[7px] rounded-full bg-navy"/>
                                         </div>
-                                        {waypointsCount > 0 && (
-                                            <div className="ml-[28px] mb-1">
-                                                <span className="text-tertiary text-[13px]">
-                                                    + {waypointsCount} {waypointsCount === 1 ? "przystanek" : waypointsCount < 5 ? "przystanki" : "przystankow"}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center gap-2">
-                                            <DraftDestinationIcon/>
-                                            <span className="text-ink text-[16px] font-[600] truncate">
-                                                {destName}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full shrink-0 ml-4 border ${statusInfo.bg} ${statusInfo.border}`}>
-                                        <div className={`w-[6px] h-[6px] rounded-full ${statusInfo.dot}`}/>
-                                        <span className={`text-[13px] font-[500] ${statusInfo.text}`}>
-                                            {statusInfo.label}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Separator */}
-                                <div className="border-t border-line mb-5"/>
-
-                                {/* Srodek: data, godzina, pasazerowie */}
-                                <div className="flex items-center gap-6 mb-4 flex-wrap">
-                                    <div className="flex items-center gap-2">
-                                        <DraftCalendarIcon/>
-                                        <span className="text-secondary text-[14px]">
-                                            {formatDatePL(request.date)}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <DraftClockIcon/>
-                                        <span className="text-secondary text-[14px]">
-                                            {request.time}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <DraftUsersIcon/>
-                                        <span className="text-secondary text-[14px]">
-                                            {totalPassengers} {totalPassengers === 1 ? "osoba" : totalPassengers < 5 ? "osoby" : "osob"}
-                                            {request.children > 0 && (
-                                                <span className="text-tertiary"> (w tym {request.children} {request.children === 1 ? "dziecko" : "dzieci"})</span>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-[15px] font-[600] text-ink truncate leading-snug">{originName}</p>
+                                            {waypointsCount > 0 && (
+                                                <p className="text-[11px] text-tertiary my-[3px]">
+                                                    + {waypointsCount} {waypointsCount === 1 ? "przystanek" : waypointsCount < 5 ? "przystanki" : "przystanków"}
+                                                </p>
                                             )}
-                                        </span>
+                                            <p className="text-[15px] font-[600] text-ink truncate leading-snug mt-1">{destName}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Status badge */}
+                                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full shrink-0 border ${statusInfo.bg} ${statusInfo.border}`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusInfo.dot} ${request.status === "published" && !hasOffers ? "animate-pulse" : ""}`}/>
+                                        <span className={`text-[12px] font-[600] ${statusInfo.text} whitespace-nowrap`}>{statusInfo.label}</span>
                                     </div>
                                 </div>
 
-                                {/* Dol: opcje + czas zlozenia */}
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        {activeOptions.map(([key, label]) => (
-                                            <span key={key} className={featureBadge}>{label}</span>
-                                        ))}
-                                        {request.status === "published" && (() => {
-                                            const { label, expired, urgent } = formatOfferExpiry(request.offerExpiresAt);
-                                            if (!label) return null;
-                                            if (expired) return <span className="text-[12px] font-[500] bg-danger-bg text-danger px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
-                                            if (urgent) return <span className="text-[12px] font-[500] bg-warning-bg text-warning px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
-                                            return <span className="text-[12px] font-[500] bg-surface text-secondary px-2 py-0.5 rounded-[4px]">Przyjmowanie ofert: {label}</span>;
-                                        })()}
-                                    </div>
-                                    <span className="text-tertiary text-[13px] shrink-0 ml-4">
-                                        {getTimeAgo(request.createdAt)}
+                                {/* Meta */}
+                                <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[13px] text-secondary">
+                                    <span>{formatDatePL(request.date)}</span>
+                                    <span className="text-line">·</span>
+                                    <span>{request.time}</span>
+                                    <span className="text-line">·</span>
+                                    <span>
+                                        {totalPassengers} {totalPassengers === 1 ? "osoba" : totalPassengers < 5 ? "osoby" : "osób"}
+                                        {request.children > 0 && <span className="text-tertiary"> (w tym {request.children} {request.children === 1 ? "dziecko" : "dzieci"})</span>}
                                     </span>
+                                    {activeOptions.length > 0 && (
+                                        <>
+                                            <span className="text-line">·</span>
+                                            <span className="flex items-center gap-1">
+                                                {activeOptions.map(([key, label]) => (
+                                                    <span key={key} className={featureBadge}>{label}</span>
+                                                ))}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Dolny pasek */}
+                                <div className="mt-3.5 pt-3.5 border-t border-surface flex items-center justify-between gap-4">
+                                    <div className="text-[12px]">
+                                        {expiry && expiry.label && (
+                                            expiry.expired
+                                                ? <span className="text-danger font-[500]">Przyjmowanie ofert: {expiry.label}</span>
+                                                : expiry.urgent
+                                                ? <span className="text-warning font-[500]">Przyjmowanie ofert: {expiry.label}</span>
+                                                : <span className="text-tertiary">Przyjmowanie ofert: {expiry.label}</span>
+                                        )}
+                                        {!expiry?.label && isDraft && (
+                                            <span className="text-tertiary">Wersja robocza — nie opublikowano</span>
+                                        )}
+                                    </div>
+                                    <span className="text-tertiary text-[12px] shrink-0">{getTimeAgo(request.createdAt)}</span>
                                 </div>
                             </Link>
                         );
